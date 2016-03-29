@@ -1,0 +1,15 @@
+application init()
+
+project.ANDROID_HOME params
+
+SimpleActionEvent() ??
+
+test app doesnt work out of the box
+
+SampleActivityEventListener() ???
+
+example of creating Action
+
+example of how to call.
+
+what exactly is helper methods? dont make them optional. just tell users how to use it. give less options.

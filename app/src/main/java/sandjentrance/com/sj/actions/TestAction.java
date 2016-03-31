@@ -1,4 +1,4 @@
-package sandjentrance.com.sj;
+package sandjentrance.com.sj.actions;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -17,6 +17,7 @@ import com.edisonwang.ps.lib.Action;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
+
 
 /**
  * Created by toidiu on 3/28/16.
@@ -37,10 +38,9 @@ import com.edisonwang.ps.lib.EventServiceImpl;
 //                @ParcelableClassField(name = "message", kind = @Kind(clazz = String.class))
 //        })
 //})
-public class TestAction implements Action {
+public class TestAction extends BaseAction {
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
-        Log.d("adf", "asdf");
         return new TestActionEventSuccess();
     }
 

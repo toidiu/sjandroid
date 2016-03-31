@@ -1,15 +1,15 @@
-application init()
+Mention that Project.ANDROID_HOME params need to be set.
 
-project.ANDROID_HOME params
+Test app doesnt work out of the box.
 
-SimpleActionEvent() ??
-
-test app doesnt work out of the box
-
-SampleActivityEventListener() ???
+SampleActivityEventListener() ??? Mention that the EventListener class is generate in the Activity.
 
 example of creating Action
 
 example of how to call.
 
-what exactly is helper methods? dont make them optional. just tell users how to use it. give less options.
+What is the RequestActionHelperFactory?
+
+How to pass in non-parceable / non-serialable objects into an Action?
+
+How to create an abstract BaseAction class?

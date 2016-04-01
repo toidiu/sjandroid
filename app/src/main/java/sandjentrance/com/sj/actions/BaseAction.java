@@ -3,12 +3,7 @@ package sandjentrance.com.sj.actions;
 import android.content.Context;
 import android.os.Bundle;
 
-import com.edisonwang.ps.annotations.ClassField;
-import com.edisonwang.ps.annotations.EventClass;
-import com.edisonwang.ps.annotations.EventProducer;
-import com.edisonwang.ps.annotations.Kind;
 import com.edisonwang.ps.annotations.RequestAction;
-import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.Action;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
@@ -18,7 +13,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import javax.inject.Inject;
 
 import sandjentrance.com.sj.SJApplication;
-import sandjentrance.com.sj.actions.BaseAction_.PsBaseAction;
 import sandjentrance.com.sj.utils.Prefs;
 
 

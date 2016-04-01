@@ -55,6 +55,10 @@ public class ListChildrenAction extends BaseAction {
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
 
+        if (credential.getSelectedAccountName() == null) {
+            return new ListChildrenActionEventFailure();
+        }
+
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         driveService = new Drive.Builder(
@@ -74,15 +78,25 @@ public class ListChildrenAction extends BaseAction {
     }
 
     private List<String> getDataFromApi() throws IOException {
+        String projId = "'0Bx-nVlmnGRT3b3hfMGhPLWVKYkE'";
+
         // Get a list of up to 10 files.
         List<String> fileInfo = new ArrayList<String>();
 
         FileList result = driveService.files().list()
-                .setQ("name contains 'SJ Jobs'")
+//                .setQ("name contains 'SJ Jobs'")
+                .setQ(projId + " in parents")
                 .setSpaces("drive")
                 .setFields("nextPageToken, files(id, name, modifiedTime, owners)")
                 .setPageSize(10)
+//                .setMaxResults(10)
                 .execute();
+
+//        ChildList root = driveService.children()
+//                .list("root")
+//                .setFields("nextPageToken, files(id, name, modifiedTime, owners)")
+//                .execute();
+//        List<ChildReference> items = root.getItems();
 
         List<File> files = result.getFiles();
         if (files != null) {

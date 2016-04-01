@@ -8,35 +8,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import sandjentrance.com.sj.actions.ListChildrenAction;
 import sandjentrance.com.sj.actions.ListChildrenActionEventFailure;
@@ -54,13 +36,11 @@ public class MainActivity extends BaseActivity {
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     ProgressDialog mProgress;
+    private TextView mOutputText;
     MainActivityEventListener eventListener = new MainActivityEventListener() {
         @Override
         public void onEventMainThread(ListChildrenActionEventSuccess event) {
-            Toast.makeText(MainActivity.this, event.results.toString(), Toast.LENGTH_SHORT).show();
-
             mOutputText.setText(TextUtils.join("\n", event.results));
-
         }
 
         @Override
@@ -73,7 +53,6 @@ public class MainActivity extends BaseActivity {
 
         }
     };
-    private TextView mOutputText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,8 +140,7 @@ public class MainActivity extends BaseActivity {
                         prefs.setUser(accountName);
 
                         mOutputText.setText(accountName);
-
-                        new MakeRequestTask(credential).execute();
+                        PennStation.requestAction(PsListChildrenAction.helper());
                     }
                 } else if (resultCode == RESULT_CANCELED) {
                     mOutputText.setText("Account unspecified.");
@@ -183,10 +161,7 @@ public class MainActivity extends BaseActivity {
             chooseAccount();
         } else {
             if (isDeviceOnline()) {
-//                new MakeRequestTask(credential).execute();
                 PennStation.requestAction(PsListChildrenAction.helper());
-//                PennStation.requestAction(PsTestAction.helper());
-
             } else {
                 mOutputText.setText("No network connection available.");
             }
@@ -243,91 +218,4 @@ public class MainActivity extends BaseActivity {
         dialog.show();
     }
 
-
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
-        private com.google.api.services.drive.Drive driveService = null;
-        private Exception mLastError = null;
-
-        public MakeRequestTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            driveService = new com.google.api.services.drive.Drive.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Drive API Android Quickstart")
-                    .build();
-        }
-
-        @Override
-        protected List<String> doInBackground(Void... params) {
-            try {
-                return getDataFromApi();
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
-        }
-
-        private List<String> getDataFromApi() throws IOException {
-            // Get a list of up to 10 files.
-            List<String> fileInfo = new ArrayList<String>();
-
-            FileList result = driveService.files().list()
-                    .setQ("name contains 'SJ Jobs'")
-                    .setSpaces("drive")
-                    .setFields("nextPageToken, files(id, name, modifiedTime, owners)")
-                    .setPageSize(10)
-                    .execute();
-
-            List<File> files = result.getFiles();
-            if (files != null) {
-                for (File file : files) {
-                    fileInfo.add(String.format("%s (%s)\n",
-                            file.getName(), file.getId()));
-//                    com.google.api.services.drive.model.FileList.
-//                    fileInfo.add(file.getOwners().toString());
-                }
-            }
-            return fileInfo;
-        }
-
-
-        @Override
-        protected void onPreExecute() {
-            mOutputText.setText("");
-            mProgress.show();
-        }
-
-        @Override
-        protected void onPostExecute(List<String> output) {
-            mProgress.hide();
-            if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
-            } else {
-                output.add(0, "Data retrieved using the Drive API:");
-                mOutputText.setText(TextUtils.join("\n", output));
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mProgress.hide();
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
-                } else {
-                    mOutputText.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
-                }
-            } else {
-                mOutputText.setText("Request cancelled.");
-            }
-        }
-    }
 }

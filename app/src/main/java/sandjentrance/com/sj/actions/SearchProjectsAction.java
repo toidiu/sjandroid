@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
 
+import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Kind;
@@ -23,6 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sandjentrance.com.sj.actions.SearchProjectsAction_.PsSearchProjectsAction;
+import sandjentrance.com.sj.models.FileObj;
+
 
 /**
  * Created by toidiu on 3/28/16.
@@ -30,82 +34,69 @@ import java.util.List;
 @RequestAction
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "results", kind = @Kind(clazz = String[].class))
+                @ParcelableClassField(name = "results", kind = @Kind(clazz = FileObj[].class))
         }),
         @EventClass(classPostFix = "Failure")
 })
-@RequestActionHelper()
-//variables = {
-//        @ClassField(name = "cred", kind = @Kind(clazz = GoogleAccountCredential.class), required = true)
-//}
-
-//@EventProducer(generated = {
-//        @EventClass(classPostFix = "Success", fields = {
-//                @ParcelableClassField(name = "results", kind = @Kind(clazz = Tumblr.Post[].class))
-//        }),
-//        @EventClass(classPostFix = "Failure", fields = {
-//                @ParcelableClassField(name = "message", kind = @Kind(clazz = String.class))
-//        })
-//})
-public class ListChildrenAction extends BaseAction {
+@RequestActionHelper(variables = {
+        @ClassField(name = "searchName", kind = @Kind(clazz = String.class), required = true)
+})
+public class SearchProjectsAction extends BaseAction {
 
     private Drive driveService;
+
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
+        SearchProjectsActionHelper helper = PsSearchProjectsAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
 
         if (credential.getSelectedAccountName() == null) {
-            return new ListChildrenActionEventFailure();
+            return new SearchProjectsActionEventFailure();
         }
 
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         driveService = new Drive.Builder(
                 transport, jsonFactory, credential)
-                .setApplicationName("Drive API Android Quickstart")
+                .setApplicationName("SJ")
                 .build();
 
         try {
-            List<String> dataFromApi = getDataFromApi();
-            String[] array = dataFromApi.toArray(new String[dataFromApi.size()]);
-            return new ListChildrenActionEventSuccess(array);
+            List<FileObj> dataFromApi = getDataFromApi(helper.searchName());
+            FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
+            return new SearchProjectsActionEventSuccess(array);
         } catch (IOException e) {
             e.printStackTrace();
-            return new ListChildrenActionEventFailure();
+            return new SearchProjectsActionEventFailure();
         }
 
     }
 
-    private List<String> getDataFromApi() throws IOException {
-        String projId = "'0Bx-nVlmnGRT3b3hfMGhPLWVKYkE'";
+    private List<FileObj> getDataFromApi(String searchName) throws IOException {
 
-        // Get a list of up to 10 files.
-        List<String> fileInfo = new ArrayList<String>();
+        List<FileObj> retFile = new ArrayList<>();
 
         FileList result = driveService.files().list()
-//                .setQ("name contains 'SJ Jobs'")
-                .setQ(projId + " in parents")
+                .setQ("name contains '" + searchName + "'"
+                                //// FIXME: 4/2/16 abstract this to search any folder not just the PROJS
+                                + " and " + FileObj.PROJ_ID + " in parents"
+                                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'"
+                )
                 .setSpaces("drive")
-                .setFields("nextPageToken, files(id, name, modifiedTime, owners)")
+                .setFields("nextPageToken, files(id, name, modifiedTime, owners, mimeType, parents)")
                 .setPageSize(10)
-//                .setMaxResults(10)
                 .execute();
 
-//        ChildList root = driveService.children()
-//                .list("root")
-//                .setFields("nextPageToken, files(id, name, modifiedTime, owners)")
-//                .execute();
-//        List<ChildReference> items = root.getItems();
 
         List<File> files = result.getFiles();
         if (files != null) {
-            for (File file : files) {
-                fileInfo.add(String.format("%s (%s)\n",
-                        file.getName(), file.getId()));
+            for (File f : files) {
+                FileObj object = new FileObj(f);
+                retFile.add(object);
             }
         }
-        return fileInfo;
+        return retFile;
     }
 
 

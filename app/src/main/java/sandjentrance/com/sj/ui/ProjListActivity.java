@@ -22,18 +22,18 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
-import sandjentrance.com.sj.actions.SearchProjectsAction;
-import sandjentrance.com.sj.actions.SearchProjectsActionEventFailure;
-import sandjentrance.com.sj.actions.SearchProjectsActionEventSuccess;
-import sandjentrance.com.sj.actions.SearchProjectsAction_.PsSearchProjectsAction;
+import sandjentrance.com.sj.actions.FindFolderChildrenAction;
+import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
+import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
+import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.SearchProjAdapter;
 
 @EventListener(producers = {
-        SearchProjectsAction.class
+        FindFolderChildrenAction.class
 })
-public class SearchProjectsActivity extends BaseActivity implements SearchProjAdapter.ProjListInterface {
+public class ProjListActivity extends BaseActivity implements SearchProjAdapter.ProjListInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -49,14 +49,15 @@ public class SearchProjectsActivity extends BaseActivity implements SearchProjAd
     private SearchProjAdapter adapter;
 
     //region PennStation----------------------
-    SearchProjectsActivityEventListener eventListener = new SearchProjectsActivityEventListener() {
+    ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
         @Override
-        public void onEventMainThread(SearchProjectsActionEventFailure event) {
+        public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
             progress.setVisibility(View.GONE);
+
         }
 
         @Override
-        public void onEventMainThread(SearchProjectsActionEventSuccess event) {
+        public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
             progress.setVisibility(View.GONE);
             adapter.refreshView(Arrays.asList(event.results));
         }
@@ -67,7 +68,7 @@ public class SearchProjectsActivity extends BaseActivity implements SearchProjAd
 
     //region Lifecycle----------------------
     public static Intent getInstance(Context context) {
-        return new Intent(context, SearchProjectsActivity.class);
+        return new Intent(context, ProjListActivity.class);
     }
 
     @Override
@@ -83,7 +84,7 @@ public class SearchProjectsActivity extends BaseActivity implements SearchProjAd
     //region Init----------------------
     private void initData() {
         if (BuildConfig.DEBUG) {
-            PennStation.requestAction(PsSearchProjectsAction.helper("Ralph"));
+            PennStation.requestAction(PsFindFolderChildrenAction.helper("Ralph", prefs.getBaseFolderId(), true));
             progress.setVisibility(View.VISIBLE);
         }
     }
@@ -110,7 +111,7 @@ public class SearchProjectsActivity extends BaseActivity implements SearchProjAd
                     if (snackbar != null) {
                         snackbar.dismiss();
                     }
-                    PennStation.requestAction(PsSearchProjectsAction.helper(searchName));
+                    PennStation.requestAction(PsFindFolderChildrenAction.helper(searchName, prefs.getBaseFolderId(), true));
                     progress.setVisibility(View.VISIBLE);
                 }
             }
@@ -136,7 +137,7 @@ public class SearchProjectsActivity extends BaseActivity implements SearchProjAd
     @Override
     public void projClicked(FileObj fileObj) {
         Snackbar.make(recyclerView, fileObj.id, Snackbar.LENGTH_SHORT).show();
-        startActivity(ProjectActivity.getInstance(this));
+        startActivity(ProjectDetailActivity.getInstance(this, fileObj));
     }
     //endregion
 

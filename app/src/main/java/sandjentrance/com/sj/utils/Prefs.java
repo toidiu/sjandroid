@@ -13,6 +13,7 @@ public class Prefs {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=USER
     public static final String USER = "USER";
+    public static final String BASE_FOLDER_ID = "BASE_FOLDER_ID";
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private SharedPreferences prefs;
@@ -21,16 +22,25 @@ public class Prefs {
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
+    //-~-~--~-~--~-~--~-~--~-~--~-~--~-~--~-~--~-~-USER
     @Nullable
     public String getUser() {
         return prefs.getString(USER, null);
     }
 
-    //-~-~--~-~--~-~--~-~--~-~--~-~--~-~--~-~--~-~-USER
     public void setUser(String user) {
         prefs.edit().putString(USER, user).apply();
     }
 
+
+    @Nullable
+    public String getBaseFolderId() {
+        return prefs.getString(BASE_FOLDER_ID, null);
+    }
+
+    public void setBaseFolderId(String user) {
+        prefs.edit().putString(BASE_FOLDER_ID, user).apply();
+    }
 
 }
 

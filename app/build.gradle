@@ -96,6 +96,8 @@ dependencies {
     compile('com.google.apis:google-api-services-drive:v3-rev6-1.20.0') {
         exclude group: 'org.apache.httpcomponents'
     }
+    //VIEW-------------------------
+    compile 'de.hdodenhof:circleimageview:2.0.0'
     //OTHER-------------------------
 //    compile 'de.greenrobot:eventbus:2.4.0'
 //    compile 'com.google.android.gms:play-services-location:8.4.0'

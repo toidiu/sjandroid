@@ -31,8 +31,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.SearchProjectsActivity" />
-        <activity android:name=".ui.ProjectActivity" />
+        <activity android:name=".ui.ProjListActivity" />
+        <activity android:name=".ui.FindBaseProjActivity" />
+        <activity android:name=".ui.ProjectDetailActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"

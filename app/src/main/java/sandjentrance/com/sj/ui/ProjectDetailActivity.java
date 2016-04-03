@@ -6,25 +6,35 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
+import org.parceler.Parcels;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
-import sandjentrance.com.sj.actions.TestAction;
+import sandjentrance.com.sj.actions.FindFolderChildrenAction;
+import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
+import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
+import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.TestActionEventSuccess;
+import sandjentrance.com.sj.models.FileObj;
 
 @EventListener(producers = {
-        TestAction.class
+        FindFolderChildrenAction.class
 })
-public class ProjectActivity extends BaseActivity {
+public class ProjectDetailActivity extends BaseActivity {
 
     //region Fields----------------------
+    //~=~=~=~=~=~=~=~=~=~=~=~=Constants
+    public static final String FILE_OBJ = "FILE_OBJ";
     //~=~=~=~=~=~=~=~=~=~=~=~=View
+    @Bind(R.id.pm_name)
+    TextView pmNameView;
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
     @Bind(R.id.progress)
@@ -34,18 +44,26 @@ public class ProjectActivity extends BaseActivity {
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
 
     //region PennStation----------------------
-    ProjectActivityEventListener eventListener = new ProjectActivityEventListener() {
+    ProjectDetailActivityEventListener eventListener = new ProjectDetailActivityEventListener() {
         @Override
-        public void onEventMainThread(TestActionEventSuccess event) {
+        public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
+
+        }
+
+        @Override
+        public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
 
         }
     };
+    private FileObj fileObj;
     //endregion
     //endregion
 
     //region Lifecycle----------------------
-    public static Intent getInstance(Context context) {
-        return new Intent(context, ProjectActivity.class);
+    public static Intent getInstance(Context context, FileObj fileObj) {
+        Intent intent = new Intent(context, ProjectDetailActivity.class);
+        intent.putExtra(FILE_OBJ, Parcels.wrap(fileObj));
+        return intent;
     }
 
     @Override
@@ -54,17 +72,20 @@ public class ProjectActivity extends BaseActivity {
         setContentView(R.layout.proj_activity);
         ButterKnife.bind(this);
 
+        fileObj = Parcels.unwrap(getIntent().getParcelableExtra(FILE_OBJ));
+
         initData();
         initView();
     }
 
     //region Init----------------------
     private void initData() {
+        PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
     }
 
     private void initView() {
-        toolbar.setTitle("Project");
-
+        toolbar.setTitle(fileObj.title);
+        pmNameView.setText(fileObj.owner);
     }
     //endregion
 

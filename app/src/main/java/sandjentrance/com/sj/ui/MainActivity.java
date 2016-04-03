@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.edisonwang.ps.lib.PennStation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
@@ -84,7 +83,7 @@ public class MainActivity extends BaseActivity {
                         credential.setSelectedAccountName(accountName);
                         prefs.setUser(accountName);
 
-                        startSearchActivity();
+                        startBaseProjActivity();
                     }
                 } else if (resultCode == RESULT_CANCELED) {
                     textView.setText("Account unspecified.");
@@ -107,7 +106,7 @@ public class MainActivity extends BaseActivity {
             chooseAccount();
         } else {
             if (NetworkUtils.isDeviceOnline(this)) {
-                startSearchActivity();
+                startBaseProjActivity();
             } else {
                 textView.setText("No network connection available.");
             }
@@ -140,8 +139,13 @@ public class MainActivity extends BaseActivity {
     //endregion
 
     //region Helper----------------------
-    void startSearchActivity() {
-        startActivity(SearchProjectsActivity.getInstance(this));
+    void startBaseProjActivity() {
+        if (prefs.getBaseFolderId()==null)
+        {
+            startActivity(FindBaseProjActivity.getInstance(this));
+        }else {
+            startActivity(ProjListActivity.getInstance(this));
+        }
         finish();
     }
     //endregion

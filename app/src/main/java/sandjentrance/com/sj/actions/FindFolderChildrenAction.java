@@ -1,6 +1,7 @@
 package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
@@ -17,14 +18,11 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import sandjentrance.com.sj.actions.SearchProjectsAction_.PsSearchProjectsAction;
+import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.models.FileObj;
 
 
@@ -32,16 +30,18 @@ import sandjentrance.com.sj.models.FileObj;
  * Created by toidiu on 3/28/16.
  */
 @RequestAction
+@RequestActionHelper(variables = {
+        @ClassField(name = "searchName", kind = @Kind(clazz = String.class), required = true),
+        @ClassField(name = "parentId", kind = @Kind(clazz = String.class), required = true),
+        @ClassField(name = "folderOnly", kind = @Kind(clazz = boolean.class), required = true)
+})
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
                 @ParcelableClassField(name = "results", kind = @Kind(clazz = FileObj[].class))
         }),
         @EventClass(classPostFix = "Failure")
 })
-@RequestActionHelper(variables = {
-        @ClassField(name = "searchName", kind = @Kind(clazz = String.class), required = true)
-})
-public class SearchProjectsAction extends BaseAction {
+public class FindFolderChildrenAction extends BaseAction {
 
     private Drive driveService;
 
@@ -49,10 +49,10 @@ public class SearchProjectsAction extends BaseAction {
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
-        SearchProjectsActionHelper helper = PsSearchProjectsAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+        FindFolderChildrenActionHelper helper = PsFindFolderChildrenAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
 
         if (credential.getSelectedAccountName() == null) {
-            return new SearchProjectsActionEventFailure();
+            return new FindFolderChildrenActionEventFailure();
         }
 
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -62,42 +62,22 @@ public class SearchProjectsAction extends BaseAction {
                 .setApplicationName("SJ")
                 .build();
 
+        String search = "name contains '" + helper.searchName() + "'"
+                + " and " + "'" + helper.parentId() + "'" + " in parents ";
+        if (helper.folderOnly()) {
+            search += " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
+        }
+
         try {
-            List<FileObj> dataFromApi = getDataFromApi(helper.searchName());
+            List<FileObj> dataFromApi = getDataFromApi(driveService, search);
             FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            return new SearchProjectsActionEventSuccess(array);
+            Log.d("------", String.valueOf(array.length));
+            return new FindFolderChildrenActionEventSuccess(array);
         } catch (IOException e) {
             e.printStackTrace();
-            return new SearchProjectsActionEventFailure();
+            return new FindFolderChildrenActionEventFailure();
         }
 
     }
-
-    private List<FileObj> getDataFromApi(String searchName) throws IOException {
-
-        List<FileObj> retFile = new ArrayList<>();
-
-        FileList result = driveService.files().list()
-                .setQ("name contains '" + searchName + "'"
-                                //// FIXME: 4/2/16 abstract this to search any folder not just the PROJS
-                                + " and " + FileObj.PROJ_ID + " in parents"
-                                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'"
-                )
-                .setSpaces("drive")
-                .setFields("nextPageToken, files(id, name, modifiedTime, owners, mimeType, parents)")
-                .setPageSize(10)
-                .execute();
-
-
-        List<File> files = result.getFiles();
-        if (files != null) {
-            for (File f : files) {
-                FileObj object = new FileObj(f);
-                retFile.add(object);
-            }
-        }
-        return retFile;
-    }
-
 
 }

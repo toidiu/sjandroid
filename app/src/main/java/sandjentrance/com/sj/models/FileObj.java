@@ -5,14 +5,17 @@ import android.support.annotation.NonNull;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.User;
 
+import org.parceler.Parcel;
+
 import java.util.List;
 
 /**
  * Created by toidiu on 4/2/16.
  */
+@Parcel
 public class FileObj {
     // FIXME: 4/2/16 New activity to search for the project folder!
-    public static final String PROJ_ID = " '0Bx-nVlmnGRT3b3hfMGhPLWVKYkE' ";
+//    public static final String PROJ_ID = " '0Bx-nVlmnGRT3b3hfMGhPLWVKYkE' ";
     public static final String FOLDER_MIME = "application/vnd.google-apps.folder";
 
 
@@ -39,21 +42,25 @@ public class FileObj {
         this.lastModified = f.getModifiedTime().toString();
 
         List<User> owners = f.getOwners();
-        if (owners.size() > 0) {
+        if (owners!=null && owners.size() > 0) {
             this.owner = owners.get(0).getDisplayName();
         }
         List<String> parents = f.getParents();
-        if (parents.size() > 0) {
+        if (parents!=null && parents.size() > 0) {
             this.parent = parents.get(0);
         }
 
+    }
+
+    @SuppressWarnings("unused")
+    public FileObj() {
     }
 
     public static boolean isFolder(@NonNull String mime) {
         return mime.equals(FOLDER_MIME);
     }
 
-    public static boolean isBaseFolder(@NonNull String id) {
-        return id.equals(PROJ_ID);
+    public static boolean isBaseFolder(@NonNull String id, @NonNull String projId) {
+        return id.equals(projId);
     }
 }

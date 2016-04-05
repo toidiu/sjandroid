@@ -12,12 +12,16 @@ import sandjentrance.com.sj.R;
 public class ProjectViewHolder extends RecyclerView.ViewHolder {
 
     public final View containerView;
+    public final View claimContainerView;
     public final TextView titleView;
+    public final TextView claimUserView;
 
     public ProjectViewHolder(View itemView) {
         super(itemView);
 
         containerView = itemView.findViewById(R.id.container);
+        claimContainerView = itemView.findViewById(R.id.claim_container);
         titleView = (TextView) itemView.findViewById(R.id.title);
+        claimUserView = (TextView) itemView.findViewById(R.id.claim_user);
     }
 }

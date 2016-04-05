@@ -4,7 +4,10 @@ package sandjentrance.com.sj.ui;
 import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -18,12 +21,16 @@ import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.utils.NetworkUtils;
 
+import static android.Manifest.permission.READ_CONTACTS;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 public class MainActivity extends BaseActivity {
+    public static final int PERM_REQUEST_CONTACT = 1236;
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
-    static final int REQUEST_ACCOUNT_PICKER = 1000;
-    static final int REQUEST_AUTHORIZATION = 1001;
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
+    static final int REQUEST_ACCOUNT_PICKER = 9846;
+    static final int REQUEST_AUTHORIZATION = 3791;
+    static final int REQUEST_GOOGLE_PLAY_SERVICES = 4232;
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.progress)
     ProgressBar progress;
@@ -41,21 +48,16 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
 
-        // FIXME: 4/2/16 init view
         toolbar.setTitle("Login");
-
-        //fixme as for contact permission on M
+        if (!isPermissionsGranted()) {
+            requestPermission();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (isGooglePlayServicesAvailable()) {
-            refreshResults();
-        } else {
-            textView.setText("Google Play Services required: after installing, close and relaunch this app.");
-        }
+        startAccountChooser();
     }
 
     @Override
@@ -86,7 +88,7 @@ public class MainActivity extends BaseActivity {
                         startBaseProjActivity();
                     }
                 } else if (resultCode == RESULT_CANCELED) {
-                    textView.setText("Account unspecified.");
+                    textView.setText("Specify an account to proceed.");
                 }
                 break;
             case REQUEST_AUTHORIZATION:
@@ -98,9 +100,39 @@ public class MainActivity extends BaseActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERM_REQUEST_CONTACT:
+                if (grantResults[0] == PERMISSION_GRANTED) {
+//                    startAccountChooser();
+                } else {
+                    Snackbar make = Snackbar.make(progress, "App requires permissions to proceed.", Snackbar.LENGTH_INDEFINITE);
+                    make.setAction("Grant Permission", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            requestPermission();
+                        }
+                    });
+                    make.setActionTextColor(getResources().getColor(R.color.snackbar_text));
+                    make.show();
+                }
+        }
+    }
     //endregion
 
     //region GoogleHelper----------------------
+    private void startAccountChooser() {
+        if (isPermissionsGranted()) {
+            if (isGooglePlayServicesAvailable()) {
+                refreshResults();
+            } else {
+                textView.setText("Google Play Services required: after installing, close and relaunch this app.");
+            }
+        }
+    }
+
     private void refreshResults() {
         if (credential.getSelectedAccountName() == null) {
             chooseAccount();
@@ -118,7 +150,6 @@ public class MainActivity extends BaseActivity {
         startActivityForResult(
                 credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
     }
-
 
     private boolean isGooglePlayServicesAvailable() {
         final int connectionStatusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -139,13 +170,22 @@ public class MainActivity extends BaseActivity {
     //endregion
 
     //region Helper----------------------
-    void startBaseProjActivity() {
-        if (prefs.getBaseFolderId()==null)
-        {
-            startActivity(FindBaseProjActivity.getInstance(this));
-        }else {
-            startActivity(ProjListActivity.getInstance(this));
+    private boolean isPermissionsGranted() {
+        if (ActivityCompat.checkSelfPermission(this, READ_CONTACTS) == PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
         }
+    }
+
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{READ_CONTACTS}, PERM_REQUEST_CONTACT);
+        }
+    }
+
+    void startBaseProjActivity() {
+        startActivity(FindBaseProjActivity.getInstance(this));
         finish();
     }
     //endregion

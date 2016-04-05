@@ -9,31 +9,32 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.FindBaseFolderAction;
 import sandjentrance.com.sj.actions.FindBaseFolderActionEventFailure;
 import sandjentrance.com.sj.actions.FindBaseFolderActionEventSuccess;
 import sandjentrance.com.sj.actions.FindBaseFolderAction_.PsFindBaseFolderAction;
+import sandjentrance.com.sj.actions.SetupDriveAction;
+import sandjentrance.com.sj.actions.SetupDriveActionEventFailure;
+import sandjentrance.com.sj.actions.SetupDriveActionEventSuccess;
+import sandjentrance.com.sj.actions.SetupDriveAction_.PsSetupDriveAction;
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
-import sandjentrance.com.sj.ui.extras.SearchProjAdapter;
+import sandjentrance.com.sj.ui.extras.FileListAdapter;
 
 @EventListener(producers = {
-        FindBaseFolderAction.class
+        FindBaseFolderAction.class,
+        SetupDriveAction.class
 })
-public class FindBaseProjActivity extends BaseActivity implements SearchProjAdapter.ProjListInterface {
+public class FindBaseProjActivity extends BaseActivity implements FileListAdapter.FileListInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -43,16 +44,15 @@ public class FindBaseProjActivity extends BaseActivity implements SearchProjAdap
     ProgressBar progress;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
-    @Bind(R.id.search)
-    EditText searchView;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private SearchProjAdapter adapter;
+    private FileListAdapter adapter;
 
     //region PennStation----------------------
     FindBaseProjActivityEventListener eventListener = new FindBaseProjActivityEventListener() {
         @Override
         public void onEventMainThread(FindBaseFolderActionEventFailure event) {
             progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
@@ -60,9 +60,20 @@ public class FindBaseProjActivity extends BaseActivity implements SearchProjAdap
             progress.setVisibility(View.GONE);
             adapter.refreshView(Arrays.asList(event.results));
         }
+
+        @Override
+        public void onEventMainThread(SetupDriveActionEventSuccess event) {
+            progress.setVisibility(View.GONE);
+            startProjListActivity();
+        }
+
+        @Override
+        public void onEventMainThread(SetupDriveActionEventFailure event) {
+            progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
+        }
     };
     //endregion
-    private Snackbar snackbar;
     //endregion
 
     //region Lifecycle----------------------
@@ -82,7 +93,9 @@ public class FindBaseProjActivity extends BaseActivity implements SearchProjAdap
 
     //region Init----------------------
     private void initData() {
-        if (BuildConfig.DEBUG) {
+        if (prefs.getBaseFolderId() != null) {
+            startProjListActivity();
+        } else {
             PennStation.requestAction(PsFindBaseFolderAction.helper("Jobs"));
             progress.setVisibility(View.VISIBLE);
         }
@@ -94,28 +107,8 @@ public class FindBaseProjActivity extends BaseActivity implements SearchProjAdap
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new SearchProjAdapter(this);
+        adapter = new FileListAdapter(this);
         recyclerView.setAdapter(adapter);
-
-        DelayedTextWatcher.OnTextChanged projSearchTextChanged = new DelayedTextWatcher.OnTextChanged() {
-            @Override
-            public void onTextChanged(String text) {
-                String searchName = searchView.getText().toString();
-                if (searchName.isEmpty()) {
-                    adapter.refreshView(new ArrayList<FileObj>());
-                } else if (searchName.length() < 3) {
-                    snackbar = Snackbar.make(recyclerView, R.string.search_proj_hint, Snackbar.LENGTH_INDEFINITE);
-                    snackbar.show();
-                } else {
-                    if (snackbar != null) {
-                        snackbar.dismiss();
-                    }
-                    PennStation.requestAction(PsFindBaseFolderAction.helper(searchName));
-                    progress.setVisibility(View.VISIBLE);
-                }
-            }
-        };
-        DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 300);
     }
     //endregion
 
@@ -134,10 +127,19 @@ public class FindBaseProjActivity extends BaseActivity implements SearchProjAdap
 
     //region Interface----------------------
     @Override
-    public void projClicked(FileObj fileObj) {
-//        Snackbar.make(recyclerView, fileObj.id, Snackbar.LENGTH_SHORT).show();
-        prefs.setBaseFolderId(fileObj.id);
+    public void fileClicked(FileObj fileObj) {
+        PennStation.requestAction(PsSetupDriveAction.helper(fileObj.id));
+        progress.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void fileLongClicked(FileObj fileObj) {
+
+    }
+
+    private void startProjListActivity() {
         startActivity(ProjListActivity.getInstance(this));
+        finish();
     }
     //endregion
 

@@ -7,7 +7,13 @@ import com.google.api.services.drive.model.User;
 
 import org.parceler.Parcel;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import sandjentrance.com.sj.actions.BaseAction;
 
 /**
  * Created by toidiu on 4/2/16.
@@ -21,19 +27,29 @@ public class FileObj {
 
     public String id;
     public String title;
+    public static Comparator<FileObj> FileObjComparator
+            = new Comparator<FileObj>() {
+
+        public int compare(FileObj file1, FileObj file2) {
+
+            String fileName1 = file1.title.toUpperCase();
+            String fileName2 = file2.title.toUpperCase();
+
+            //ascending order
+            return fileName1.compareTo(fileName2);
+
+            //descending order
+            //return fruitName2.compareTo(fruitName1);
+        }
+
+    };
     public String mime;
     public String owner;
     public String lastModified;
     public String parent;
-
-//    public FileObj(String id, String title, String mime, String owner, String lastModified, String parent) {
-//        this.id = id;
-//        this.title = title;
-//        this.mime = mime;
-//        this.owner = owner;
-//        this.lastModified = lastModified;
-//        this.parent = parent;
-//    }
+    @Nullable
+    @android.support.annotation.Nullable
+    public String claimUser;
 
     public FileObj(File f) {
         this.id = f.getId();
@@ -42,14 +58,18 @@ public class FileObj {
         this.lastModified = f.getModifiedTime().toString();
 
         List<User> owners = f.getOwners();
-        if (owners!=null && owners.size() > 0) {
+        if (owners != null && owners.size() > 0) {
             this.owner = owners.get(0).getDisplayName();
         }
         List<String> parents = f.getParents();
-        if (parents!=null && parents.size() > 0) {
+        if (parents != null && parents.size() > 0) {
             this.parent = parents.get(0);
         }
 
+        Map<String, String> properties = f.getProperties();
+        if (properties != null && properties.containsKey(BaseAction.CLAIM_PROPERTY)) {
+            this.claimUser = properties.get(BaseAction.CLAIM_PROPERTY);
+        }
     }
 
     @SuppressWarnings("unused")

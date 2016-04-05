@@ -33,7 +33,8 @@
 
         <activity android:name=".ui.ProjListActivity" />
         <activity android:name=".ui.FindBaseProjActivity" />
-        <activity android:name=".ui.ProjectDetailActivity" />
+        <activity android:name=".ui.ProjDetailActivity" />
+        <activity android:name=".ui.GenericFileListActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"

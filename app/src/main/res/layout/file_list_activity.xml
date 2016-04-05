@@ -23,7 +23,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <include
-        layout="@layout/proj_content"
+        layout="@layout/file_list_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />

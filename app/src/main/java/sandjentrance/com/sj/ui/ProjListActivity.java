@@ -26,14 +26,15 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
-import sandjentrance.com.sj.ui.extras.SearchProjAdapter;
+import sandjentrance.com.sj.ui.extras.FileListAdapter;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class
 })
-public class ProjListActivity extends BaseActivity implements SearchProjAdapter.ProjListInterface {
+public class ProjListActivity extends BaseActivity implements FileListAdapter.FileListInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -46,7 +47,7 @@ public class ProjListActivity extends BaseActivity implements SearchProjAdapter.
     @Bind(R.id.search)
     EditText searchView;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private SearchProjAdapter adapter;
+    private FileListAdapter adapter;
 
     //region PennStation----------------------
     ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
@@ -95,9 +96,10 @@ public class ProjListActivity extends BaseActivity implements SearchProjAdapter.
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new SearchProjAdapter(this);
+        adapter = new FileListAdapter(this);
         recyclerView.setAdapter(adapter);
 
+        searchView.setVisibility(View.VISIBLE);
         DelayedTextWatcher.OnTextChanged projSearchTextChanged = new DelayedTextWatcher.OnTextChanged() {
             @Override
             public void onTextChanged(String text) {
@@ -117,6 +119,7 @@ public class ProjListActivity extends BaseActivity implements SearchProjAdapter.
             }
         };
         DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 300);
+
     }
     //endregion
 
@@ -135,9 +138,13 @@ public class ProjListActivity extends BaseActivity implements SearchProjAdapter.
 
     //region Interface----------------------
     @Override
-    public void projClicked(FileObj fileObj) {
-        Snackbar.make(recyclerView, fileObj.id, Snackbar.LENGTH_SHORT).show();
-        startActivity(ProjectDetailActivity.getInstance(this, fileObj));
+    public void fileClicked(FileObj fileObj) {
+        startActivity(ProjDetailActivity.getInstance(this, fileObj));
+    }
+
+    @Override
+    public void fileLongClicked(FileObj fileObj) {
+
     }
     //endregion
 

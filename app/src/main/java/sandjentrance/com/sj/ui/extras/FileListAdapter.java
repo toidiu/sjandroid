@@ -17,14 +17,14 @@ import sandjentrance.com.sj.views.ProjectViewHolder;
 /**
  * Created by toidiu on 4/2/16.
  */
-public class SearchProjAdapter extends RecyclerView.Adapter {
+public class FileListAdapter extends RecyclerView.Adapter {
 
-    private final ProjListInterface projListInterface;
+    private final FileListInterface fileListInterface;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private List<FileObj> list = new ArrayList<>();
 
-    public SearchProjAdapter(ProjListInterface projListInterface) {
-        this.projListInterface = projListInterface;
+    public FileListAdapter(FileListInterface fileListInterface) {
+        this.fileListInterface = fileListInterface;
     }
 
     @Override
@@ -41,7 +41,23 @@ public class SearchProjAdapter extends RecyclerView.Adapter {
         view.containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                projListInterface.projClicked(item);
+                if (item.mime.equals(FileObj.FOLDER_MIME)) {
+                    fileListInterface.fileClicked(item);
+                }
+                //// FIXME: 4/3/16 check if its a pdf  or picture and open it
+            }
+        });
+
+        if (item.claimUser != null) {
+            view.claimUserView.setText(item.claimUser);
+        } else {
+            view.claimContainerView.setVisibility(View.GONE);
+        }
+        view.containerView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                fileListInterface.fileLongClicked(item);
+                return true;
             }
         });
     }
@@ -57,7 +73,9 @@ public class SearchProjAdapter extends RecyclerView.Adapter {
     }
 
 
-    public interface ProjListInterface {
-        void projClicked(FileObj fileObj);
+    public interface FileListInterface {
+        void fileClicked(FileObj fileObj);
+
+        void fileLongClicked(FileObj fileObj);
     }
 }

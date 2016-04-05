@@ -6,7 +6,6 @@ import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Kind;
-import com.edisonwang.ps.annotations.ParcelableClassField;
 import com.edisonwang.ps.annotations.RequestAction;
 import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
@@ -17,12 +16,11 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
-import java.util.List;
 
-import sandjentrance.com.sj.actions.FindBaseFolderAction_.PsFindBaseFolderAction;
-import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 
 
 /**
@@ -30,28 +28,25 @@ import sandjentrance.com.sj.models.FileObj;
  */
 @RequestAction
 @RequestActionHelper(variables = {
-        @ClassField(name = "searchName", kind = @Kind(clazz = String.class), required = true)
+        @ClassField(name = "fileId", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
-        @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "results", kind = @Kind(clazz = FileObj[].class))
-        }),
+        @EventClass(classPostFix = "Success"),
         @EventClass(classPostFix = "Failure")
 })
 
-public class FindBaseFolderAction extends BaseAction {
+public class ArchiveFileAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private Drive driveService;
 
-
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
-        FindBaseFolderActionHelper helper = PsFindBaseFolderAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+        ArchiveFileActionHelper helper = PsArchiveFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
 
         if (credential.getSelectedAccountName() == null) {
-            return new FindBaseFolderActionEventFailure();
+            return new SetupDriveActionEventFailure();
         }
 
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -61,21 +56,31 @@ public class FindBaseFolderAction extends BaseAction {
                 .setApplicationName("SJ")
                 .build();
 
-        String search = "name contains '" + helper.searchName() + "'"
-                + " and " + "name != '.DS_Store'"
-                + " and " + " sharedWithMe=true "
-                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
-            List<FileObj> dataFromApi = queryFileList(driveService, search);
-            FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            return new FindBaseFolderActionEventSuccess(array);
+            // Retrieve the existing parents to remove
+            File file = driveService.files().get(helper.fileId())
+                    .setFields("parents")
+                    .execute();
+            StringBuilder previousParents = new StringBuilder();
+            for (String parent : file.getParents()) {
+                previousParents.append(parent);
+                previousParents.append(',');
+            }
+            // Move the file to the new folder
+            driveService.files().update(helper.fileId(), null)
+                    .setAddParents(prefs.getArchiveFolderId())
+                    .setRemoveParents(previousParents.toString())
+                    .setFields("id, parents")
+                    .execute();
+
+            return new ArchiveFileActionEventSuccess();
         } catch (IOException e) {
             e.printStackTrace();
-            return new FindBaseFolderActionEventFailure();
+            return new ArchiveFileActionEventFailure();
         }
 
-    }
 
+    }
 
 }

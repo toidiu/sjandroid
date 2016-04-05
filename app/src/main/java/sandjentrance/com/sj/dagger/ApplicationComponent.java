@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.ui.BaseActivity;
+import sandjentrance.com.sj.ui.BaseDialogFrag;
 
 /**
  * Created by toidiu on 12/9/15.
@@ -15,4 +16,5 @@ public interface ApplicationComponent {
     void inject(BaseActivity obj);
 
     void inject(BaseAction obj);
+    void inject(BaseDialogFrag obj);
 }

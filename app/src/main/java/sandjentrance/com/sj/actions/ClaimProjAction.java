@@ -17,12 +17,13 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
 import sandjentrance.com.sj.models.FileObj;
 
 
@@ -31,28 +32,27 @@ import sandjentrance.com.sj.models.FileObj;
  */
 @RequestAction
 @RequestActionHelper(variables = {
-        @ClassField(name = "searchName", kind = @Kind(clazz = String.class), required = true),
-        @ClassField(name = "parentId", kind = @Kind(clazz = String.class), required = true),
-        @ClassField(name = "folderOnly", kind = @Kind(clazz = boolean.class), required = true)
+        @ClassField(name = "fileId", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "results", kind = @Kind(clazz = FileObj[].class))
+                @ParcelableClassField(name = "claimUser", kind = @Kind(clazz = String.class))
         }),
         @EventClass(classPostFix = "Failure")
 })
-public class FindFolderChildrenAction extends BaseAction {
 
+public class ClaimProjAction extends BaseAction {
+
+    //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private Drive driveService;
-
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
-        FindFolderChildrenActionHelper helper = PsFindFolderChildrenAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+        ClaimProjActionHelper helper = PsClaimProjAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
 
         if (credential.getSelectedAccountName() == null) {
-            return new FindFolderChildrenActionEventFailure();
+            return new SetupDriveActionEventFailure();
         }
 
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -62,21 +62,17 @@ public class FindFolderChildrenAction extends BaseAction {
                 .setApplicationName("SJ")
                 .build();
 
-        String search = "name contains '" + helper.searchName() + "'"
-                + " and " + "name != '.DS_Store'"
-                + " and " + "'" + helper.parentId() + "'" + " in parents";
-        if (helper.folderOnly()) {
-            search += " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
-        }
+        File fileMetadata = new File();
+        Map<String, String> prop = new HashMap<>();
+        prop.put(CLAIM_PROPERTY, credential.getSelectedAccountName());
+        fileMetadata.setProperties(prop);
 
         try {
-            List<FileObj> dataFromApi = queryFileList(driveService, search);
-            FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            Arrays.sort(array, FileObj.FileObjComparator);
-            return new FindFolderChildrenActionEventSuccess(array);
+            File file = driveService.files().update(helper.fileId(), fileMetadata).execute();
+            return new ClaimProjActionEventSuccess(credential.getSelectedAccountName());
         } catch (IOException e) {
             e.printStackTrace();
-            return new FindFolderChildrenActionEventFailure();
+            return new ClaimProjActionEventFailure();
         }
 
     }

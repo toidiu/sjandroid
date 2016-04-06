@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 
 /**
@@ -37,6 +38,12 @@ public class AppModule {
                 .setBackOff(new ExponentialBackOff())
                 .setSelectedAccountName(prefs.getUser());
         return credential;
+    }
+
+    @Provides
+    @Singleton
+    MoveFolderHelper provideMoveFolderHelper() {
+        return new MoveFolderHelper();
     }
 
 }

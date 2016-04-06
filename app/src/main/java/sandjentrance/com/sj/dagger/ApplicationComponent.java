@@ -14,7 +14,6 @@ import sandjentrance.com.sj.ui.BaseDialogFrag;
 @Component(modules = {ApiModules.class, AppModule.class, ContextModule.class})
 public interface ApplicationComponent {
     void inject(BaseActivity obj);
-
     void inject(BaseAction obj);
     void inject(BaseDialogFrag obj);
 }

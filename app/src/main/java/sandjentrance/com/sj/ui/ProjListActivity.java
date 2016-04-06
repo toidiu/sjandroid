@@ -22,19 +22,20 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
+import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
-import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
+import sandjentrance.com.sj.ui.extras.FileListInterface;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class
 })
-public class ProjListActivity extends BaseActivity implements FileListAdapter.FileListInterface {
+public class ProjListActivity extends BaseActivity implements FileListInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -46,6 +47,7 @@ public class ProjListActivity extends BaseActivity implements FileListAdapter.Fi
     Toolbar toolbar;
     @Bind(R.id.search)
     EditText searchView;
+
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileListAdapter adapter;
 
@@ -54,7 +56,6 @@ public class ProjListActivity extends BaseActivity implements FileListAdapter.Fi
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
             progress.setVisibility(View.GONE);
-
         }
 
         @Override
@@ -139,12 +140,17 @@ public class ProjListActivity extends BaseActivity implements FileListAdapter.Fi
     //region Interface----------------------
     @Override
     public void fileClicked(FileObj fileObj) {
-        startActivity(ProjDetailActivity.getInstance(this, fileObj));
+        if (fileObj.title.equals(BaseAction.ARCHIVE_FOLDER) || fileObj.title.equals(BaseAction.PHOTOS_FOLDER)) {
+            //fixme Unarchive activity
+            startActivity(ArchiveFileListActivity.getInstance(this, fileObj));
+        } else {
+            startActivity(ProjDetailActivity.getInstance(this, fileObj));
+        }
     }
 
     @Override
     public void fileLongClicked(FileObj fileObj) {
-
+        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
     //endregion
 

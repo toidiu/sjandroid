@@ -29,12 +29,13 @@ import sandjentrance.com.sj.actions.SetupDriveActionEventSuccess;
 import sandjentrance.com.sj.actions.SetupDriveAction_.PsSetupDriveAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
+import sandjentrance.com.sj.ui.extras.FileListInterface;
 
 @EventListener(producers = {
         FindBaseFolderAction.class,
         SetupDriveAction.class
 })
-public class FindBaseProjActivity extends BaseActivity implements FileListAdapter.FileListInterface {
+public class FindBaseProjActivity extends BaseActivity implements FileListInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -134,7 +135,7 @@ public class FindBaseProjActivity extends BaseActivity implements FileListAdapte
 
     @Override
     public void fileLongClicked(FileObj fileObj) {
-
+        //should remain empty!!
     }
 
     private void startProjListActivity() {

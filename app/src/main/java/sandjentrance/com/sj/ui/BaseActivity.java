@@ -9,6 +9,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import javax.inject.Inject;
 
 import sandjentrance.com.sj.SJApplication;
+import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 
 public class BaseActivity extends AppCompatActivity {
@@ -19,6 +20,8 @@ public class BaseActivity extends AppCompatActivity {
     @Inject
     GoogleAccountCredential credential;
 
+    @Inject
+    MoveFolderHelper moveFolderHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

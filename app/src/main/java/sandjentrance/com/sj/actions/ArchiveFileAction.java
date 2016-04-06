@@ -16,9 +16,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-
-import java.io.IOException;
 
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 
@@ -57,29 +54,11 @@ public class ArchiveFileAction extends BaseAction {
                 .build();
 
 
-        try {
-            // Retrieve the existing parents to remove
-            File file = driveService.files().get(helper.fileId())
-                    .setFields("parents")
-                    .execute();
-            StringBuilder previousParents = new StringBuilder();
-            for (String parent : file.getParents()) {
-                previousParents.append(parent);
-                previousParents.append(',');
-            }
-            // Move the file to the new folder
-            driveService.files().update(helper.fileId(), null)
-                    .setAddParents(prefs.getArchiveFolderId())
-                    .setRemoveParents(previousParents.toString())
-                    .setFields("id, parents")
-                    .execute();
-
+        if (fileMoved(driveService, helper.fileId(), prefs.getArchiveFolderId())) {
             return new ArchiveFileActionEventSuccess();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
             return new ArchiveFileActionEventFailure();
         }
-
 
     }
 

@@ -1,0 +1,70 @@
+[
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/pdf_curl.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/pdf_curl.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/bar_annot.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/bar_annot.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/bar_find.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/bar_find.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/bar_act.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/bar_act.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/item_outline.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/item_outline.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/dlg_text.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/dlg_text.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/dlg_outline.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/dlg_outline.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/bar_cmd.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/bar_cmd.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/pdf_fragment.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/pdf_fragment.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/dlg_note.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/dlg_note.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/pop_view.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/pop_view.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/pop_edit.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/pop_edit.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/pop_combo.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/pop_combo.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/bar_seek.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/bar_seek.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/pdf_layout.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/pdf_layout.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/pdf_nav.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/pdf_nav.xml"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/debug/layout/dlg_pswd.xml",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/layout/dlg_pswd.xml"
+    }
+]

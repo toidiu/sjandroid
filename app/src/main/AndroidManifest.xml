@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".SJApplication"
@@ -35,6 +36,8 @@
         <activity android:name=".ui.FindBaseProjActivity" />
         <activity android:name=".ui.ProjDetailActivity" />
         <activity android:name=".ui.GenericFileListActivity" />
+        <activity android:name=".ui.ArchiveFileListActivity" />
+        <!--<activity android:name="com.radaee.reader.PDFViewAct"/>-->
 
         <meta-data
             android:name="com.google.android.gms.version"

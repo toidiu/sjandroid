@@ -53,31 +53,12 @@ public class UnArchiveFileAction extends BaseAction {
                 .setApplicationName("SJ")
                 .build();
 
-//// FIXME: 4/4/16
-//        try {
-//            // Retrieve the existing parents to remove
-//            File file = driveService.files().get(helper.fileId())
-//                    .setFields("parents")
-//                    .execute();
-//            StringBuilder previousParents = new StringBuilder();
-//            for (String parent : file.getParents()) {
-//                previousParents.append(parent);
-//                previousParents.append(',');
-//            }
-//            // Move the file to the new folder
-//            driveService.files().update(helper.fileId(), null)
-//                    .setAddParents(prefs.getArchiveFolderId())
-//                    .setRemoveParents(previousParents.toString())
-//                    .setFields("id, parents")
-//                    .execute();
-//
-//            return new ArchiveFileActionEventSuccess();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ArchiveFileActionEventFailure();
-//        }
-//
-        return null;
+
+        if (fileMoved(driveService, helper.fileId(), prefs.getBaseFolderId())) {
+            return new UnArchiveFileActionEventSuccess();
+        } else {
+            return new UnArchiveFileActionEventFailure();
+        }
     }
 
 }

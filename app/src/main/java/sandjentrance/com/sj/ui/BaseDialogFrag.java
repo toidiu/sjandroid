@@ -6,6 +6,7 @@ import android.support.v4.app.DialogFragment;
 import javax.inject.Inject;
 
 import sandjentrance.com.sj.SJApplication;
+import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 
 /**
@@ -16,7 +17,8 @@ public class BaseDialogFrag extends DialogFragment {
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
     protected Prefs prefs;
-
+    @Inject
+    MoveFolderHelper moveFolderHelper;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {

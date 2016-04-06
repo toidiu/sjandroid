@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 
 
@@ -46,7 +47,8 @@ public class BaseAction implements Action {
     Prefs prefs;
     @Inject
     GoogleAccountCredential credential;
-
+    @Inject
+    MoveFolderHelper moveFolderHelper;
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
@@ -103,6 +105,31 @@ public class BaseAction implements Action {
             e.printStackTrace();
         }
         return dataFromApi;
+    }
+
+    protected boolean fileMoved(Drive driveService, String fileId, String newParentId) {
+        try {
+            // Retrieve the existing parents to remove
+            File file = driveService.files().get(fileId)
+                    .setFields("parents")
+                    .execute();
+            StringBuilder previousParents = new StringBuilder();
+            for (String parent : file.getParents()) {
+                previousParents.append(parent);
+                previousParents.append(',');
+            }
+            // Move the file to the new folder
+            driveService.files().update(fileId, null)
+                    .setAddParents(newParentId)
+                    .setRemoveParents(previousParents.toString())
+                    .setFields("id, parents")
+                    .execute();
+
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     //endregion
 

@@ -32,12 +32,22 @@ public class AppModule {
     @Singleton
     GoogleAccountCredential providesCredentials(Context context, Prefs prefs) {
         final String[] SCOPES = {DriveScopes.DRIVE};
+//
+//        GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
+//                context.getApplicationContext(), Arrays.asList(SCOPES));
+//                .setBackOff(new ExponentialBackOff());
+//
+//        if (prefs.getUser() != null) {
+//            credential.setSelectedAccountName(prefs.getUser());
+//        }
 
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
                 context.getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff())
-                .setSelectedAccountName(prefs.getUser());
+                .setBackOff(new ExponentialBackOff());
+
+
         return credential;
+//        return null;
     }
 
     @Provides

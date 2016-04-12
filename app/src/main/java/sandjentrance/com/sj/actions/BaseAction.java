@@ -25,6 +25,7 @@ import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
+import sandjentrance.com.sj.utils.RenameFileHelper;
 
 
 /**
@@ -49,6 +50,8 @@ public class BaseAction implements Action {
     GoogleAccountCredential credential;
     @Inject
     MoveFolderHelper moveFolderHelper;
+    @Inject
+    RenameFileHelper renameFileHelper;
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {

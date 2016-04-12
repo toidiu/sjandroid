@@ -7,13 +7,14 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +32,10 @@ import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileListInterface;
+import sandjentrance.com.sj.utils.BgImageLoader;
 
 @EventListener(producers = {
-        FindFolderChildrenAction.class
+        FindFolderChildrenAction.class,
 })
 public class ProjListActivity extends BaseActivity implements FileListInterface {
 
@@ -43,14 +45,14 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
     RecyclerView recyclerView;
     @Bind(R.id.progress)
     ProgressBar progress;
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
     @Bind(R.id.search)
     EditText searchView;
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileListAdapter adapter;
-
+    //endregion
+    private Snackbar snackbar;
+    private String actionIdFileList;
     //region PennStation----------------------
     ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
         @Override
@@ -61,11 +63,13 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            adapter.refreshView(Arrays.asList(event.results));
+            archiveFileHelper.wasArhived = false;
+
+            if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
+                adapter.refreshView(Arrays.asList(event.results));
+            }
         }
     };
-    //endregion
-    private Snackbar snackbar;
     //endregion
 
     //region Lifecycle----------------------
@@ -83,16 +87,34 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         initView();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PennStation.registerListener(eventListener);
+
+        if (archiveFileHelper.wasArhived) {
+            refreshFileListFromText();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PennStation.unRegisterListener(eventListener);
+    }
+    //endregion
+
     //region Init----------------------
     private void initData() {
         if (BuildConfig.DEBUG) {
-            PennStation.requestAction(PsFindFolderChildrenAction.helper("Ralph", prefs.getBaseFolderId(), true));
-            progress.setVisibility(View.VISIBLE);
+            refreshFileList("Ralph");
+            searchView.setText("Ralph");
         }
     }
 
     private void initView() {
-        toolbar.setTitle("Project List");
+        final View layout = findViewById(R.id.layout);
+        initBg(layout);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -104,44 +126,42 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         DelayedTextWatcher.OnTextChanged projSearchTextChanged = new DelayedTextWatcher.OnTextChanged() {
             @Override
             public void onTextChanged(String text) {
-                String searchName = searchView.getText().toString();
-                if (searchName.isEmpty()) {
-                    adapter.refreshView(new ArrayList<FileObj>());
-                } else if (searchName.length() < 3) {
-                    snackbar = Snackbar.make(recyclerView, R.string.search_proj_hint, Snackbar.LENGTH_INDEFINITE);
-                    snackbar.show();
-                } else {
-                    if (snackbar != null) {
-                        snackbar.dismiss();
-                    }
-                    PennStation.requestAction(PsFindFolderChildrenAction.helper(searchName, prefs.getBaseFolderId(), true));
-                    progress.setVisibility(View.VISIBLE);
-                }
+                refreshFileListFromText();
             }
         };
-        DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 300);
+        DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 500);
 
     }
     //endregion
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        PennStation.registerListener(eventListener);
+    //region View----------------------
+    private void refreshFileListFromText() {
+        String searchName = searchView.getText().toString();
+        if (searchName.isEmpty()) {
+            adapter.refreshView(new ArrayList<FileObj>());
+        } else if (searchName.length() < 3) {
+            snackbar = Snackbar.make(recyclerView, R.string.search_proj_hint, Snackbar.LENGTH_INDEFINITE);
+            snackbar.show();
+        } else {
+            if (snackbar != null) {
+                snackbar.dismiss();
+            }
+
+            refreshFileList(searchName);
+        }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        PennStation.unRegisterListener(eventListener);
+    private void refreshFileList(String search) {
+        actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper(search, prefs.getBaseFolderId(), true));
+        progress.setVisibility(View.VISIBLE);
     }
     //endregion
+
 
     //region Interface----------------------
     @Override
     public void fileClicked(FileObj fileObj) {
         if (fileObj.title.equals(BaseAction.ARCHIVE_FOLDER) || fileObj.title.equals(BaseAction.PHOTOS_FOLDER)) {
-            //fixme Unarchive activity
             startActivity(ArchiveFileListActivity.getInstance(this, fileObj));
         } else {
             startActivity(ProjDetailActivity.getInstance(this, fileObj));
@@ -150,7 +170,8 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
 
     @Override
     public void fileLongClicked(FileObj fileObj) {
-        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
+
+//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
     //endregion
 

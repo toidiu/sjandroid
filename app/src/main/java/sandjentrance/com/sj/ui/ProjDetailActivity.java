@@ -10,12 +10,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
+import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
@@ -36,14 +38,24 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.MoveFileAction;
+import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
+import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
+import sandjentrance.com.sj.actions.MoveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
+import sandjentrance.com.sj.actions.RenameFileAction;
+import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
+import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileListInterface;
+import sandjentrance.com.sj.utils.BgImageLoader;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
         ClaimProjAction.class,
+        MoveFileAction.class,
+        RenameFileAction.class,
         ArchiveFileAction.class
 })
 public class ProjDetailActivity extends BaseActivity implements FileListInterface {
@@ -65,6 +77,8 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private FileListAdapter adapter;
+    private Menu menu;
+    private String actionIdFileList;
     //region PennStation----------------------
     ProjDetailActivityEventListener eventListener = new ProjDetailActivityEventListener() {
         @Override
@@ -75,6 +89,25 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         @Override
         public void onEventMainThread(ArchiveFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
+            archiveFileHelper.wasArhived = true;
+            finish();
+        }
+
+        @Override
+        public void onEventMainThread(MoveFileActionEventPrime event) {
+            refreshMenu();
+        }
+
+        @Override
+        public void onEventMainThread(MoveFileActionEventSuccess event) {
+            refreshFileList();
+            moveFolderHelper.resetState();
+            refreshMenu();
+        }
+
+        @Override
+        public void onEventMainThread(MoveFileActionEventFailure event) {
+
         }
 
         @Override
@@ -91,6 +124,16 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         }
 
         @Override
+        public void onEventMainThread(RenameFileActionEventSuccess event) {
+            refreshFileList();
+        }
+
+        @Override
+        public void onEventMainThread(RenameFileActionEventFailure event) {
+
+        }
+
+        @Override
         public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
             progress.setVisibility(View.GONE);
         }
@@ -98,11 +141,12 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            adapter.refreshView(Arrays.asList(event.results));
+            if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
+                adapter.refreshView(Arrays.asList(event.results));
+            }
         }
 
     };
-    private Menu menu;
     //endregion
     //endregion
 
@@ -129,6 +173,13 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     protected void onResume() {
         super.onResume();
         PennStation.registerListener(eventListener);
+
+        if (fileObj.parent.equals(moveFolderHelper.initialParentId) && !moveFolderHelper.moveReady()) {
+            refreshFileList();
+            moveFolderHelper.resetState();
+        }
+
+        refreshMenu();
     }
 
     @Override
@@ -148,7 +199,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_copy:
+            case R.id.menu_paste:
                 PennStation.requestAction(PsMoveFileAction.helper(fileObj.id));
                 progress.setVisibility(View.VISIBLE);
                 return true;
@@ -166,11 +217,13 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
 
     //region Init----------------------
     private void initData() {
-        progress.setVisibility(View.VISIBLE);
-        PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
+        refreshFileList();
     }
 
     private void initView() {
+        final View layout = findViewById(R.id.layout);
+        initBg(layout);
+
         toolbar.setTitle(fileObj.title);
         setSupportActionBar(toolbar);
 
@@ -192,7 +245,6 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
 
         adapter = new FileListAdapter(this);
         recyclerView.setAdapter(adapter);
-
     }
 
     //endregion
@@ -200,14 +252,21 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
 
     //region View----------------------
     private void refreshMenu() {
-        if (moveFolderHelper.moveReady()) {
-            menu.findItem(R.id.menu_copy).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_copy).setVisible(false);
+        if (menu != null) {
+            if (moveFolderHelper.moveReady()) {
+                menu.findItem(R.id.menu_paste).setVisible(true);
+            } else {
+                menu.findItem(R.id.menu_paste).setVisible(false);
+            }
+            menu.findItem(R.id.menu_archive).setVisible(true);
         }
-        menu.findItem(R.id.menu_archive).setVisible(true);
-
     }
+
+    private void refreshFileList() {
+        progress.setVisibility(View.VISIBLE);
+        actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
+    }
+
     //endregion
 
     //region Interface----------------------

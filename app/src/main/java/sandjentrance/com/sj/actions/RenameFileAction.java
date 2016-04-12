@@ -1,6 +1,7 @@
 package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 
 import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
@@ -18,9 +19,12 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 
+import org.parceler.Parcels;
+
 import java.io.IOException;
 
 import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
+import sandjentrance.com.sj.models.FileObj;
 
 
 /**
@@ -28,7 +32,8 @@ import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
  */
 @RequestAction
 @RequestActionHelper(variables = {
-        @ClassField(name = "fileId", kind = @Kind(clazz = String.class), required = true),
+        //fixme switch to ParcelablePlease!!!
+        @ClassField(name = "file", kind = @Kind(clazz = Parcelable.class), required = true),
         @ClassField(name = "newName", kind = @Kind(clazz = String.class), required = true)
 })
 @EventProducer(generated = {
@@ -45,6 +50,7 @@ public class RenameFileAction extends BaseAction {
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
         RenameFileActionHelper helper = PsRenameFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+        FileObj fileObj = Parcels.unwrap(helper.file());
 
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
@@ -61,11 +67,13 @@ public class RenameFileAction extends BaseAction {
         fileMetadata.setName(helper.newName());
 
         try {
-            driveService.files().update(helper.fileId(), fileMetadata).execute();
+            driveService.files().update(fileObj.id, fileMetadata).execute();
+            renameFileHelper.parentId = fileObj.parent;
             return new RenameFileActionEventSuccess();
         } catch (IOException e) {
             e.printStackTrace();
-        return new RenameFileActionEventFailure();
+
+            return new RenameFileActionEventFailure();
         }
 
     }

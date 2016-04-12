@@ -2,6 +2,7 @@ package sandjentrance.com.sj.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +44,8 @@ public class DialogRenameFile extends BaseDialogFrag {
     TextView origNameView;
     @Bind(R.id.rename)
     EditText renameEdit;
+    @Bind(R.id.progress)
+    ProgressBar progress;
     //endregion
 
     //region PennStation----------------------
@@ -49,11 +53,12 @@ public class DialogRenameFile extends BaseDialogFrag {
         @Override
         public void onEventMainThread(RenameFileActionEventSuccess event) {
             dismiss();
+            progress.setVisibility(View.GONE);
         }
 
         @Override
         public void onEventMainThread(RenameFileActionEventFailure event) {
-
+            progress.setVisibility(View.GONE);
         }
     };
     private FileObj fileObj;
@@ -111,7 +116,9 @@ public class DialogRenameFile extends BaseDialogFrag {
                 if (newName.isEmpty()) {
                     Toast.makeText(getContext(), "New name can't be empty.", Toast.LENGTH_SHORT).show();
                 } else {
-                    PennStation.requestAction(PsRenameFileAction.helper(fileObj.id, newName));
+                    Parcelable wrap = Parcels.wrap(fileObj);
+                    PennStation.requestAction(PsRenameFileAction.helper(wrap, newName));
+                    progress.setVisibility(View.VISIBLE);
                 }
             }
         });

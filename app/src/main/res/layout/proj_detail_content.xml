@@ -9,6 +9,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="24dp"
         android:padding="16dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -45,5 +47,6 @@
         tools:listitem="@layout/item_proj_list">
 
     </android.support.v7.widget.RecyclerView>
+
 
 </LinearLayout>

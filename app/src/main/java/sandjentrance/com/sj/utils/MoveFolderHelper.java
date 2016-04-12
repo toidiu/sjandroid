@@ -19,6 +19,10 @@ public class MoveFolderHelper {
 
     public void moveDone() {
         fileId = null;
+    }
+
+    public void resetState() {
+        fileId = null;
         initialParentId = null;
     }
 

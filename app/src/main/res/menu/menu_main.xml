@@ -3,17 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.MainActivity">
     <item
-        android:id="@+id/menu_copy"
-        android:icon="@mipmap/ic_launcher"
+        android:id="@+id/menu_paste"
+        android:icon="@drawable/ic_action_content_paste"
         android:orderInCategory="100"
-        android:title="@string/menu_copy"
+        android:title="@string/menu_paste"
         android:visible="false"
         app:showAsAction="always"
         tools:visible="true" />
 
     <item
         android:id="@+id/menu_archive"
-        android:icon="@drawable/btn_cancel"
+        android:icon="@drawable/ic_action_content_archive"
         android:orderInCategory="100"
         android:title="@string/menu_archive"
         android:visible="false"

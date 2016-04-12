@@ -28,7 +28,7 @@ import sandjentrance.com.sj.actions.SetupDriveActionEventFailure;
 import sandjentrance.com.sj.actions.SetupDriveActionEventSuccess;
 import sandjentrance.com.sj.actions.SetupDriveAction_.PsSetupDriveAction;
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.ui.extras.FileListAdapter;
+import sandjentrance.com.sj.ui.extras.BaseProjListAdapter;
 import sandjentrance.com.sj.ui.extras.FileListInterface;
 
 @EventListener(producers = {
@@ -43,10 +43,8 @@ public class FindBaseProjActivity extends BaseActivity implements FileListInterf
     RecyclerView recyclerView;
     @Bind(R.id.progress)
     ProgressBar progress;
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private FileListAdapter adapter;
+    private BaseProjListAdapter adapter;
 
     //region PennStation----------------------
     FindBaseProjActivityEventListener eventListener = new FindBaseProjActivityEventListener() {
@@ -103,12 +101,10 @@ public class FindBaseProjActivity extends BaseActivity implements FileListInterf
     }
 
     private void initView() {
-        toolbar.setTitle("Find Base Folder");
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new FileListAdapter(this);
+        adapter = new BaseProjListAdapter(this);
         recyclerView.setAdapter(adapter);
     }
     //endregion

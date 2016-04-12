@@ -12,8 +12,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import sandjentrance.com.sj.utils.ArchiveFileHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
+import sandjentrance.com.sj.utils.RenameFileHelper;
 
 /**
  * Created by toidiu on 1/13/16.
@@ -32,28 +34,30 @@ public class AppModule {
     @Singleton
     GoogleAccountCredential providesCredentials(Context context, Prefs prefs) {
         final String[] SCOPES = {DriveScopes.DRIVE};
-//
-//        GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-//                context.getApplicationContext(), Arrays.asList(SCOPES));
-//                .setBackOff(new ExponentialBackOff());
-//
-//        if (prefs.getUser() != null) {
-//            credential.setSelectedAccountName(prefs.getUser());
-//        }
 
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
                 context.getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
-
         return credential;
-//        return null;
     }
 
     @Provides
     @Singleton
     MoveFolderHelper provideMoveFolderHelper() {
         return new MoveFolderHelper();
+    }
+
+    @Provides
+    @Singleton
+    ArchiveFileHelper providesArchiveHelper() {
+        return new ArchiveFileHelper();
+    }
+
+    @Provides
+    @Singleton
+    RenameFileHelper providesRenameHelper() {
+        return new RenameFileHelper();
     }
 
 }

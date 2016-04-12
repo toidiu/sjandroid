@@ -28,8 +28,12 @@ import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
 import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
+import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
 import sandjentrance.com.sj.actions.MoveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
+import sandjentrance.com.sj.actions.RenameFileAction;
+import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
+import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.actions.UnArchiveFileAction;
 import sandjentrance.com.sj.actions.UnArchiveFileActionEventFailure;
 import sandjentrance.com.sj.actions.UnArchiveFileActionEventSuccess;
@@ -41,6 +45,7 @@ import sandjentrance.com.sj.ui.extras.FileArchiveListInterface;
 @EventListener(producers = {
         FindFolderChildrenAction.class,
         MoveFileAction.class,
+        RenameFileAction.class,
         UnArchiveFileAction.class
 })
 public class ArchiveFileListActivity extends BaseActivity implements FileArchiveListInterface {
@@ -53,21 +58,33 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     RecyclerView recyclerView;
     @Bind(R.id.progress)
     ProgressBar progress;
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private FileArchiveListAdapter adapter;
+
+    private Menu menu;
+    private String actionIdFileList;
     //region PennStation----------------------
     ArchiveFileListActivityEventListener eventListener = new ArchiveFileListActivityEventListener() {
         @Override
         public void onEventMainThread(UnArchiveFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
+            initData();
         }
 
         @Override
         public void onEventMainThread(UnArchiveFileActionEventFailure event) {
             progress.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onEventMainThread(RenameFileActionEventSuccess event) {
+            refreshFileList();
+        }
+
+        @Override
+        public void onEventMainThread(RenameFileActionEventFailure event) {
+
         }
 
         @Override
@@ -78,7 +95,14 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            adapter.refreshView(Arrays.asList(event.results));
+            if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
+                adapter.refreshView(Arrays.asList(event.results));
+            }
+        }
+
+        @Override
+        public void onEventMainThread(MoveFileActionEventPrime event) {
+
         }
 
         @Override
@@ -89,9 +113,10 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
         @Override
         public void onEventMainThread(MoveFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
+//            refreshMenu();
+            refreshFileList();
         }
     };
-    private Menu menu;
     //endregion
     //endregion
 
@@ -118,9 +143,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     protected void onResume() {
         super.onResume();
         PennStation.registerListener(eventListener);
-        if (menu != null) {
-            refreshMenu();
-        }
+//        refreshMenu();
     }
 
     @Override
@@ -129,39 +152,38 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
         PennStation.unRegisterListener(eventListener);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.menu = menu;
-        refreshMenu();
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_copy:
-                PennStation.requestAction(PsMoveFileAction.helper(fileObj.id));
-                progress.setVisibility(View.VISIBLE);
-                return true;
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        this.menu = menu;
+//        refreshMenu();
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.menu_paste:
+//                PennStation.requestAction(PsMoveFileAction.helper(fileObj.id));
+//                progress.setVisibility(View.VISIBLE);
+//                return true;
+//            default:
+//                // If we got here, the user's action was not recognized.
+//                // Invoke the superclass to handle it.
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     //endregion
 
     //region Init----------------------
     private void initData() {
-        progress.setVisibility(View.VISIBLE);
-        PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
+        refreshFileList();
     }
 
     private void initView() {
-        toolbar.setTitle(fileObj.title);
-        setSupportActionBar(toolbar);
+        final View layout = findViewById(R.id.layout);
+        initBg(layout);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -172,16 +194,23 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     //endregion
 
     //region View----------------------
-    private void refreshMenu() {
+//    private void refreshMenu() {
+//        if (menu != null) {
+//            if (moveFolderHelper.moveReady()) {
+//                menu.findItem(R.id.menu_paste).setVisible(true);
+//            } else {
+//                menu.findItem(R.id.menu_paste).setVisible(false);
+//            }
+//        }
+//    }
 
-        if (moveFolderHelper.moveReady()) {
-            menu.findItem(R.id.menu_copy).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_copy).setVisible(false);
-        }
+    private void refreshFileList() {
+        progress.setVisibility(View.VISIBLE);
+        actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
     }
 
     //endregion
+
 
     //region Interface----------------------
     @Override
@@ -191,7 +220,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
 
     @Override
     public void fileLongClicked(FileObj fileObj) {
-        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
+//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
 
     @Override

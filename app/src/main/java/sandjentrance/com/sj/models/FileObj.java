@@ -27,8 +27,7 @@ public class FileObj {
 
     public String id;
     public String title;
-    public static Comparator<FileObj> FileObjComparator
-            = new Comparator<FileObj>() {
+    public static Comparator<FileObj> FileObjComparator = new Comparator<FileObj>() {
 
         public int compare(FileObj file1, FileObj file2) {
 

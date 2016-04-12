@@ -10,10 +10,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
+import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
@@ -32,15 +34,21 @@ import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
 import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
+import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
 import sandjentrance.com.sj.actions.MoveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
+import sandjentrance.com.sj.actions.RenameFileAction;
+import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
+import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileListInterface;
+import sandjentrance.com.sj.utils.BgImageLoader;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
         MoveFileAction.class,
+        RenameFileAction.class,
         ArchiveFileAction.class
 })
 public class GenericFileListActivity extends BaseActivity implements FileListInterface {
@@ -58,6 +66,8 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private FileListAdapter adapter;
+    private Menu menu;
+    private String actionIdFileList;
     //region PennStation----------------------
     GenericFileListActivityEventListener eventListener = new GenericFileListActivityEventListener() {
         @Override
@@ -66,9 +76,20 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         }
 
         @Override
+        public void onEventMainThread(RenameFileActionEventSuccess event) {
+            refreshFileList();
+        }
+
+        @Override
+        public void onEventMainThread(RenameFileActionEventFailure event) {
+
+        }
+
+        @Override
         public void onEventMainThread(ArchiveFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
         }
+
 
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
@@ -79,8 +100,9 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            adapter.refreshView(Arrays.asList(event.results));
-
+            if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
+                adapter.refreshView(Arrays.asList(event.results));
+            }
         }
 
         @Override
@@ -91,9 +113,15 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         @Override
         public void onEventMainThread(MoveFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
+            refreshMenu();
+            refreshFileList();
+        }
+
+        @Override
+        public void onEventMainThread(MoveFileActionEventPrime event) {
+            refreshMenu();
         }
     };
-    private Menu menu;
     //endregion
     //endregion
 
@@ -120,9 +148,18 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
     protected void onResume() {
         super.onResume();
         PennStation.registerListener(eventListener);
-        if (menu != null) {
-            refreshMenu();
+
+        if (renameFileHelper.isValid() && fileObj.id.equals(renameFileHelper.parentId)) {
+            renameFileHelper.parentId = null;
+            refreshFileList();
         }
+
+        if (fileObj.id.equals(moveFolderHelper.initialParentId) && !moveFolderHelper.moveReady()) {
+            refreshFileList();
+            moveFolderHelper.resetState();
+        }
+
+        refreshMenu();
     }
 
     @Override
@@ -142,7 +179,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_copy:
+            case R.id.menu_paste:
                 PennStation.requestAction(PsMoveFileAction.helper(fileObj.id));
                 progress.setVisibility(View.VISIBLE);
                 return true;
@@ -161,11 +198,13 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
 
     //region Init----------------------
     private void initData() {
-        progress.setVisibility(View.VISIBLE);
-        PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
+        refreshFileList();
     }
 
     private void initView() {
+        final View layout = findViewById(R.id.layout);
+        initBg(layout);
+
         toolbar.setTitle(fileObj.title);
         setSupportActionBar(toolbar);
 
@@ -175,16 +214,33 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         adapter = new FileListAdapter(this);
         recyclerView.setAdapter(adapter);
     }
+
+    private void initBg() {
+        final View layout = findViewById(R.id.layout);
+        ViewTreeObserver vto = layout.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Picasso.with(GenericFileListActivity.this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
+            }
+        });
+    }
     //endregion
 
     //region View----------------------
     private void refreshMenu() {
-
-        if (moveFolderHelper.moveReady()) {
-            menu.findItem(R.id.menu_copy).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_copy).setVisible(false);
+        if (menu != null) {
+            if (moveFolderHelper.moveReady()) {
+                menu.findItem(R.id.menu_paste).setVisible(true);
+            } else {
+                menu.findItem(R.id.menu_paste).setVisible(false);
+            }
         }
+    }
+
+    private void refreshFileList() {
+        progress.setVisibility(View.VISIBLE);
+        actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
     }
 
     //endregion

@@ -6,6 +6,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
+//        applicationId "com.radaee.reader"
         applicationId "sandjentrance.com.sjandroid"
         minSdkVersion 21
         targetSdkVersion 23
@@ -76,6 +77,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'
+    compile 'com.android.support:cardview-v7:23.2.0'
+    compile 'com.android.support:recyclerview-v7:23.2.0'
     //DRIVE-------------------------
 
     //V2
@@ -116,6 +119,7 @@ dependencies {
 
     //VIEW-------------------------
     compile 'de.hdodenhof:circleimageview:2.0.0'
+
     //OTHER-------------------------
 
     //    compile 'de.greenrobot:eventbus:2.4.0'

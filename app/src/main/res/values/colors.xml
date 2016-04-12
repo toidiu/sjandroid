@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#1ab2dc</color>
-    <color name="colorPrimaryDark">#218fae</color>
+    <color name="colorPrimary">#477775</color>
+    <color name="colorPrimaryDark">#715247</color>
     <color name="colorAccent">#000000</color>
     <color name="snackbar_text">#dfd45b</color>
+    <color name="white">#ffffff</color>
+    <color name="search_green">#467675</color>
+    <color name="white_15">#27ffffff</color>
 </resources>

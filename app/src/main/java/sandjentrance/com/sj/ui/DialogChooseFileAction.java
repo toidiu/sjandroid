@@ -14,6 +14,8 @@ import org.parceler.Parcels;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
+import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
+import sandjentrance.com.sj.actions.MoveFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
 
 /**
@@ -67,6 +69,7 @@ public class DialogChooseFileAction extends BaseDialogFrag {
             @Override
             public void onClick(View v) {
                 moveFolderHelper.startMove(fileObj.id, fileObj.parent);
+                PennStation.postLocalEvent(new MoveFileActionEventPrime());
                 dismiss();
             }
         });

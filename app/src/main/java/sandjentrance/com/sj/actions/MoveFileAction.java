@@ -28,6 +28,7 @@ import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
         @ClassField(name = "newParentId", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
+        @EventClass(classPostFix = "Prime"),
         @EventClass(classPostFix = "Success"),
         @EventClass(classPostFix = "Failure")
 })

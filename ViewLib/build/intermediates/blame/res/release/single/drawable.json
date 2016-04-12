@@ -96,20 +96,20 @@
         "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/drawable/btn_select.png"
     },
     {
-        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/release/drawable/btn_back.png",
-        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/drawable/btn_back.png"
-    },
-    {
         "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/release/drawable/btn_perform.png",
         "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/drawable/btn_perform.png"
     },
     {
-        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/release/drawable/btn_annot_note.png",
-        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/drawable/btn_annot_note.png"
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/release/drawable/btn_back.png",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/drawable/btn_back.png"
     },
     {
         "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/release/drawable/pdf_custom_stamp.png",
         "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/drawable/pdf_custom_stamp.png"
+    },
+    {
+        "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/release/drawable/btn_annot_note.png",
+        "source": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/src/main/res/drawable/btn_annot_note.png"
     },
     {
         "merged": "/Users/toidiu/freelance/SJ/SJAndroid/ViewLib/build/intermediates/res/merged/release/drawable/folder1.png",

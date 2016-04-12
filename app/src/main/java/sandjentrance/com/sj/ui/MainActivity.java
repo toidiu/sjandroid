@@ -4,27 +4,21 @@ import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -37,6 +31,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,8 +43,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.SJApplication;
+import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.utils.BgImageLoader;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 
@@ -60,14 +58,13 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-    private static final String PREF_ACCOUNT_NAME = "accountName";
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.progress)
     ProgressBar progress;
     @Bind(R.id.text)
     TextView textView;
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
+//    @Bind(R.id.toolbar)
+//    Toolbar toolbar;
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
@@ -82,68 +79,13 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        initView();
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
 
         ((SJApplication) getApplication()).getAppComponent().inject(this);
 
-//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//            }
-//        }, 5000);
+        Log.d("log", "-----------1");
         getStarted();
-
-//
-        toolbar.setTitle("Login");
-
-        // Initialize credentials and service object.
-//        credential = GoogleAccountCredential.usingOAuth2(
-//                getApplicationContext(), Arrays.asList(SCOPES))
-//                .setBackOff(new ExponentialBackOff());
-    }
-
-    private void initView() {
-//        LinearLayout activityLayout = new LinearLayout(this);
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.MATCH_PARENT,
-//                LinearLayout.LayoutParams.MATCH_PARENT);
-//        activityLayout.setLayoutParams(lp);
-//        activityLayout.setOrientation(LinearLayout.VERTICAL);
-//        activityLayout.setPadding(16, 16, 16, 16);
-//
-//        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-//                ViewGroup.LayoutParams.WRAP_CONTENT,
-//                ViewGroup.LayoutParams.WRAP_CONTENT);
-//
-//        mCallApiButton = new Button(this);
-//        mCallApiButton.setText(BUTTON_TEXT);
-//        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mCallApiButton.setEnabled(false);
-//                mOutputText.setText("");
-//                getStarted();
-//                mCallApiButton.setEnabled(true);
-//            }
-//        });
-//        activityLayout.addView(mCallApiButton);
-//
-//        mOutputText = new TextView(this);
-//        mOutputText.setLayoutParams(tlp);
-//        mOutputText.setPadding(16, 16, 16, 16);
-//        mOutputText.setVerticalScrollBarEnabled(true);
-//        mOutputText.setMovementMethod(new ScrollingMovementMethod());
-//        mOutputText.setText(
-//                "Click the \'" + BUTTON_TEXT + "\' button to test the API.");
-//        activityLayout.addView(mOutputText);
-//
-//        mProgress = new ProgressDialog(this);
-//        mProgress.setMessage("Calling Drive API ...");
-//
-//        setContentView(activityLayout);
     }
 
     @Override
@@ -153,9 +95,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-//                    mOutputText.setText(
-//                            "This app requires Google Play Services. Please install " +
-//                                    "Google Play Services on your device and relaunch this app.");
+                    Snackbar.make(textView, R.string.error_play_services, Snackbar.LENGTH_INDEFINITE).show();
                 } else {
                     getStarted();
                 }
@@ -166,11 +106,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
                     String accountName =
                             data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        SharedPreferences settings =
-                                getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
+                        prefs.setUser(accountName);
                         credential.setSelectedAccountName(accountName);
                         getStarted();
                     }
@@ -185,12 +121,9 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        EasyPermissions.onRequestPermissionsResult(
-                requestCode, permissions, grantResults, this);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
     @Override
@@ -211,69 +144,55 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (credential.getSelectedAccountName() == null) {
+            Log.d("log", "-----------2");
             chooseAccount();
         } else if (!isDeviceOnline()) {
-//            mOutputText.setText("No network connection available.");
+            Log.d("log", "-----------3");
+            Snackbar.make(textView, R.string.no_network, Snackbar.LENGTH_SHORT).show();
         } else {
+            Log.d("log", "-----------4");
             new MakeRequestTask(credential).execute();
-//            startBaseProjActivity();
         }
     }
 
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
     private void chooseAccount() {
-        if (EasyPermissions.hasPermissions(
-                this, Manifest.permission.GET_ACCOUNTS)) {
-            String accountName = getPreferences(Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
+        if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
+            String accountName = prefs.getUser();
             if (accountName != null) {
+                Log.d("log1", "-----------1");
                 credential.setSelectedAccountName(accountName);
+                Log.d("log1", String.valueOf(credential == null));
+
+                if (credential != null) {
+                    getStarted();
+                }
             } else {
+                Log.d("log1", "-----------2");
                 // Start a dialog from which the user can choose an account
-                startActivityForResult(
-                        credential.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+                startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
             }
         } else {
+            Log.d("log1", "-----------3");
             // Request the GET_ACCOUNTS permission via a user dialog
-            EasyPermissions.requestPermissions(
-                    this,
-                    "This app needs to access your Google account (via Contacts).",
-                    REQUEST_PERMISSION_GET_ACCOUNTS,
-                    Manifest.permission.GET_ACCOUNTS);
+            EasyPermissions.requestPermissions(this, "This app needs to access your Google account (via Contacts).",
+                    REQUEST_PERMISSION_GET_ACCOUNTS, Manifest.permission.GET_ACCOUNTS);
         }
     }
 
 
-    /**
-     * Attempt to resolve a missing, out-of-date, invalid or disabled Google
-     * Play Services installation via a user dialog, if possible.
-     */
     private void acquireGooglePlayServices() {
-        GoogleApiAvailability apiAvailability =
-                GoogleApiAvailability.getInstance();
-        final int connectionStatusCode =
-                apiAvailability.isGooglePlayServicesAvailable(this);
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
         if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
             showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
         }
     }
 
 
-    /**
-     * Display an error dialog showing that Google Play Services is missing
-     * or out of date.
-     *
-     * @param connectionStatusCode code describing the presence (or lack of)
-     *                             Google Play Services on this device.
-     */
-    void showGooglePlayServicesAvailabilityErrorDialog(
-            final int connectionStatusCode) {
+    void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        Dialog dialog = apiAvailability.getErrorDialog(
-                MainActivity.this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES);
+        Dialog dialog = apiAvailability.getErrorDialog(MainActivity.this, connectionStatusCode, REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
     //endregion
@@ -281,17 +200,14 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     //region Helper----------------------
 
     private boolean isDeviceOnline() {
-        ConnectivityManager connMgr =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
 
     private boolean isGooglePlayServicesAvailable() {
-        GoogleApiAvailability apiAvailability =
-                GoogleApiAvailability.getInstance();
-        final int connectionStatusCode =
-                apiAvailability.isGooglePlayServicesAvailable(this);
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
         return connectionStatusCode == ConnectionResult.SUCCESS;
     }
 
@@ -301,32 +217,32 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     }
     //endregion
 
+    protected void initBg(final View layout) {
+        ViewTreeObserver vto = layout.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Picasso.with(MainActivity.this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
+            }
+        });
+    }
+
+
     //region MakeCall----------------------
-    /**
-     * An asynchronous task that handles the Drive API call.
-     * Placing the API calls in their own task ensures the UI stays responsive.
-     */
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
+    private class MakeRequestTask extends AsyncTask<Void, Void, List<FileObj>> {
         private com.google.api.services.drive.Drive mService = null;
         private Exception mLastError = null;
 
         public MakeRequestTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.drive.Drive.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Drive API Android Quickstart")
-                    .build();
+            mService = new com.google.api.services.drive.Drive.Builder(transport, jsonFactory, credential).setApplicationName("SJ").build();
         }
 
-        /**
-         * Background task to call Drive API.
-         *
-         * @param params no parameters needed for this task.
-         */
         @Override
-        protected List<String> doInBackground(Void... params) {
+        protected List<FileObj> doInBackground(Void... params) {
             try {
+                Log.d("log", "-----------5");
                 return getDataFromApi();
             } catch (Exception e) {
                 mLastError = e;
@@ -335,68 +251,59 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
             }
         }
 
-        /**
-         * Fetch a list of up to 10 file names and IDs.
-         *
-         * @return List of Strings describing files, or an empty list if no files
-         * found.
-         * @throws IOException
-         */
-        private List<String> getDataFromApi() throws IOException {
-            // Get a list of up to 10 files.
-            List<String> fileInfo = new ArrayList<String>();
+        private List<FileObj> getDataFromApi() throws IOException {
+            String search = "name contains '" + "Jobs" + "'"
+                    + " and " + "name != '.DS_Store'"
+                    + " and " + " sharedWithMe=true "
+                    + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
+
+            List<FileObj> retFile = new ArrayList<>();
+
+            Log.d("log", "-----------6");
             FileList result = mService.files().list()
-                    .setPageSize(10)
-                    .setFields("nextPageToken, items(id, name)")
+                    .setQ(search)
+                    .setSpaces("drive")
+                    .setFields("nextPageToken, files(id, name, modifiedTime, owners, mimeType, parents, properties)")
                     .execute();
+
+
             List<File> files = result.getFiles();
             if (files != null) {
-                for (File file : files) {
-                    fileInfo.add(String.format("%s (%s)\n",
-                            file.getName(), file.getId()));
+                for (File f : files) {
+                    FileObj object = new FileObj(f);
+                    retFile.add(object);
                 }
             }
-            return fileInfo;
-        }
-
-
-        @Override
-        protected void onPreExecute() {
-//            mOutputText.setText("");
-            progress.setVisibility(View.VISIBLE);
+            return retFile;
         }
 
         @Override
-        protected void onPostExecute(List<String> output) {
-            progress.setVisibility(View.GONE);
+        protected void onPostExecute(List<FileObj> output) {
+            Log.d("log", "-----------7");
             startBaseProjActivity();
-
-            if (output == null || output.size() == 0) {
-//                mOutputText.setText("No results returned.");
-            } else {
-                output.add(0, "Data retrieved using the Drive API:");
-//                mOutputText.setText(TextUtils.join("\n", output));
-            }
         }
 
         @Override
         protected void onCancelled() {
             progress.setVisibility(View.GONE);
-            startBaseProjActivity();
+            Log.d("log", "-----------8");
+
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
+                    Toast.makeText(MainActivity.this, "test only: play services error", Toast.LENGTH_SHORT).show();
+                    showGooglePlayServicesAvailabilityErrorDialog(((GooglePlayServicesAvailabilityIOException) mLastError).getConnectionStatusCode());
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
+                    Toast.makeText(MainActivity.this, "test only: recoverable error", Toast.LENGTH_SHORT).show();
+                    startActivityForResult(((UserRecoverableAuthIOException) mLastError).getIntent(), MainActivity.REQUEST_AUTHORIZATION);
                 } else {
-//                    mOutputText.setText("The following error occurred:\n"+ mLastError.getMessage());
+                    if (BuildConfig.DEBUG) {
+                        Toast.makeText(MainActivity.this, "test only: login error", Toast.LENGTH_SHORT).show();
+                    }
                 }
             } else {
-//                mOutputText.setText("Request cancelled.");
+                if (BuildConfig.DEBUG) {
+                    Toast.makeText(MainActivity.this, "test only: cancelled error", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

@@ -1,8 +1,11 @@
 <resources>
-    <string name="app_name">SJ PM</string>
+    <string name="app_name">SJ</string>
     <string name="search_proj_hint">Enter at least 3 characters</string>
-    <string name="error_network">Something went wrong. Please check your connection.</string>
-    <string name="menu_copy">Copy</string>
+    <string name="menu_paste">Paste</string>
     <string name="menu_archive">Archive</string>
     <string name="menu_unarchive">UnArchive</string>
+
+    <string name="error_network">Something went wrong. Please check your connection.</string>
+    <string name="no_network">No network connection available.</string>
+    <string name="error_play_services">This app requires Google Play Services. Please install Google Play Services on your device and relaunch this app.</string>
 </resources>

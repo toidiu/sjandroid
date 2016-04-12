@@ -3,28 +3,32 @@ package sandjentrance.com.sj.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
-import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
+import java.io.File;
 import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
+import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.ArchiveFileAction;
 import sandjentrance.com.sj.actions.ArchiveFileActionEventFailure;
@@ -49,7 +53,7 @@ import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileListInterface;
-import sandjentrance.com.sj.utils.BgImageLoader;
+import sandjentrance.com.sj.utils.ImageUtil;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -63,6 +67,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     public static final String FILE_OBJ = "FILE_OBJ";
+    public static final int SELECT_PICTURE = 23969;
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.pm_name)
     TextView pmNameView;
@@ -74,6 +79,8 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     ProgressBar progress;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+    @Bind(R.id.profile_img)
+    CircleImageView profileImg;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private FileListAdapter adapter;
@@ -147,6 +154,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         }
 
     };
+    private Uri imagePickerUri;
     //endregion
     //endregion
 
@@ -215,6 +223,52 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE) {
+                final boolean isCamera;
+                if (data.getData() == null) {
+                    isCamera = true;
+                } else {
+                    final String action = data.getAction();
+                    if (action == null) {
+                        isCamera = false;
+                    } else {
+                        isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    }
+                }
+
+                Uri selectedImageUri;
+                if (isCamera) {
+                    selectedImageUri = imagePickerUri;
+                } else {
+                    selectedImageUri = data.getData();
+                }
+                if (BuildConfig.DEBUG) {
+                    Log.d("drawer_text-----------", selectedImageUri.toString());
+                }
+
+                startActivityForResult(ArtistImageCropActivity
+                                .getInstance(this, selectedImageUri.toString()),
+                        ArtistImageCropActivity.RESULT_CODE);
+            } else if (requestCode == ArtistImageCropActivity.RESULT_CODE) {
+                //// FIXME: 4/12/16 set image for user
+//                if (imageUrl != null) {
+//                    Picasso.with(this).invalidate(Uri.parse(imageUrl));
+//                }
+//                Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this));
+//
+//                Picasso.with(this).load(ImageUtil.getAvatarFile(this)).placeholder(R.drawable.ic_profile)
+//                        .networkPolicy(NetworkPolicy.NO_CACHE)
+//                        .memoryPolicy(MemoryPolicy.NO_CACHE).into(userImg);
+//                Picasso.with(this).load(ImageUtil.getAvatarFile(this)).placeholder(R.drawable.ic_profile)
+//                        .networkPolicy(NetworkPolicy.NO_CACHE)
+//                        .memoryPolicy(MemoryPolicy.NO_CACHE).into(profileBanner);
+//
+            }
+        }
+    }
     //endregion
 
     //region Init----------------------
@@ -248,6 +302,13 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
 
         adapter = new FileListAdapter(this);
         recyclerView.setAdapter(adapter);
+
+        profileImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                choosePicture();
+            }
+        });
     }
     //endregion
 
@@ -261,7 +322,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
             }
             menu.findItem(R.id.menu_archive).setVisible(true);
 
-            if(fileObj.claimUser != null){
+            if (fileObj.claimUser != null) {
                 menu.findItem(R.id.menu_claim).setVisible(true);
             }
         }
@@ -278,6 +339,27 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     private void claimProject() {
         PennStation.requestAction(PsClaimProjAction.helper(fileObj.id));
         progress.setVisibility(View.VISIBLE);
+    }
+
+    public void choosePicture() {
+        Intent pickIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File externalFile = ImageUtil.getTempFile(this);
+
+        takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(externalFile));
+        imagePickerUri = Uri.parse(externalFile.getAbsolutePath());
+        if (BuildConfig.DEBUG) {
+            Log.d("photo location", imagePickerUri.toString());
+        }
+
+        String pickTitle = getString(R.string.select_picture);
+        Intent chooserIntent = Intent.createChooser(takePhotoIntent, pickTitle);
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
+
+        startActivityForResult(chooserIntent, SELECT_PICTURE);
     }
     //endregion
 

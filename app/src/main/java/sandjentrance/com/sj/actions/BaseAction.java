@@ -43,6 +43,8 @@ public class BaseAction implements Action {
     public static final String ARCHIVE_FOLDER = "Archive";
     public static final String PHOTOS_FOLDER = "Photos";
     public static final String QUERY_FIELDS = "id, name, modifiedTime, owners, mimeType, parents, properties";
+    public static final String IMAGE_MIME = "image/jpeg";
+    public static final String PDF_MIME = "application/pdf";
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
     Context context;

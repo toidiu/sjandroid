@@ -3,6 +3,7 @@ package sandjentrance.com.sj.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -24,6 +25,17 @@ public class PdfTest extends AppCompatActivity {
 
         setContentView(R.layout.main_activity);
 
+        File file = getFile();
+
+        Global.Init(this);
+        Intent intent = new Intent();
+        intent.setClass(this, PDFViewAct.class);
+        intent.putExtra("PDFPath", file.getAbsolutePath());
+        startActivity(intent);
+    }
+
+    @NonNull
+    public File getFile() {
         File filesDir = getFilesDir();
         File externalStorageDirectory = Environment.getExternalStorageDirectory();
         Log.d("-----", filesDir.getAbsolutePath());
@@ -32,13 +44,9 @@ public class PdfTest extends AppCompatActivity {
         File download = new File(externalStorageDirectory, "Download");
         Log.d("-----", String.valueOf(download.exists()));
 
-        File file = new File(download, "test.pdf");
+        //markme check name
+        File file = new File(download, "test.JPG");
         Log.d("-----", String.valueOf(file.exists()));
-
-        Global.Init(this);
-        Intent intent = new Intent();
-        intent.setClass(this, PDFViewAct.class);
-        intent.putExtra("PDFPath", file.getAbsolutePath());
-        startActivity(intent);
+        return file;
     }
 }

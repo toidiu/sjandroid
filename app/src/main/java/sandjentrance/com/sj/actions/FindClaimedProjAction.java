@@ -2,7 +2,6 @@ package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
 
-import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Kind;
@@ -17,11 +16,13 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 
-import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
-import sandjentrance.com.sj.actions.FindBaseFolderAction_.PsFindBaseFolderAction;
 import sandjentrance.com.sj.models.FileObj;
 
 
@@ -29,29 +30,24 @@ import sandjentrance.com.sj.models.FileObj;
  * Created by toidiu on 3/28/16.
  */
 @RequestAction
-@RequestActionHelper(variables = {
-        @ClassField(name = "searchName", kind = @Kind(clazz = String.class), required = true)
-})
+@RequestActionHelper()
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
                 @ParcelableClassField(name = "results", kind = @Kind(clazz = FileObj[].class))
         }),
         @EventClass(classPostFix = "Failure")
 })
+public class FindClaimedProjAction extends BaseAction {
 
-public class FindBaseFolderAction extends BaseAction {
-
-    //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private Drive driveService;
 
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
-        FindBaseFolderActionHelper helper = PsFindBaseFolderAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
 
         if (credential.getSelectedAccountName() == null) {
-            return new FindBaseFolderActionEventFailure();
+            return new FindFolderChildrenActionEventFailure();
         }
 
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -61,21 +57,41 @@ public class FindBaseFolderAction extends BaseAction {
                 .setApplicationName("SJ")
                 .build();
 
-        String search = "name contains '" + helper.searchName() + "'"
+        String search = "properties has { key='" + CLAIM_PROPERTY + "' and value='" + credential.getSelectedAccountName() + "' }"
                 + " and " + "name != '.DS_Store'"
-//                + " and " + " sharedWithMe=true "
+                + " and " + "'" + prefs.getBaseFolderId() + "'" + " in parents"
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
             List<FileObj> dataFromApi = queryFileList(driveService, search);
-            FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            return new FindBaseFolderActionEventSuccess(array);
-        } catch (IOException e) {
+            final FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
+            Arrays.sort(array, FileObj.FileObjComparator);
+
+            databaseHelper.runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Dao<FileObj, String> fileObjDao = databaseHelper.getFileObjDao();
+                        DeleteBuilder<FileObj, String> builder = fileObjDao.deleteBuilder();
+                        builder.where().isNotNull("dbId");
+                        builder.delete();
+
+                        for (FileObj file : array) {
+                            fileObjDao.createOrUpdate(file);
+                        }
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+            return new DbFindClaimedProjListActionEventSuccess(array);
+        } catch (Exception e) {
             e.printStackTrace();
-            return new FindBaseFolderActionEventFailure();
+            return new DbFindClaimedProjListActionEventFailure();
         }
-
     }
-
 
 }

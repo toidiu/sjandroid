@@ -19,4 +19,12 @@
         android:visible="false"
         app:showAsAction="always"
         tools:visible="true" />
+
+    <item
+        android:id="@+id/menu_claim"
+        android:orderInCategory="100"
+        android:title="@string/menu_claim"
+        android:visible="false"
+        app:showAsAction="never"
+        tools:visible="true" />
 </menu>

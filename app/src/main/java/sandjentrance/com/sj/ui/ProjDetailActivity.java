@@ -206,6 +206,8 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
             case R.id.menu_archive:
                 PennStation.requestAction(PsArchiveFileAction.helper(fileObj.id));
                 progress.setVisibility(View.VISIBLE);
+            case R.id.menu_claim:
+                claimProject();
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -230,13 +232,14 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         if (fileObj.claimUser != null) {
             claimBtn.setVisibility(View.GONE);
             pmNameView.setText(fileObj.claimUser);
+
+            refreshMenu();
         }
 
         claimBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PennStation.requestAction(PsClaimProjAction.helper(fileObj.id));
-                progress.setVisibility(View.VISIBLE);
+                claimProject();
             }
         });
 
@@ -246,9 +249,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         adapter = new FileListAdapter(this);
         recyclerView.setAdapter(adapter);
     }
-
     //endregion
-
 
     //region View----------------------
     private void refreshMenu() {
@@ -259,6 +260,10 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
                 menu.findItem(R.id.menu_paste).setVisible(false);
             }
             menu.findItem(R.id.menu_archive).setVisible(true);
+
+            if(fileObj.claimUser != null){
+                menu.findItem(R.id.menu_claim).setVisible(true);
+            }
         }
     }
 
@@ -268,6 +273,14 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     }
 
     //endregion
+
+    //region Helper----------------------
+    private void claimProject() {
+        PennStation.requestAction(PsClaimProjAction.helper(fileObj.id));
+        progress.setVisibility(View.VISIBLE);
+    }
+    //endregion
+
 
     //region Interface----------------------
     @Override

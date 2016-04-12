@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.utils.ArchiveFileHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
@@ -58,6 +59,12 @@ public class AppModule {
     @Singleton
     RenameFileHelper providesRenameHelper() {
         return new RenameFileHelper();
+    }
+
+    @Provides
+    @Singleton
+    DatabaseHelper providesDatabaseHelper(Context context) {
+        return DatabaseHelper.getInstance(context);
     }
 
 }

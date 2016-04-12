@@ -19,7 +19,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,9 +67,14 @@ public class ClaimProjAction extends BaseAction {
         fileMetadata.setProperties(prop);
 
         try {
-            File file = driveService.files().update(helper.fileId(), fileMetadata).execute();
+            File file = driveService.files().update(helper.fileId(), fileMetadata)
+                    .setFields(QUERY_FIELDS)
+                    .execute();
+            FileObj fileObj = new FileObj(file);
+            databaseHelper.getFileObjDao().createOrUpdate(fileObj);
+
             return new ClaimProjActionEventSuccess(credential.getSelectedAccountName());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return new ClaimProjActionEventFailure();
         }

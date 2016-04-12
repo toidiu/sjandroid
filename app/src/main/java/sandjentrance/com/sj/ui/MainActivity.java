@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -149,6 +148,9 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
         } else if (!isDeviceOnline()) {
             Log.d("log", "-----------3");
             Snackbar.make(textView, R.string.no_network, Snackbar.LENGTH_SHORT).show();
+            if (prefs.getBaseFolderId() != null) {
+                startBaseProjActivity();
+            }
         } else {
             Log.d("log", "-----------4");
             new MakeRequestTask(credential).execute();

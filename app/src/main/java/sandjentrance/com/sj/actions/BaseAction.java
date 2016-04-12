@@ -22,6 +22,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import sandjentrance.com.sj.SJApplication;
+import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
@@ -41,6 +42,7 @@ public class BaseAction implements Action {
     public static final String CLAIM_PROPERTY = "CLAIM_PROPERTY";
     public static final String ARCHIVE_FOLDER = "Archive";
     public static final String PHOTOS_FOLDER = "Photos";
+    public static final String QUERY_FIELDS = "id, name, modifiedTime, owners, mimeType, parents, properties";
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
     Context context;
@@ -52,6 +54,8 @@ public class BaseAction implements Action {
     MoveFolderHelper moveFolderHelper;
     @Inject
     RenameFileHelper renameFileHelper;
+    @Inject
+    DatabaseHelper databaseHelper;
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
@@ -68,7 +72,7 @@ public class BaseAction implements Action {
         FileList result = driveService.files().list()
                 .setQ(search)
                 .setSpaces("drive")
-                .setFields("nextPageToken, files(id, name, modifiedTime, owners, mimeType, parents, properties)")
+                .setFields("nextPageToken, files(" + QUERY_FIELDS + ")")
                 .execute();
 
 

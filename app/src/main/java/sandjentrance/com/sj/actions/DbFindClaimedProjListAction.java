@@ -19,9 +19,11 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
-import sandjentrance.com.sj.actions.FindBaseFolderAction_.PsFindBaseFolderAction;
+import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.models.FileObj;
 
 
@@ -29,53 +31,31 @@ import sandjentrance.com.sj.models.FileObj;
  * Created by toidiu on 3/28/16.
  */
 @RequestAction
-@RequestActionHelper(variables = {
-        @ClassField(name = "searchName", kind = @Kind(clazz = String.class), required = true)
-})
+@RequestActionHelper()
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
                 @ParcelableClassField(name = "results", kind = @Kind(clazz = FileObj[].class))
         }),
         @EventClass(classPostFix = "Failure")
 })
+public class DbFindClaimedProjListAction extends BaseAction {
 
-public class FindBaseFolderAction extends BaseAction {
-
-    //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private Drive driveService;
 
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
-        FindBaseFolderActionHelper helper = PsFindBaseFolderAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
-
-        if (credential.getSelectedAccountName() == null) {
-            return new FindBaseFolderActionEventFailure();
-        }
-
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        driveService = new Drive.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("SJ")
-                .build();
-
-        String search = "name contains '" + helper.searchName() + "'"
-                + " and " + "name != '.DS_Store'"
-//                + " and " + " sharedWithMe=true "
-                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
-            List<FileObj> dataFromApi = queryFileList(driveService, search);
-            FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            return new FindBaseFolderActionEventSuccess(array);
-        } catch (IOException e) {
+            List<FileObj> fileObjList = databaseHelper.getFileObjDao().queryForAll();
+            FileObj[] array = fileObjList.toArray(new FileObj[fileObjList.size()]);
+            Arrays.sort(array, FileObj.FileObjComparator);
+            return new DbFindClaimedProjListActionEventSuccess(array);
+        } catch (SQLException e) {
             e.printStackTrace();
-            return new FindBaseFolderActionEventFailure();
+            return new DbFindClaimedProjListActionEventFailure();
         }
-
     }
-
 
 }

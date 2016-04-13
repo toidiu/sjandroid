@@ -12,6 +12,7 @@ import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -27,6 +28,7 @@ import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.utils.FileUtils;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
@@ -129,7 +131,7 @@ public class BaseAction implements Action {
 
     }
 
-    protected List<File> getFildByName(String fileName, String baseFolderId) {
+    protected List<File> getFileByName(String fileName, String baseFolderId) {
         String search = "name = '" + fileName + "'"
                 + " and " + "'" + baseFolderId + "'" + " in parents";
 
@@ -185,6 +187,55 @@ public class BaseAction implements Action {
             }
         }
     }
+
+    @Nullable
+    protected java.io.File downloadUserImg(java.io.File avatarFile, String fileId) {
+        //download it
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(avatarFile);
+            driveService.files().export(fileId, PDF_MIME)
+                    .executeMediaAndDownloadTo(fileOutputStream);
+            return avatarFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
+    protected File createFile(FileUploadObj fileUploadObj) {
+        //Local file
+        FileContent mediaContent = new FileContent(fileUploadObj.mime, new java.io.File(fileUploadObj.localFilePath));
+
+        //Drive file
+        List<String> parents = new ArrayList<>();
+        parents.add(fileUploadObj.parentId);
+        File fileMetadata = new File();
+        fileMetadata.setName(fileUploadObj.fileName);
+        fileMetadata.setMimeType(fileUploadObj.mime);
+        fileMetadata.setParents(parents);
+
+
+        try {
+            return driveService.files().create(fileMetadata, mediaContent)
+                    .setFields(QUERY_FIELDS)
+                    .execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected boolean deleteFile(String fileId) {
+        try {
+            driveService.files().delete(fileId).execute();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
 //endregion
 

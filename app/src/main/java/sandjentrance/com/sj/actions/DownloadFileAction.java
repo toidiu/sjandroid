@@ -28,7 +28,7 @@ import sandjentrance.com.sj.models.FileDownloadObj;
 })
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "filePath", kind = @Kind(clazz = String.class))
+                @ParcelableClassField(name = "localFilePath", kind = @Kind(clazz = String.class))
         }),
         @EventClass(classPostFix = "Failure")
 })

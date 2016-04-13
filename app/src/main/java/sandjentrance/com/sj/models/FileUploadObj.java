@@ -15,24 +15,13 @@ public class FileUploadObj implements Parcelable {
     public String fileId;
     public String parentId;
     public String fileName;
-    public String filePath;
+    public String localFilePath;
     public String mime;
-    public static final Creator<FileUploadObj> CREATOR = new Creator<FileUploadObj>() {
-        public FileUploadObj createFromParcel(Parcel source) {
-            FileUploadObj target = new FileUploadObj();
-            FileUploadObjParcelablePlease.readFromParcel(target, source);
-            return target;
-        }
 
-        public FileUploadObj[] newArray(int size) {
-            return new FileUploadObj[size];
-        }
-    };
-
-    public FileUploadObj(String parentId, String fileName, String filePath, String mime) {
+    public FileUploadObj(String parentId, String fileName, String localFilePath, String mime) {
         this.parentId = parentId;
         this.fileName = fileName;
-        this.filePath = filePath;
+        this.localFilePath = localFilePath;
         this.mime = mime;
     }
 
@@ -48,4 +37,16 @@ public class FileUploadObj implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         FileUploadObjParcelablePlease.writeToParcel(this, dest, flags);
     }
+
+    public static final Creator<FileUploadObj> CREATOR = new Creator<FileUploadObj>() {
+        public FileUploadObj createFromParcel(Parcel source) {
+            FileUploadObj target = new FileUploadObj();
+            FileUploadObjParcelablePlease.readFromParcel(target, source);
+            return target;
+        }
+
+        public FileUploadObj[] newArray(int size) {
+            return new FileUploadObj[size];
+        }
+    };
 }

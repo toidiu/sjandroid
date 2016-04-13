@@ -1,6 +1,5 @@
 package sandjentrance.com.sj.actions;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import com.edisonwang.ps.annotations.ClassField;
@@ -13,15 +12,10 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.client.http.FileContent;
-import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
 import sandjentrance.com.sj.utils.ImageUtil;
 
@@ -53,10 +47,18 @@ public class GetUserImgAction extends BaseAction {
 
 
         //// FIXME: 4/13/16 see if file exists on server
+        List<File> fileByName = getFileByName(fileName, prefs.getPhotosFolderId());
         // yes
+        if (fileByName != null && fileByName.size() > 0) {
             //download it
-        //no
-            //upload local
+            downloadUserImg(avatarFile, fileByName.get(0).getId());
+        } else {
+            //no
+            //upload local if exists
+            if (avatarFile.exists()){
+
+            }
+        }
 
 //        if (!avatarFile.exists()) {
 //            Bitmap bitmapFromDrawable = ImageUtil.getBitmapFromDrawable(context, R.drawable.profile_image);
@@ -65,7 +67,7 @@ public class GetUserImgAction extends BaseAction {
 //        }
 //
 //        //check if the file already exists
-//        List<File> fildByName = getFildByName(fileName, prefs.getPhotosFolderId());
+//        List<File> fildByName = getFileByName(fileName, prefs.getPhotosFolderId());
 //        File imgFile = null;
 //        if (fildByName != null && fildByName.size() > 0) {
 //            imgFile = fildByName.get(0);

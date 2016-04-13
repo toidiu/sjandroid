@@ -50,14 +50,14 @@ public class UploadUserImageAction extends BaseAction {
 
 
         //check if the file already exists
-        List<File> fildByName = getFildByName(fileUploadObj.fileName, prefs.getPhotosFolderId());
+        List<File> fildByName = getFileByName(fileUploadObj.fileName, prefs.getPhotosFolderId());
         File imgFile = null;
         if (fildByName != null && fildByName.size() > 0) {
             imgFile = fildByName.get(0);
         }
 
         //Local file
-        FileContent mediaContent = new FileContent(fileUploadObj.mime, new java.io.File(fileUploadObj.filePath));
+        FileContent mediaContent = new FileContent(fileUploadObj.mime, new java.io.File(fileUploadObj.localFilePath));
 
         //Drive file
         List<String> parents = new ArrayList<>();

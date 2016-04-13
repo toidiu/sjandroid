@@ -107,7 +107,7 @@ dependencies {
     //    compile 'com.google.android.gms:play-services-location:8.4.0'
     //    compile 'com.google.code.gson:gson:2.5'
     //    compile 'org.twitter4j:twitter4j-core:4.0.4'
-    //    compile 'joda-time:joda-time:2.9.2'
+    compile 'joda-time:joda-time:2.9.2'
     compile 'com.hannesdorfmann.parcelableplease:annotation:1.0.2'
     apt 'com.hannesdorfmann.parcelableplease:processor:1.0.2'
 

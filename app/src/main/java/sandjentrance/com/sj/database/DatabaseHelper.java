@@ -73,7 +73,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public Dao<FileObj, String> getFileObjDao() throws SQLException {
+    public Dao<FileObj, String> getClaimProjDao() throws SQLException {
         return getDao(FileObj.class);
     }
 

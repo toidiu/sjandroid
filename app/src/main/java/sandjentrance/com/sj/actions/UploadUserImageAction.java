@@ -49,37 +49,30 @@ public class UploadUserImageAction extends BaseAction {
         }
 
 
+        File createdFile = null;
+        boolean deleteSatisfied = true;
+
         //check if the file already exists
-        List<File> fildByName = getFileByName(fileUploadObj.fileName, prefs.getPhotosFolderId());
-        File imgFile = null;
-        if (fildByName != null && fildByName.size() > 0) {
-            imgFile = fildByName.get(0);
+        List<File> fileByName = getFileByName(fileUploadObj.fileName, prefs.getPhotosFolderId());
+        if (fileByName != null && fileByName.size() > 0) {
+            //yes
+            createdFile = createFile(helper.fileUploadObj());
+            for (File f : fileByName) {
+                if (!deleteFile(f.getId())) {
+                    deleteSatisfied = false;
+                }
+            }
+
+        } else {
+            //no
+            createdFile = createFile(helper.fileUploadObj());
         }
 
-        //Local file
-        FileContent mediaContent = new FileContent(fileUploadObj.mime, new java.io.File(fileUploadObj.localFilePath));
 
-        //Drive file
-        List<String> parents = new ArrayList<>();
-        parents.add(fileUploadObj.parentId);
-        File fileMetadata = new File();
-        fileMetadata.setName(fileUploadObj.fileName);
-        fileMetadata.setMimeType(fileUploadObj.mime);
-        fileMetadata.setParents(parents);
-
-        try {
-            driveService.files().create(fileMetadata, mediaContent)
-                    .setFields(QUERY_FIELDS)
-                    .execute();
-
-            if (imgFile != null) {
-                //// markme: 4/13/16 update is failing.. but that should be the prefered way
-//                driveService.files().update(imgFile.getId(), imgFile, mediaContent).execute();
-                driveService.files().delete(imgFile.getId()).execute();
-            }
+        if (createdFile != null && deleteSatisfied) {
+            //fixme delete from DB and also the local file
             return new UploadFileActionEventSuccess();
-        } catch (IOException e) {
-            e.printStackTrace();
+        }else {
             return new UploadFileActionEventFailure();
         }
     }

@@ -71,7 +71,7 @@ public class ClaimProjAction extends BaseAction {
                     .setFields(QUERY_FIELDS)
                     .execute();
             FileObj fileObj = new FileObj(file);
-            databaseHelper.getFileObjDao().createOrUpdate(fileObj);
+            databaseHelper.getClaimProjDao().createOrUpdate(fileObj);
 
             return new ClaimProjActionEventSuccess(credential.getSelectedAccountName());
         } catch (Exception e) {

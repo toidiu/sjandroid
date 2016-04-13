@@ -23,7 +23,6 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-
 import java.io.File;
 import java.util.Arrays;
 
@@ -46,6 +45,7 @@ import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.GetUserImgAction;
 import sandjentrance.com.sj.actions.GetUserImgActionEventFailure;
+import sandjentrance.com.sj.actions.GetUserImgActionEventNoFile;
 import sandjentrance.com.sj.actions.GetUserImgActionEventSuccess;
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
@@ -165,10 +165,14 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         }
 
         @Override
+        public void onEventMainThread(GetUserImgActionEventNoFile event) {
+
+        }
+
+        @Override
         public void onEventMainThread(GetUserImgActionEventSuccess event) {
             if (event.userName.equals(fileObj.claimUser)) {
-                //fixme be smarter about when we refresh and invalidate cache
-//                invalidateAndSetUserImage();
+                invalidateAndSetUserImage();
             }
         }
 

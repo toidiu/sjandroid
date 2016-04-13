@@ -176,14 +176,23 @@ public class BaseAction implements Action {
             return localFile;
         } else {
             //download it
+            FileOutputStream fileOutputStream = null;
             try {
-                FileOutputStream fileOutputStream = new FileOutputStream(localFile);
+                fileOutputStream = new FileOutputStream(localFile);
                 driveService.files().export(fileDownloadObj.fileId, PDF_MIME)
                         .executeMediaAndDownloadTo(fileOutputStream);
                 return localFile;
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
+            } finally {
+                if (fileOutputStream != null) {
+                    try {
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -191,14 +200,23 @@ public class BaseAction implements Action {
     @Nullable
     protected java.io.File downloadUserImg(java.io.File avatarFile, String fileId) {
         //download it
+        FileOutputStream fileOutputStream = null;
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(avatarFile);
+            fileOutputStream = new FileOutputStream(avatarFile);
             driveService.files().export(fileId, PDF_MIME)
                     .executeMediaAndDownloadTo(fileOutputStream);
             return avatarFile;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

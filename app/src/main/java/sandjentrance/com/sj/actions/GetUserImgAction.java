@@ -14,9 +14,12 @@ import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
 import com.google.api.services.drive.model.File;
 
+import org.joda.time.DateTime;
+
 import java.util.List;
 
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
+import sandjentrance.com.sj.utils.DateUtil;
 import sandjentrance.com.sj.utils.ImageUtil;
 
 
@@ -31,7 +34,8 @@ import sandjentrance.com.sj.utils.ImageUtil;
         @EventClass(classPostFix = "Success", fields = {
                 @ParcelableClassField(name = "userName", kind = @Kind(clazz = String.class))
         }),
-        @EventClass(classPostFix = "Failure")
+        @EventClass(classPostFix = "Failure"),
+        @EventClass(classPostFix = "NoFile")
 })
 
 public class GetUserImgAction extends BaseAction {
@@ -46,61 +50,26 @@ public class GetUserImgAction extends BaseAction {
         String fileName = avatarFile.getName();
 
 
-        //// FIXME: 4/13/16 see if file exists on server
+        //see if file exists on server
         List<File> fileByName = getFileByName(fileName, prefs.getPhotosFolderId());
         // yes
         if (fileByName != null && fileByName.size() > 0) {
-            //download it
-            downloadUserImg(avatarFile, fileByName.get(0).getId());
-        } else {
-            //no
-            //upload local if exists
-            if (avatarFile.exists()){
-
+            //see how old the local avatar file is
+            DateTime dateTime = new DateTime(avatarFile.lastModified());
+            if (DateUtil.isDayOld(dateTime)) {
+                //download it
+                java.io.File file = downloadUserImg(avatarFile, fileByName.get(0).getId());
+                if (file == null || !file.exists()) {
+                    return new GetUserImgActionEventFailure();
+                }
+                return new GetUserImgActionEventSuccess(helper.userName());
+            } else {
+                //no
+                return new GetUserImgActionEventFailure();
             }
+        } else {
+            return new GetUserImgActionEventNoFile();
         }
 
-//        if (!avatarFile.exists()) {
-//            Bitmap bitmapFromDrawable = ImageUtil.getBitmapFromDrawable(context, R.drawable.profile_image);
-//            Bitmap resizedBitmap = ImageUtil.getResizedBitmap(bitmapFromDrawable, ImageUtil.IMAGE_RESOLUTION, ImageUtil.IMAGE_RESOLUTION);
-//            ImageUtil.saveUserImage(context, resizedBitmap, helper.userName());
-//        }
-//
-//        //check if the file already exists
-//        List<File> fildByName = getFileByName(fileName, prefs.getPhotosFolderId());
-//        File imgFile = null;
-//        if (fildByName != null && fildByName.size() > 0) {
-//            imgFile = fildByName.get(0);
-//        }
-//
-//        //Local file
-//        FileContent mediaContent = new FileContent(IMAGE_MIME, new java.io.File(avatarFile.getAbsolutePath()));
-//
-//        //Drive file
-//        List<String> parents = new ArrayList<>();
-//        parents.add(prefs.getPhotosFolderId());
-//        File fileMetadata = new File();
-//        fileMetadata.setName(fileName);
-//        fileMetadata.setMimeType(IMAGE_MIME);
-//        fileMetadata.setParents(parents);
-//
-//        try {
-//            driveService.files().create(fileMetadata, mediaContent)
-//                    .setFields(QUERY_FIELDS)
-//                    .execute();
-//
-//            if (imgFile != null) {
-//                //// markme: 4/13/16 update is failing.. but that should be the prefered way
-////                driveService.files().update(imgFile.getId(), imgFile, mediaContent).execute();
-//                driveService.files().delete(imgFile.getId()).execute();
-//            }
-//            return new GetUserImgActionEventSuccess(helper.userName());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new GetUserImgActionEventFailure();
-//        }
-
-        return null;
     }
-
 }

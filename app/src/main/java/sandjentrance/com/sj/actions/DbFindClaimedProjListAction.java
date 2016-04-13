@@ -41,7 +41,7 @@ public class DbFindClaimedProjListAction extends BaseAction {
         super.processRequest(service, actionRequest, bundle);
 
         try {
-            List<FileObj> fileObjList = databaseHelper.getFileObjDao().queryForAll();
+            List<FileObj> fileObjList = databaseHelper.getClaimProjDao().queryForAll();
             FileObj[] array = fileObjList.toArray(new FileObj[fileObjList.size()]);
             Arrays.sort(array, FileObj.FileObjComparator);
             return new DbFindClaimedProjListActionEventSuccess(array);

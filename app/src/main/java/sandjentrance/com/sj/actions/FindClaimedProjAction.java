@@ -11,11 +11,6 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 
@@ -39,8 +34,6 @@ import sandjentrance.com.sj.models.FileObj;
 })
 public class FindClaimedProjAction extends BaseAction {
 
-    private Drive driveService;
-
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
@@ -50,20 +43,13 @@ public class FindClaimedProjAction extends BaseAction {
             return new FindFolderChildrenActionEventFailure();
         }
 
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        driveService = new Drive.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("SJ")
-                .build();
-
         String search = "properties has { key='" + CLAIM_PROPERTY + "' and value='" + credential.getSelectedAccountName() + "' }"
                 + " and " + "name != '.DS_Store'"
                 + " and " + "'" + prefs.getBaseFolderId() + "'" + " in parents"
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
-            List<FileObj> dataFromApi = queryFileList(driveService, search);
+            List<FileObj> dataFromApi = toFileObjs(queryFileList(search));
             final FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
             Arrays.sort(array, FileObj.FileObjComparator);
 

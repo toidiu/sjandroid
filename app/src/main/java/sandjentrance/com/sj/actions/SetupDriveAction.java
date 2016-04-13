@@ -12,11 +12,6 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
@@ -42,7 +37,6 @@ import sandjentrance.com.sj.models.FileObj;
 public class SetupDriveAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private Drive driveService;
     private String parentId;
 
 
@@ -55,13 +49,6 @@ public class SetupDriveAction extends BaseAction {
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
         }
-
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        driveService = new Drive.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("SJ")
-                .build();
 
         List<String> parents = new ArrayList<>();
         parents.add(parentId);
@@ -77,7 +64,7 @@ public class SetupDriveAction extends BaseAction {
 
     @NonNull
     private boolean checkAndCreateArchive(List<String> parents) {
-        List<FileObj> dataFromApi = getFoldersByName(driveService, ARCHIVE_FOLDER, parentId);
+        List<FileObj> dataFromApi = getFoldersByName(ARCHIVE_FOLDER, parentId);
 
         if (dataFromApi.size() == 0) {
             File archive = new File();
@@ -101,7 +88,7 @@ public class SetupDriveAction extends BaseAction {
 
     @NonNull
     private boolean checkAndCreatePhotos(List<String> parents) {
-        List<FileObj> dataFromApi = getFoldersByName(driveService, PHOTOS_FOLDER, parentId);
+        List<FileObj> dataFromApi = getFoldersByName(PHOTOS_FOLDER, parentId);
 
         if (dataFromApi.size() == 0) {
             File photos = new File();

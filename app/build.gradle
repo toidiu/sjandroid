@@ -108,6 +108,9 @@ dependencies {
     //    compile 'com.google.code.gson:gson:2.5'
     //    compile 'org.twitter4j:twitter4j-core:4.0.4'
     //    compile 'joda-time:joda-time:2.9.2'
+    compile 'com.hannesdorfmann.parcelableplease:annotation:1.0.2'
+    apt 'com.hannesdorfmann.parcelableplease:processor:1.0.2'
+
     compile 'org.parceler:parceler-api:1.0.4'
     apt 'org.parceler:parceler:1.0.4'
     //PennStation-------------------------

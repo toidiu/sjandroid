@@ -15,7 +15,10 @@ import sandjentrance.com.sj.ui.MainActivity;
 @Component(modules = {ApiModules.class, AppModule.class, ContextModule.class})
 public interface ApplicationComponent {
     void inject(MainActivity obj);
+
     void inject(BaseActivity obj);
+
     void inject(BaseAction obj);
+
     void inject(BaseDialogFrag obj);
 }

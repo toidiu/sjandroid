@@ -54,7 +54,7 @@ public class ArchiveFileAction extends BaseAction {
                 .build();
 
 
-        if (fileMoved(driveService, helper.fileId(), prefs.getArchiveFolderId())) {
+        if (fileMoved(helper.fileId(), prefs.getArchiveFolderId())) {
             return new ArchiveFileActionEventSuccess();
         } else {
             return new ArchiveFileActionEventFailure();

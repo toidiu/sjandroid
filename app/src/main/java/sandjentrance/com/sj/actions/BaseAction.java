@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.edisonwang.ps.annotations.EventClass;
 import com.edisonwang.ps.annotations.EventProducer;
@@ -53,6 +54,8 @@ public class BaseAction implements Action {
     @Inject
     GoogleAccountCredential credential;
     @Inject
+    Drive driveService;
+    @Inject
     MoveFolderHelper moveFolderHelper;
     @Inject
     RenameFileHelper renameFileHelper;
@@ -67,18 +70,22 @@ public class BaseAction implements Action {
     }
 
     //region Helper----------------------
-    protected List<FileObj> queryFileList(Drive driveService, String search) throws IOException {
+    protected List<File> queryFileList(String search) throws IOException {
 
-        List<FileObj> retFile = new ArrayList<>();
 
         FileList result = driveService.files().list()
                 .setQ(search)
                 .setSpaces("drive")
                 .setFields("nextPageToken, files(" + QUERY_FIELDS + ")")
                 .execute();
-
-
         List<File> files = result.getFiles();
+
+
+        return files;
+    }
+
+    public List<FileObj> toFileObjs(List<File> files) {
+        List<FileObj> retFile = new ArrayList<>();
         if (files != null) {
             for (File f : files) {
                 FileObj object = new FileObj(f);
@@ -88,35 +95,48 @@ public class BaseAction implements Action {
         return retFile;
     }
 
-    protected List<FileObj> getFolderById(Drive driveService, String fileId, String baseFolderId) {
+    protected List<FileObj> getFolderById(String fileId, String baseFolderId) {
         String search = "id = '" + fileId + "'"
                 + " and " + "'" + baseFolderId + "'" + " in parents"
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         List<FileObj> dataFromApi = new ArrayList<>();
         try {
-            dataFromApi = queryFileList(driveService, search);
+            dataFromApi = toFileObjs(queryFileList(search));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return dataFromApi;
     }
 
-    protected List<FileObj> getFoldersByName(Drive driveService, String folderName, String baseFolderId) {
+    protected List<FileObj> getFoldersByName(String folderName, String baseFolderId) {
         String search = "name = '" + folderName + "'"
                 + " and " + "'" + baseFolderId + "'" + " in parents"
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         List<FileObj> dataFromApi = new ArrayList<>();
         try {
-            dataFromApi = queryFileList(driveService, search);
+            dataFromApi = toFileObjs(queryFileList(search));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return dataFromApi;
     }
 
-    protected boolean fileMoved(Drive driveService, String fileId, String newParentId) {
+    protected List<File> getFildByName(String fileName, String baseFolderId) {
+        String search = "name = '" + fileName + "'"
+                + " and " + "'" + baseFolderId + "'" + " in parents";
+
+        List<File> dataFromApi = new ArrayList<>();
+        try {
+            dataFromApi = queryFileList(search);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return dataFromApi;
+    }
+
+    protected boolean fileMoved(String fileId, String newParentId) {
         try {
             // Retrieve the existing parents to remove
             File file = driveService.files().get(fileId)

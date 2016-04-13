@@ -31,6 +31,21 @@ public class FileObj {
     public String id;
     @DatabaseField
     public String title;
+    public static Comparator<FileObj> FileObjComparator = new Comparator<FileObj>() {
+
+        public int compare(FileObj file1, FileObj file2) {
+
+            String fileName1 = file1.title.toUpperCase();
+            String fileName2 = file2.title.toUpperCase();
+
+            //ascending order
+            return fileName1.compareTo(fileName2);
+
+            //descending order
+            //return fruitName2.compareTo(fruitName1);
+        }
+
+    };
     @DatabaseField
     public String mime;
     @DatabaseField
@@ -39,11 +54,11 @@ public class FileObj {
     public String lastModified;
     @DatabaseField
     public String parent;
+    //endregion
     @Nullable
     @android.support.annotation.Nullable
     @DatabaseField
     public String claimUser;
-    //endregion
 
     //region Constructor----------------------
     public FileObj(File f) {
@@ -66,11 +81,11 @@ public class FileObj {
             this.claimUser = properties.get(BaseAction.CLAIM_PROPERTY);
         }
     }
+    //endregion
 
     @SuppressWarnings("unused")
     public FileObj() {
     }
-    //endregion
 
     //region Helper----------------------
     public static boolean isFolder(@NonNull String mime) {
@@ -80,21 +95,5 @@ public class FileObj {
     public static boolean isBaseFolder(@NonNull String id, @NonNull String projId) {
         return id.equals(projId);
     }
-
-    public static Comparator<FileObj> FileObjComparator = new Comparator<FileObj>() {
-
-        public int compare(FileObj file1, FileObj file2) {
-
-            String fileName1 = file1.title.toUpperCase();
-            String fileName2 = file2.title.toUpperCase();
-
-            //ascending order
-            return fileName1.compareTo(fileName2);
-
-            //descending order
-            //return fruitName2.compareTo(fruitName1);
-        }
-
-    };
     //endregion
 }

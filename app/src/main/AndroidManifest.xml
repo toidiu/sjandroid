@@ -48,6 +48,7 @@
         <activity android:name=".ui.ProjDetailActivity" />
         <activity android:name=".ui.GenericFileListActivity" />
         <activity android:name=".ui.ArchiveFileListActivity" />
+        <activity android:name=".ui.UserImageCropActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"

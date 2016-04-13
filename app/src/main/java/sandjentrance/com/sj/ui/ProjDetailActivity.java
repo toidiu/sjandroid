@@ -19,6 +19,9 @@ import android.widget.TextView;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
@@ -42,6 +45,7 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
 import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
 import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
@@ -249,16 +253,14 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
                     Log.d("drawer_text-----------", selectedImageUri.toString());
                 }
 
-                startActivityForResult(ArtistImageCropActivity
-                                .getInstance(this, selectedImageUri.toString()),
-                        ArtistImageCropActivity.RESULT_CODE);
-            } else if (requestCode == ArtistImageCropActivity.RESULT_CODE) {
-                //// FIXME: 4/12/16 set image for user
-//                if (imageUrl != null) {
-//                    Picasso.with(this).invalidate(Uri.parse(imageUrl));
-//                }
-//                Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this));
-//
+                startActivityForResult(UserImageCropActivity.getInstance(this, selectedImageUri.toString()),
+                        UserImageCropActivity.RESULT_CODE);
+            } else if (requestCode == UserImageCropActivity.RESULT_CODE) {
+                Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this, fileObj.claimUser));
+                Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser))
+                        .placeholder(R.drawable.profile_image)
+                        .networkPolicy(NetworkPolicy.NO_CACHE)
+                        .memoryPolicy(MemoryPolicy.NO_CACHE).into(profileImg);
 //                Picasso.with(this).load(ImageUtil.getAvatarFile(this)).placeholder(R.drawable.ic_profile)
 //                        .networkPolicy(NetworkPolicy.NO_CACHE)
 //                        .memoryPolicy(MemoryPolicy.NO_CACHE).into(userImg);
@@ -303,10 +305,15 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         adapter = new FileListAdapter(this);
         recyclerView.setAdapter(adapter);
 
+        //// FIXME: 4/13/16 receive event and replace image if it exists
+        PennStation.requestAction(PsGetUserImgAction.helper(prefs.getUser()));
+        Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser)).placeholder(R.drawable.profile_image).into(profileImg);
         profileImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                choosePicture();
+                if (fileObj.claimUser.equals(prefs.getUser())) {
+                    choosePicture();
+                }
             }
         });
     }

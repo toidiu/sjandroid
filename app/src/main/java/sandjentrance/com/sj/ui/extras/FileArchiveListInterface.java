@@ -1,7 +1,5 @@
 package sandjentrance.com.sj.ui.extras;
 
-import android.view.View;
-
 import sandjentrance.com.sj.models.FileObj;
 
 /**

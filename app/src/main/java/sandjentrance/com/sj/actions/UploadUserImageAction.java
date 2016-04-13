@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
+import sandjentrance.com.sj.actions.UploadUserImageAction_.PsUploadUserImageAction;
 import sandjentrance.com.sj.models.FileUploadObj;
 
 
@@ -34,18 +34,26 @@ import sandjentrance.com.sj.models.FileUploadObj;
         @EventClass(classPostFix = "Failure")
 })
 
-public class UploadFileAction extends BaseAction {
+public class UploadUserImageAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
-        UploadFileActionHelper helper = PsUploadFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+        UploadUserImageActionHelper helper = PsUploadUserImageAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
         FileUploadObj fileUploadObj = helper.fileUploadObj();
 
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
+        }
+
+
+        //check if the file already exists
+        List<File> fildByName = getFildByName(fileUploadObj.fileName, prefs.getPhotosFolderId());
+        File imgFile = null;
+        if (fildByName != null && fildByName.size() > 0) {
+            imgFile = fildByName.get(0);
         }
 
         //Local file
@@ -59,11 +67,16 @@ public class UploadFileAction extends BaseAction {
         fileMetadata.setMimeType(fileUploadObj.mime);
         fileMetadata.setParents(parents);
 
-
         try {
-            File file = driveService.files().create(fileMetadata, mediaContent)
+            if (imgFile != null) {
+                //// FIXME: 4/13/16 update is failing.. but that should be the prefered way
+//                driveService.files().update(imgFile.getId(), imgFile, mediaContent).execute();
+                driveService.files().delete(imgFile.getId()).execute();
+            }
+            driveService.files().create(fileMetadata, mediaContent)
                     .setFields(QUERY_FIELDS)
                     .execute();
+
             return new UploadFileActionEventSuccess();
         } catch (IOException e) {
             e.printStackTrace();

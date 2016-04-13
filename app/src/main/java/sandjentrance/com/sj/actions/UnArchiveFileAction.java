@@ -11,11 +11,6 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
 
 import sandjentrance.com.sj.actions.UnArchiveFileAction_.PsUnArchiveFileAction;
 
@@ -35,7 +30,6 @@ import sandjentrance.com.sj.actions.UnArchiveFileAction_.PsUnArchiveFileAction;
 public class UnArchiveFileAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private Drive driveService;
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
@@ -46,15 +40,7 @@ public class UnArchiveFileAction extends BaseAction {
             return new SetupDriveActionEventFailure();
         }
 
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        driveService = new Drive.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("SJ")
-                .build();
-
-
-        if (fileMoved(driveService, helper.fileId(), prefs.getBaseFolderId())) {
+        if (fileMoved(helper.fileId(), prefs.getBaseFolderId())) {
             return new UnArchiveFileActionEventSuccess();
         } else {
             return new UnArchiveFileActionEventFailure();

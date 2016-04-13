@@ -13,7 +13,6 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
-import org.parceler.Parcels;
 
 import java.util.Arrays;
 
@@ -120,7 +119,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     //region Lifecycle----------------------
     public static Intent getInstance(Context context, FileObj fileObj) {
         Intent intent = new Intent(context, ArchiveFileListActivity.class);
-        intent.putExtra(FILE_OBJ, Parcels.wrap(fileObj));
+        intent.putExtra(FILE_OBJ, fileObj);
         return intent;
     }
 
@@ -130,7 +129,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
         setContentView(R.layout.file_list_activity);
         ButterKnife.bind(this);
 
-        fileObj = Parcels.unwrap(getIntent().getParcelableExtra(FILE_OBJ));
+        fileObj = getIntent().getParcelableExtra(FILE_OBJ);
 
         initData();
         initView();

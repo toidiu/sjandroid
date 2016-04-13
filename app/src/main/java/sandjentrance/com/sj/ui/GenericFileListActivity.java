@@ -17,8 +17,6 @@ import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 import com.squareup.picasso.Picasso;
 
-import org.parceler.Parcels;
-
 import java.util.Arrays;
 
 import butterknife.Bind;
@@ -128,7 +126,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
     //region Lifecycle----------------------
     public static Intent getInstance(Context context, FileObj fileObj) {
         Intent intent = new Intent(context, GenericFileListActivity.class);
-        intent.putExtra(FILE_OBJ, Parcels.wrap(fileObj));
+        intent.putExtra(FILE_OBJ, fileObj);
         return intent;
     }
 
@@ -138,7 +136,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         setContentView(R.layout.file_list_activity);
         ButterKnife.bind(this);
 
-        fileObj = Parcels.unwrap(getIntent().getParcelableExtra(FILE_OBJ));
+        fileObj = getIntent().getParcelableExtra(FILE_OBJ);
 
         initData();
         initView();

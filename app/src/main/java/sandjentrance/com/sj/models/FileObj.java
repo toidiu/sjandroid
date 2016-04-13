@@ -1,12 +1,14 @@
 package sandjentrance.com.sj.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.User;
+import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 import com.j256.ormlite.field.DatabaseField;
 
-import org.parceler.Parcel;
 
 import java.util.Comparator;
 import java.util.List;
@@ -19,8 +21,8 @@ import sandjentrance.com.sj.actions.BaseAction;
 /**
  * Created by toidiu on 4/2/16.
  */
-@Parcel
-public class FileObj {
+@ParcelablePlease
+public class FileObj implements Parcelable {
     public static final String FOLDER_MIME = "application/vnd.google-apps.folder";
 
     //region Fields----------------------
@@ -96,4 +98,26 @@ public class FileObj {
         return id.equals(projId);
     }
     //endregion
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        FileObjParcelablePlease.writeToParcel(this, dest, flags);
+    }
+
+    public static final Creator<FileObj> CREATOR = new Creator<FileObj>() {
+        public FileObj createFromParcel(Parcel source) {
+            FileObj target = new FileObj();
+            FileObjParcelablePlease.readFromParcel(target, source);
+            return target;
+        }
+
+        public FileObj[] newArray(int size) {
+            return new FileObj[size];
+        }
+    };
 }

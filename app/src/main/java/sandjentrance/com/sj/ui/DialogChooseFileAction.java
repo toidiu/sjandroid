@@ -9,8 +9,6 @@ import android.widget.Button;
 
 import com.edisonwang.ps.lib.PennStation;
 
-import org.parceler.Parcels;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
@@ -39,7 +37,7 @@ public class DialogChooseFileAction extends BaseDialogFrag {
 
         DialogChooseFileAction dialog = new DialogChooseFileAction();
         Bundle args = new Bundle();
-        args.putParcelable(FILE_OBJ_EXTRA, Parcels.wrap(fileObj));
+        args.putParcelable(FILE_OBJ_EXTRA, fileObj);
         dialog.setArguments(args);
 
         return dialog;
@@ -83,7 +81,7 @@ public class DialogChooseFileAction extends BaseDialogFrag {
 
 
     private void initData() {
-        fileObj = Parcels.unwrap(getArguments().getParcelable(FILE_OBJ_EXTRA));
+        fileObj = getArguments().getParcelable(FILE_OBJ_EXTRA);
     }
     //endregion
 

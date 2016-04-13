@@ -49,7 +49,6 @@ public class AppModule {
     }
 
     @Provides
-    @Singleton
     Drive provideDriveService(GoogleAccountCredential credential) {
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();

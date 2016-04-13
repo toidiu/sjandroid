@@ -23,7 +23,6 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.parceler.Parcels;
 
 import java.io.File;
 import java.util.Arrays;
@@ -182,7 +181,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     //region Lifecycle----------------------
     public static Intent getInstance(Context context, FileObj fileObj) {
         Intent intent = new Intent(context, ProjDetailActivity.class);
-        intent.putExtra(FILE_OBJ, Parcels.wrap(fileObj));
+        intent.putExtra(FILE_OBJ, fileObj);
         return intent;
     }
 
@@ -192,7 +191,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         setContentView(R.layout.proj_detail_activity);
         ButterKnife.bind(this);
 
-        fileObj = Parcels.unwrap(getIntent().getParcelableExtra(FILE_OBJ));
+        fileObj = getIntent().getParcelableExtra(FILE_OBJ);
 
         initData();
         initView();

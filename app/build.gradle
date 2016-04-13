@@ -111,8 +111,8 @@ dependencies {
     compile 'com.hannesdorfmann.parcelableplease:annotation:1.0.2'
     apt 'com.hannesdorfmann.parcelableplease:processor:1.0.2'
 
-    compile 'org.parceler:parceler-api:1.0.4'
-    apt 'org.parceler:parceler:1.0.4'
+//    compile 'org.parceler:parceler-api:1.0.4'
+//    apt 'org.parceler:parceler:1.0.4'
     //PennStation-------------------------
     compile 'com.edisonwang.ps:ps_lib:1.1.0'
     apt 'com.edisonwang.ps:ps_processors:1.1.0'

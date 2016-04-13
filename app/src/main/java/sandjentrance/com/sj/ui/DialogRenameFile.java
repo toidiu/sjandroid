@@ -17,8 +17,6 @@ import android.widget.Toast;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
-import org.parceler.Parcels;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
@@ -69,7 +67,7 @@ public class DialogRenameFile extends BaseDialogFrag {
 
         DialogRenameFile dialog = new DialogRenameFile();
         Bundle args = new Bundle();
-        args.putParcelable(FILE_OBJ_EXTRA, Parcels.wrap(fileObj));
+        args.putParcelable(FILE_OBJ_EXTRA, fileObj);
         dialog.setArguments(args);
 
         return dialog;
@@ -116,8 +114,7 @@ public class DialogRenameFile extends BaseDialogFrag {
                 if (newName.isEmpty()) {
                     Toast.makeText(getContext(), "New name can't be empty.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Parcelable wrap = Parcels.wrap(fileObj);
-                    PennStation.requestAction(PsRenameFileAction.helper(wrap, newName));
+                    PennStation.requestAction(PsRenameFileAction.helper(fileObj, newName));
                     progress.setVisibility(View.VISIBLE);
                 }
             }
@@ -126,7 +123,7 @@ public class DialogRenameFile extends BaseDialogFrag {
 
 
     private void initData() {
-        fileObj = Parcels.unwrap(getArguments().getParcelable(FILE_OBJ_EXTRA));
+        fileObj = getArguments().getParcelable(FILE_OBJ_EXTRA);
     }
     //endregion
 

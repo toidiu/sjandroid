@@ -12,10 +12,7 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
-
-import org.parceler.Parcels;
 
 import java.io.IOException;
 
@@ -29,7 +26,7 @@ import sandjentrance.com.sj.models.FileObj;
 @RequestAction
 @RequestActionHelper(variables = {
         //fixme switch to ParcelablePlease!!!
-        @ClassField(name = "file", kind = @Kind(clazz = Parcelable.class), required = true),
+        @ClassField(name = "file", kind = @Kind(clazz = FileObj.class), required = true),
         @ClassField(name = "newName", kind = @Kind(clazz = String.class), required = true)
 })
 @EventProducer(generated = {
@@ -45,7 +42,7 @@ public class RenameFileAction extends BaseAction {
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
         RenameFileActionHelper helper = PsRenameFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
-        FileObj fileObj = Parcels.unwrap(helper.file());
+        FileObj fileObj = helper.file();
 
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();

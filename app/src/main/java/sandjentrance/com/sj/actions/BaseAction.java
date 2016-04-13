@@ -178,6 +178,7 @@ public class BaseAction implements Action {
             //download it
             FileOutputStream fileOutputStream = null;
             try {
+                //fixme this should change depending on PDF and image
                 fileOutputStream = new FileOutputStream(localFile);
                 driveService.files().export(fileDownloadObj.fileId, PDF_MIME)
                         .executeMediaAndDownloadTo(fileOutputStream);
@@ -203,8 +204,7 @@ public class BaseAction implements Action {
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream(avatarFile);
-            driveService.files().export(fileId, PDF_MIME)
-                    .executeMediaAndDownloadTo(fileOutputStream);
+            driveService.files().get(fileId).executeMediaAndDownloadTo(fileOutputStream);
             return avatarFile;
         } catch (IOException e) {
             e.printStackTrace();

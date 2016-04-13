@@ -68,15 +68,15 @@ public class UploadUserImageAction extends BaseAction {
         fileMetadata.setParents(parents);
 
         try {
-            if (imgFile != null) {
-                //// FIXME: 4/13/16 update is failing.. but that should be the prefered way
-//                driveService.files().update(imgFile.getId(), imgFile, mediaContent).execute();
-                driveService.files().delete(imgFile.getId()).execute();
-            }
             driveService.files().create(fileMetadata, mediaContent)
                     .setFields(QUERY_FIELDS)
                     .execute();
 
+            if (imgFile != null) {
+                //// markme: 4/13/16 update is failing.. but that should be the prefered way
+//                driveService.files().update(imgFile.getId(), imgFile, mediaContent).execute();
+                driveService.files().delete(imgFile.getId()).execute();
+            }
             return new UploadFileActionEventSuccess();
         } catch (IOException e) {
             e.printStackTrace();

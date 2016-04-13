@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 
 import java.io.File;
@@ -44,8 +45,13 @@ public class ImageUtil {
     }
 
     public static File getAvatarFile(Context context, String user) {
-        String userFileName = user + ".png";
+        String userFileName = getAvatarFileName(user);
         return new File(context.getFilesDir(), userFileName);
+    }
+
+    @NonNull
+    public static String getAvatarFileName(String user) {
+        return user + ".png";
     }
 
     public static File getTempFile(Context context) {

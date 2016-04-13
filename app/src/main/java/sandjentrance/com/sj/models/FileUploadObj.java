@@ -12,6 +12,7 @@ import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 public class FileUploadObj implements Parcelable {
 
     public int dbId;
+    public String fileId;
     public String parentId;
     public String fileName;
     public String filePath;

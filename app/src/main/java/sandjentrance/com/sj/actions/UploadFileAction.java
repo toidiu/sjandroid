@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
+import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
 
 
@@ -46,6 +47,18 @@ public class UploadFileAction extends BaseAction {
 
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
+        }
+
+        if (fileUploadObj.fileId != null) {
+            FileObj fileById = getFileById(fileUploadObj.fileId);
+
+            if (fileById != null) {
+                //create and delete
+            } else {
+                //create
+            }
+        } else {
+            //create
         }
 
         //Local file

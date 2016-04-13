@@ -13,7 +13,13 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
+import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
@@ -29,7 +35,7 @@ import sandjentrance.com.sj.utils.ImageUtil;
 })
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "userFilePath", kind = @Kind(clazz = String.class))
+                @ParcelableClassField(name = "userName", kind = @Kind(clazz = String.class))
         }),
         @EventClass(classPostFix = "Failure")
 })
@@ -42,41 +48,54 @@ public class GetUserImgAction extends BaseAction {
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
         GetUserImgActionHelper helper = PsGetUserImgAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
-
-
         java.io.File avatarFile = ImageUtil.getAvatarFile(context, helper.userName());
+        String fileName = avatarFile.getName();
 
-        if (avatarFile.exists()) {
-            return new GetUserImgActionEventSuccess(avatarFile.getAbsolutePath());
-        } else {
-            Bitmap bitmapFromDrawable = ImageUtil.getBitmapFromDrawable(context, R.drawable.profile_image);
-            Bitmap resizedBitmap = ImageUtil.getResizedBitmap(bitmapFromDrawable, ImageUtil.IMAGE_RESOLUTION, ImageUtil.IMAGE_RESOLUTION);
-        }
 
-        if (credential.getSelectedAccountName() == null) {
-            return new SetupDriveActionEventFailure();
-        }
+        //// FIXME: 4/13/16 see if file exists on server
+        // yes
+            //download it
+        //no
+            //upload local
 
-        //// FIXME: 4/13/16 get working
-//        File fileMetadata = new File();
-//        Map<String, String> prop = new HashMap<>();
-//        prop.put(CLAIM_PROPERTY, credential.getSelectedAccountName());
-//        fileMetadata.setProperties(prop);
-//
-//        List<FileObj> photoFile = getFoldersByName(driveService, helper.userName(), prefs.getPhotosFolderId());
-//        if (photoFile != null && photoFile.size() > 0) {
-//
-//        } else {
+//        if (!avatarFile.exists()) {
+//            Bitmap bitmapFromDrawable = ImageUtil.getBitmapFromDrawable(context, R.drawable.profile_image);
+//            Bitmap resizedBitmap = ImageUtil.getResizedBitmap(bitmapFromDrawable, ImageUtil.IMAGE_RESOLUTION, ImageUtil.IMAGE_RESOLUTION);
+//            ImageUtil.saveUserImage(context, resizedBitmap, helper.userName());
 //        }
 //
-//        try {
-//            FileObj fileObj = new FileObj(file);
-//            databaseHelper.getFileObjDao().createOrUpdate(fileObj);
+//        //check if the file already exists
+//        List<File> fildByName = getFildByName(fileName, prefs.getPhotosFolderId());
+//        File imgFile = null;
+//        if (fildByName != null && fildByName.size() > 0) {
+//            imgFile = fildByName.get(0);
+//        }
 //
-//            return new ClaimProjActionEventSuccess(credential.getSelectedAccountName());
-//        } catch (Exception e) {
+//        //Local file
+//        FileContent mediaContent = new FileContent(IMAGE_MIME, new java.io.File(avatarFile.getAbsolutePath()));
+//
+//        //Drive file
+//        List<String> parents = new ArrayList<>();
+//        parents.add(prefs.getPhotosFolderId());
+//        File fileMetadata = new File();
+//        fileMetadata.setName(fileName);
+//        fileMetadata.setMimeType(IMAGE_MIME);
+//        fileMetadata.setParents(parents);
+//
+//        try {
+//            driveService.files().create(fileMetadata, mediaContent)
+//                    .setFields(QUERY_FIELDS)
+//                    .execute();
+//
+//            if (imgFile != null) {
+//                //// markme: 4/13/16 update is failing.. but that should be the prefered way
+////                driveService.files().update(imgFile.getId(), imgFile, mediaContent).execute();
+//                driveService.files().delete(imgFile.getId()).execute();
+//            }
+//            return new GetUserImgActionEventSuccess(helper.userName());
+//        } catch (IOException e) {
 //            e.printStackTrace();
-//            return new ClaimProjActionEventFailure();
+//            return new GetUserImgActionEventFailure();
 //        }
 
         return null;

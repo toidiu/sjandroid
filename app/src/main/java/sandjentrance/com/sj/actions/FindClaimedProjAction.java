@@ -49,7 +49,7 @@ public class FindClaimedProjAction extends BaseAction {
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
-            List<FileObj> dataFromApi = toFileObjs(queryFileList(search));
+            List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             final FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
             Arrays.sort(array, FileObj.FileObjComparator);
 

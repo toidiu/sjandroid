@@ -45,6 +45,9 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.GetUserImgAction;
+import sandjentrance.com.sj.actions.GetUserImgActionEventFailure;
+import sandjentrance.com.sj.actions.GetUserImgActionEventSuccess;
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
 import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
@@ -64,7 +67,8 @@ import sandjentrance.com.sj.utils.ImageUtil;
         ClaimProjAction.class,
         MoveFileAction.class,
         RenameFileAction.class,
-        ArchiveFileAction.class
+        ArchiveFileAction.class,
+        GetUserImgAction.class
 })
 public class ProjDetailActivity extends BaseActivity implements FileListInterface {
 
@@ -156,6 +160,19 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
                 adapter.refreshView(Arrays.asList(event.results));
             }
         }
+
+        @Override
+        public void onEventMainThread(GetUserImgActionEventFailure event) {
+        }
+
+        @Override
+        public void onEventMainThread(GetUserImgActionEventSuccess event) {
+            if (event.userName.equals(fileObj.claimUser)) {
+                //fixme be smarter about when we refresh and invalidate cache
+//                invalidateAndSetUserImage();
+            }
+        }
+
 
     };
     private Uri imagePickerUri;
@@ -256,21 +273,12 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
                 startActivityForResult(UserImageCropActivity.getInstance(this, selectedImageUri.toString()),
                         UserImageCropActivity.RESULT_CODE);
             } else if (requestCode == UserImageCropActivity.RESULT_CODE) {
-                Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this, fileObj.claimUser));
-                Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser))
-                        .placeholder(R.drawable.profile_image)
-                        .networkPolicy(NetworkPolicy.NO_CACHE)
-                        .memoryPolicy(MemoryPolicy.NO_CACHE).into(profileImg);
-//                Picasso.with(this).load(ImageUtil.getAvatarFile(this)).placeholder(R.drawable.ic_profile)
-//                        .networkPolicy(NetworkPolicy.NO_CACHE)
-//                        .memoryPolicy(MemoryPolicy.NO_CACHE).into(userImg);
-//                Picasso.with(this).load(ImageUtil.getAvatarFile(this)).placeholder(R.drawable.ic_profile)
-//                        .networkPolicy(NetworkPolicy.NO_CACHE)
-//                        .memoryPolicy(MemoryPolicy.NO_CACHE).into(profileBanner);
-//
+                invalidateAndSetUserImage();
+//                Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this, fileObj.claimUser));
             }
         }
     }
+
     //endregion
 
     //region Init----------------------
@@ -306,7 +314,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         recyclerView.setAdapter(adapter);
 
         //// FIXME: 4/13/16 receive event and replace image if it exists
-        PennStation.requestAction(PsGetUserImgAction.helper(prefs.getUser()));
+        PennStation.requestAction(PsGetUserImgAction.helper(fileObj.claimUser));
         Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser)).placeholder(R.drawable.profile_image).into(profileImg);
         profileImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -340,6 +348,13 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
         actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
     }
 
+    private void invalidateAndSetUserImage() {
+        Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this, fileObj.claimUser));
+        Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser))
+                .placeholder(R.drawable.profile_image)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .memoryPolicy(MemoryPolicy.NO_CACHE).into(profileImg);
+    }
     //endregion
 
     //region Helper----------------------

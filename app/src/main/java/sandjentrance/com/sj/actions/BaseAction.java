@@ -2,7 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.edisonwang.ps.annotations.EventClass;
 import com.edisonwang.ps.annotations.EventProducer;
@@ -16,6 +16,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,9 @@ import javax.inject.Inject;
 
 import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.database.DatabaseHelper;
+import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.utils.FileUtils;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
@@ -69,8 +72,8 @@ public class BaseAction implements Action {
         return new BaseActionEvent();
     }
 
-    //region Helper----------------------
-    protected List<File> queryFileList(String search) throws IOException {
+    //region Folder Helper----------------------
+    protected List<File> executeQueryList(String search) throws IOException {
 
 
         FileList result = driveService.files().list()
@@ -95,20 +98,6 @@ public class BaseAction implements Action {
         return retFile;
     }
 
-    protected List<FileObj> getFolderById(String fileId, String baseFolderId) {
-        String search = "id = '" + fileId + "'"
-                + " and " + "'" + baseFolderId + "'" + " in parents"
-                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
-
-        List<FileObj> dataFromApi = new ArrayList<>();
-        try {
-            dataFromApi = toFileObjs(queryFileList(search));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return dataFromApi;
-    }
-
     protected List<FileObj> getFoldersByName(String folderName, String baseFolderId) {
         String search = "name = '" + folderName + "'"
                 + " and " + "'" + baseFolderId + "'" + " in parents"
@@ -116,11 +105,28 @@ public class BaseAction implements Action {
 
         List<FileObj> dataFromApi = new ArrayList<>();
         try {
-            dataFromApi = toFileObjs(queryFileList(search));
+            dataFromApi = toFileObjs(executeQueryList(search));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return dataFromApi;
+    }
+
+
+    //endregion
+    //region File Helper----------------------
+    protected FileObj getFileById(String fileId) {
+        try {
+            File file = driveService.files().get(fileId)
+                    .setFields(QUERY_FIELDS)
+                    .execute();
+
+            return new FileObj(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     protected List<File> getFildByName(String fileName, String baseFolderId) {
@@ -129,7 +135,7 @@ public class BaseAction implements Action {
 
         List<File> dataFromApi = new ArrayList<>();
         try {
-            dataFromApi = queryFileList(search);
+            dataFromApi = executeQueryList(search);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -160,7 +166,27 @@ public class BaseAction implements Action {
             return false;
         }
     }
-    //endregion
+
+    @Nullable
+    protected java.io.File downloadFile(FileDownloadObj fileDownloadObj) {
+        java.io.File localFile = FileUtils.getLocalFile(context, fileDownloadObj.fileId, fileDownloadObj.mime);
+        if (localFile.exists()) {
+            return localFile;
+        } else {
+            //download it
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(localFile);
+                driveService.files().export(fileDownloadObj.fileId, PDF_MIME)
+                        .executeMediaAndDownloadTo(fileOutputStream);
+                return localFile;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
+//endregion
 
 
 }

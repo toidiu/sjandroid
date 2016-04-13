@@ -54,7 +54,7 @@ public class FindBaseFolderAction extends BaseAction {
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
-            List<FileObj> dataFromApi = toFileObjs(queryFileList(search));
+            List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
             return new FindBaseFolderActionEventSuccess(array);
         } catch (IOException e) {

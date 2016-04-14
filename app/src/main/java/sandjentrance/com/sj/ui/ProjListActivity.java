@@ -31,6 +31,7 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.TestAction_.PsTestAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
@@ -123,6 +124,12 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
 
     //region Init----------------------
     private void initData() {
+        try {
+            PennStation.requestAction(PsTestAction.helper());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (BuildConfig.DEBUG) {
             refreshFileList("Ralph");
             searchView.setText("Ralph");

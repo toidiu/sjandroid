@@ -9,7 +9,7 @@ import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
 
-import sandjentrance.com.sj.utils.NetworkUtils;
+import sandjentrance.com.sj.utils.ZamzarUtil;
 
 
 /**
@@ -28,12 +28,10 @@ public class TestAction extends BaseAction {
 //        ClaimProjActionHelper helper = PsClaimProjAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
 
         try {
-//            ZamzarUtil.doo();
 //            ZamzarUtil.prep();
-//            ZamzarUtil.dl();
-
-//            NetworkUtils.prep();
-            NetworkUtils.doit();
+//            ZamzarUtil.doit();
+//            ZamzarUtil.ask(287328);
+            ZamzarUtil.dl(13344184);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -11,14 +11,13 @@
         android:layout_height="wrap_content"
         android:background="@color/white_15"
         android:drawableLeft="@drawable/ic_search"
-        android:textCursorDrawable="@null"
         android:hint="@string/search_proj_hint"
         android:padding="8dp"
         android:textColor="@color/white"
         android:textColorHint="@color/white"
+        android:textCursorDrawable="@null"
         android:textSize="14sp"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        tools:background="@color/search_green" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler"

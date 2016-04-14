@@ -42,7 +42,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    protected void initBg(final View layout) {
+    protected void initBg() {
+        final View layout = findViewById(R.id.layout);
         ViewTreeObserver vto = layout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override

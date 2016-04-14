@@ -82,7 +82,9 @@ public class FindBaseProjActivity extends BaseActivity implements FileListInterf
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_proj_activity);
+        setContentView(R.layout.file_list_activity);
+
+//        setContentView(R.layout.search_proj_activity);
         ButterKnife.bind(this);
 
         initData();
@@ -100,6 +102,8 @@ public class FindBaseProjActivity extends BaseActivity implements FileListInterf
     }
 
     private void initView() {
+        initBg();
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 

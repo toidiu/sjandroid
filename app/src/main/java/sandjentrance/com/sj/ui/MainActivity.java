@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -60,10 +61,8 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.progress)
     ProgressBar progress;
-    @Bind(R.id.text)
-    TextView textView;
-//    @Bind(R.id.toolbar)
-//    Toolbar toolbar;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
@@ -84,6 +83,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
         ((SJApplication) getApplication()).getAppComponent().inject(this);
 
         Log.d("log", "-----------1");
+        initBg();
         getStarted();
     }
 
@@ -94,7 +94,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    Snackbar.make(textView, R.string.error_play_services, Snackbar.LENGTH_INDEFINITE).show();
+                    Snackbar.make(progress, R.string.error_play_services, Snackbar.LENGTH_INDEFINITE).show();
                 } else {
                     getStarted();
                 }
@@ -147,7 +147,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
             chooseAccount();
         } else if (!isDeviceOnline()) {
             Log.d("log", "-----------3");
-            Snackbar.make(textView, R.string.no_network, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(progress, R.string.no_network, Snackbar.LENGTH_SHORT).show();
             if (prefs.getBaseFolderId() != null) {
                 startBaseProjActivity();
             }
@@ -219,7 +219,9 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     }
     //endregion
 
-    protected void initBg(final View layout) {
+    //region Init----------------------
+    protected void initBg() {
+        final View layout = findViewById(R.id.layout);
         ViewTreeObserver vto = layout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -228,6 +230,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
             }
         });
     }
+    //endregion
 
 
     //region MakeCall----------------------

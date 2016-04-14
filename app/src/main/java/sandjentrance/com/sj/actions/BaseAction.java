@@ -49,8 +49,8 @@ public class BaseAction implements Action {
     public static final String ARCHIVE_FOLDER = "Archive";
     public static final String PHOTOS_FOLDER = "Photos";
     public static final String QUERY_FIELDS = "id, name, modifiedTime, owners, mimeType, parents, properties";
-    public static final String IMAGE_MIME = "image/jpeg";
-    public static final String PDF_MIME = "application/pdf";
+    public static final String MIME_IMAGE = "image/jpeg";
+    public static final String MIME_PDF = "application/pdf";
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
     Context context;
@@ -156,10 +156,10 @@ public class BaseAction implements Action {
                 previousParents.append(',');
             }
             // Move the file to the new folder
-            driveService.files().update(fileId, null)
+            File execute = driveService.files().update(fileId, null)
                     .setAddParents(newParentId)
                     .setRemoveParents(previousParents.toString())
-                    .setFields("id, parents")
+                    .setFields(QUERY_FIELDS)
                     .execute();
 
             return true;
@@ -178,10 +178,17 @@ public class BaseAction implements Action {
             //download it
             FileOutputStream fileOutputStream = null;
             try {
-                //fixme this should change depending on PDF and image
                 fileOutputStream = new FileOutputStream(localFile);
-                driveService.files().export(fileDownloadObj.fileId, PDF_MIME)
-                        .executeMediaAndDownloadTo(fileOutputStream);
+                if (fileDownloadObj.mime.equals(MIME_PDF))
+                {
+                    driveService.files().export(fileDownloadObj.fileId, MIME_PDF)
+                            .executeMediaAndDownloadTo(fileOutputStream);
+                }else if(fileDownloadObj.mime.equals(MIME_IMAGE)) {
+                    driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
+                }else {
+                    return null;
+                }
+
                 return localFile;
             } catch (IOException e) {
                 e.printStackTrace();

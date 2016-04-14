@@ -14,10 +14,10 @@ public class FileUtils {
     public static File getLocalFile(Context context, String id, String mime) {
         String name = null;
         switch (mime) {
-            case BaseAction.IMAGE_MIME:
+            case BaseAction.MIME_IMAGE:
                 name = id + ".jpg";
                 break;
-            case BaseAction.PDF_MIME:
+            case BaseAction.MIME_PDF:
                 name = id + ".pdf";
                 break;
         }

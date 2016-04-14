@@ -290,8 +290,7 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
     }
 
     private void initView() {
-        final View layout = findViewById(R.id.layout);
-        initBg(layout);
+        initBg();
 
         toolbar.setTitle(fileObj.title);
         setSupportActionBar(toolbar);

@@ -50,6 +50,7 @@ public class FileListAdapter extends RecyclerView.Adapter {
 
         if (item.claimUser != null) {
             view.claimUserView.setText(item.claimUser);
+            view.claimContainerView.setVisibility(View.VISIBLE);
         } else {
             view.claimContainerView.setVisibility(View.GONE);
         }

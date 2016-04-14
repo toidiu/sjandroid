@@ -67,7 +67,7 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         @Override
         public void onEventMainThread(DbFindClaimedProjListActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            if (event.getResponseInfo().mRequestId.equals(actionFileListId)) {
+            if (event.getResponseInfo().mRequestId.equals(actionClaimedListId)) {
                 adapter.refreshView(Arrays.asList(event.results));
             }
         }
@@ -126,14 +126,14 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         if (BuildConfig.DEBUG) {
             refreshFileList("Ralph");
             searchView.setText("Ralph");
+            searchView.setSelection(searchView.getText().length());
         }
 
         PennStation.requestAction(PsFindClaimedProjAction.helper());
     }
 
     private void initView() {
-        final View layout = findViewById(R.id.layout);
-        initBg(layout);
+        initBg();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);

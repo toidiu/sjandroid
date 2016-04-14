@@ -25,7 +25,6 @@ import sandjentrance.com.sj.models.FileObj;
  */
 @RequestAction
 @RequestActionHelper(variables = {
-        //fixme switch to ParcelablePlease!!!
         @ClassField(name = "file", kind = @Kind(clazz = FileObj.class), required = true),
         @ClassField(name = "newName", kind = @Kind(clazz = String.class), required = true)
 })

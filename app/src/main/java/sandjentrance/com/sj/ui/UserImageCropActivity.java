@@ -7,10 +7,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 
-import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 import com.edmodo.cropper.CropImageView;
 
@@ -22,10 +20,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
-import sandjentrance.com.sj.actions.UploadFileAction;
-import sandjentrance.com.sj.actions.UploadFileActionEventFailure;
-import sandjentrance.com.sj.actions.UploadFileActionEventSuccess;
-import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
 import sandjentrance.com.sj.actions.UploadUserImageAction_.PsUploadUserImageAction;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.utils.ImageUtil;
@@ -147,7 +141,7 @@ public class UserImageCropActivity extends BaseActivity {
 
         if (file != null) {
             File avatarFile = ImageUtil.getAvatarFile(UserImageCropActivity.this, prefs.getUser());
-            FileUploadObj fileUploadObj = new FileUploadObj(prefs.getPhotosFolderId(), avatarFile.getName(), file.getAbsolutePath(), BaseAction.IMAGE_MIME);
+            FileUploadObj fileUploadObj = new FileUploadObj(prefs.getPhotosFolderId(), avatarFile.getName(), file.getAbsolutePath(), BaseAction.MIME_IMAGE);
             PennStation.requestAction(PsUploadUserImageAction.helper(fileUploadObj));
         }
 

@@ -10,12 +10,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
-import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
 
@@ -41,7 +39,6 @@ import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileListInterface;
-import sandjentrance.com.sj.utils.BgImageLoader;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -200,8 +197,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
     }
 
     private void initView() {
-        final View layout = findViewById(R.id.layout);
-        initBg(layout);
+        initBg();
 
         toolbar.setTitle(fileObj.title);
         setSupportActionBar(toolbar);
@@ -213,16 +209,6 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         recyclerView.setAdapter(adapter);
     }
 
-    private void initBg() {
-        final View layout = findViewById(R.id.layout);
-        ViewTreeObserver vto = layout.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                Picasso.with(GenericFileListActivity.this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
-            }
-        });
-    }
     //endregion
 
     //region View----------------------

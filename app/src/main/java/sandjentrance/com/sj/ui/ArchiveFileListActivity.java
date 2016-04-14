@@ -65,7 +65,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
         @Override
         public void onEventMainThread(UnArchiveFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            initData();
+            refreshFileList();
         }
 
         @Override
@@ -178,8 +178,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     }
 
     private void initView() {
-        final View layout = findViewById(R.id.layout);
-        initBg(layout);
+        initBg();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);

@@ -11,4 +11,6 @@
     <string name="menu_claim">Claim</string>
     <string name="select_picture">Pick or Take Picture</string>
     <string name="permission_msg">This app needs to access your Google account (via Contacts) and Storage.</string>
+    <string name="install_pdf_msg">Please install an application from the Play Store to edit PDFs (Adobe Acrobat).</string>
+    <string name="install_img_msg">Please install an application from the Play Store to view images (Google Photos).</string>
 </resources>

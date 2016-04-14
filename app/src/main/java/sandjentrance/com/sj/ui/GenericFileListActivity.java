@@ -3,9 +3,7 @@ package sandjentrance.com.sj.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +15,6 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
-import java.io.File;
 import java.util.Arrays;
 
 import butterknife.Bind;
@@ -127,11 +124,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
                 LocalFileObj localFileObj = event.localFileObj;
 
-                File file = new File(localFileObj.localPath);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.fromFile(file), localFileObj.mime);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                startActivity(intent);
+                openLocalFile(localFileObj, progress);
             }
         }
 

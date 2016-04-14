@@ -49,7 +49,8 @@ public class BaseAction implements Action {
     public static final String ARCHIVE_FOLDER = "Archive";
     public static final String PHOTOS_FOLDER = "Photos";
     public static final String QUERY_FIELDS = "id, name, modifiedTime, owners, mimeType, parents, properties";
-    public static final String MIME_IMAGE = "image/jpeg";
+    public static final String MIME_JPEG = "image/jpeg";
+    public static final String MIME_PNG = "image/png";
     public static final String MIME_PDF = "application/pdf";
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
@@ -172,7 +173,9 @@ public class BaseAction implements Action {
     @Nullable
     protected java.io.File downloadFile(FileDownloadObj fileDownloadObj) {
         java.io.File localFile = FileUtils.getLocalFile(context, fileDownloadObj.fileId, fileDownloadObj.mime);
-        if (localFile.exists()) {
+        if (localFile==null){
+          return null;
+        } else if (localFile.exists()) {
             return localFile;
         } else {
             //download it
@@ -183,7 +186,7 @@ public class BaseAction implements Action {
 //                {
 //                    driveService.files().export(fileDownloadObj.fileId, MIME_PDF)
 //                            .executeMediaAndDownloadTo(fileOutputStream);
-//                }else if(fileDownloadObj.mime.equals(MIME_IMAGE)) {
+//                }else if(fileDownloadObj.mime.equals(MIME_JPEG)) {
                     driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
 //                }else {
 //                    return null;

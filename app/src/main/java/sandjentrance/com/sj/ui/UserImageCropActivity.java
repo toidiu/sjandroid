@@ -141,7 +141,7 @@ public class UserImageCropActivity extends BaseActivity {
 
         if (file != null) {
             File avatarFile = ImageUtil.getAvatarFile(UserImageCropActivity.this, prefs.getUser());
-            FileUploadObj fileUploadObj = new FileUploadObj(prefs.getPhotosFolderId(), avatarFile.getName(), file.getAbsolutePath(), BaseAction.MIME_IMAGE);
+            FileUploadObj fileUploadObj = new FileUploadObj(prefs.getPhotosFolderId(), avatarFile.getName(), file.getAbsolutePath(), BaseAction.MIME_JPEG);
             PennStation.requestAction(PsUploadUserImageAction.helper(fileUploadObj));
         }
 

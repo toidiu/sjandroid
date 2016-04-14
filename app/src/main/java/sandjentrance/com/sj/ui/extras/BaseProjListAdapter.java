@@ -42,7 +42,7 @@ public class BaseProjListAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View v) {
                 if (item.mime.equals(FileObj.FOLDER_MIME)) {
-                    fileListInterface.fileClicked(item);
+                    fileListInterface.folderClicked(item);
                 }
                 //// FIXME: 4/3/16 check if its a pdf  or picture and open it
             }

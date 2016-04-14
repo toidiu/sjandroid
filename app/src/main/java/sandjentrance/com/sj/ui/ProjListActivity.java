@@ -55,8 +55,8 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
     private FileListAdapter adapter;
     //endregion
     private Snackbar snackbar;
-    private String actionFileListId;
-    private String actionClaimedListId;
+    private String actionIdFileList;
+    private String actionIdClaimedList;
     //region PennStation----------------------
     ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
         @Override
@@ -67,14 +67,14 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         @Override
         public void onEventMainThread(DbFindClaimedProjListActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            if (event.getResponseInfo().mRequestId.equals(actionClaimedListId)) {
+            if (event.getResponseInfo().mRequestId.equals(actionIdClaimedList)) {
                 adapter.refreshView(Arrays.asList(event.results));
             }
         }
 
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
-            actionClaimedListId = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         }
 
         @Override
@@ -82,7 +82,7 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
             progress.setVisibility(View.GONE);
             archiveFileHelper.wasArhived = false;
 
-            if (event.getResponseInfo().mRequestId.equals(actionFileListId)) {
+            if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
                 adapter.refreshView(Arrays.asList(event.results));
             }
         }
@@ -171,7 +171,7 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
     }
 
     private void refreshFileList(String search) {
-        actionFileListId = PennStation.requestAction(PsFindFolderChildrenAction.helper(search, prefs.getBaseFolderId(), true));
+        actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper(search, prefs.getBaseFolderId(), true));
         progress.setVisibility(View.VISIBLE);
     }
     //endregion
@@ -179,12 +179,17 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
 
     //region Interface----------------------
     @Override
-    public void fileClicked(FileObj fileObj) {
+    public void folderClicked(FileObj fileObj) {
         if (fileObj.title.equals(BaseAction.ARCHIVE_FOLDER) || fileObj.title.equals(BaseAction.PHOTOS_FOLDER)) {
             startActivity(ArchiveFileListActivity.getInstance(this, fileObj));
         } else {
             startActivity(ProjDetailActivity.getInstance(this, fileObj));
         }
+    }
+
+    @Override
+    public void fileClicked(FileObj fileObj) {
+
     }
 
     @Override

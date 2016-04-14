@@ -9,7 +9,6 @@ import com.google.api.services.drive.model.User;
 import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 import com.j256.ormlite.field.DatabaseField;
 
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ public class FileObj implements Parcelable {
     //region Fields----------------------
     @DatabaseField(generatedId = true)
     public int dbId;
-
     @DatabaseField
     public String id;
     @DatabaseField
@@ -61,6 +59,18 @@ public class FileObj implements Parcelable {
     @android.support.annotation.Nullable
     @DatabaseField
     public String claimUser;
+    public static final Creator<FileObj> CREATOR = new Creator<FileObj>() {
+        public FileObj createFromParcel(Parcel source) {
+            FileObj target = new FileObj();
+            FileObjParcelablePlease.readFromParcel(target, source);
+            return target;
+        }
+
+        public FileObj[] newArray(int size) {
+            return new FileObj[size];
+        }
+    };
+    //endregion
 
     //region Constructor----------------------
     public FileObj(File f) {
@@ -83,7 +93,6 @@ public class FileObj implements Parcelable {
             this.claimUser = properties.get(BaseAction.CLAIM_PROPERTY);
         }
     }
-    //endregion
 
     @SuppressWarnings("unused")
     public FileObj() {
@@ -93,11 +102,11 @@ public class FileObj implements Parcelable {
     public static boolean isFolder(@NonNull String mime) {
         return mime.equals(FOLDER_MIME);
     }
+    //endregion
 
     public static boolean isBaseFolder(@NonNull String id, @NonNull String projId) {
         return id.equals(projId);
     }
-    //endregion
 
     @Override
     public int describeContents() {
@@ -108,16 +117,4 @@ public class FileObj implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         FileObjParcelablePlease.writeToParcel(this, dest, flags);
     }
-
-    public static final Creator<FileObj> CREATOR = new Creator<FileObj>() {
-        public FileObj createFromParcel(Parcel source) {
-            FileObj target = new FileObj();
-            FileObjParcelablePlease.readFromParcel(target, source);
-            return target;
-        }
-
-        public FileObj[] newArray(int size) {
-            return new FileObj[size];
-        }
-    };
 }

@@ -1,6 +1,7 @@
 package sandjentrance.com.sj.utils;
 
 import android.content.Context;
+import android.os.Environment;
 
 import java.io.File;
 
@@ -23,7 +24,10 @@ public class FileUtils {
         }
 
         assert name != null;
-        return new File(context.getFilesDir(), name);
+//        return new File(context.getFilesDir(), name);
+        File sj = new File(Environment.getExternalStorageDirectory(), "SJ");
+        sj.mkdirs();
+        return new File(sj, name);
     }
 
 

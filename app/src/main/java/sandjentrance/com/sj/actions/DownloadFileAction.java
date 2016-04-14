@@ -17,6 +17,7 @@ import java.io.File;
 
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.models.FileDownloadObj;
+import sandjentrance.com.sj.models.LocalFileObj;
 
 
 /**
@@ -28,7 +29,7 @@ import sandjentrance.com.sj.models.FileDownloadObj;
 })
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "localFilePath", kind = @Kind(clazz = String.class))
+                @ParcelableClassField(name = "localFileObj", kind = @Kind(clazz = LocalFileObj.class)),
         }),
         @EventClass(classPostFix = "Failure")
 })
@@ -47,10 +48,11 @@ public class DownloadFileAction extends BaseAction {
             return new SetupDriveActionEventFailure();
         }
 
-        File file = downloadFile(fileDownloadObj);
+        File localFile = downloadFile(fileDownloadObj);
 
-        if (file != null) {
-            return new DownloadFileActionEventSuccess(file.getAbsolutePath());
+        if (localFile != null) {
+            LocalFileObj localFileObj = new LocalFileObj(localFile.getName(), fileDownloadObj.mime, localFile.getAbsolutePath());
+            return new DownloadFileActionEventSuccess(localFileObj);
         } else {
             return new DownloadFileActionEventFailure();
         }

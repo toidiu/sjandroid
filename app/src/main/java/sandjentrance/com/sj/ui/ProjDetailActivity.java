@@ -390,8 +390,13 @@ public class ProjDetailActivity extends BaseActivity implements FileListInterfac
 
     //region Interface----------------------
     @Override
-    public void fileClicked(FileObj fileObj) {
+    public void folderClicked(FileObj fileObj) {
         startActivity(GenericFileListActivity.getInstance(this, fileObj));
+    }
+
+    @Override
+    public void fileClicked(FileObj fileObj) {
+
     }
 
     @Override

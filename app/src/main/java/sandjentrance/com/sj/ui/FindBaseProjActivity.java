@@ -127,9 +127,14 @@ public class FindBaseProjActivity extends BaseActivity implements FileListInterf
 
     //region Interface----------------------
     @Override
-    public void fileClicked(FileObj fileObj) {
+    public void folderClicked(FileObj fileObj) {
         PennStation.requestAction(PsSetupDriveAction.helper(fileObj.id));
         progress.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void fileClicked(FileObj fileObj) {
+
     }
 
     @Override

@@ -179,15 +179,15 @@ public class BaseAction implements Action {
             FileOutputStream fileOutputStream = null;
             try {
                 fileOutputStream = new FileOutputStream(localFile);
-                if (fileDownloadObj.mime.equals(MIME_PDF))
-                {
-                    driveService.files().export(fileDownloadObj.fileId, MIME_PDF)
-                            .executeMediaAndDownloadTo(fileOutputStream);
-                }else if(fileDownloadObj.mime.equals(MIME_IMAGE)) {
+//                if (fileDownloadObj.mime.equals(MIME_PDF))
+//                {
+//                    driveService.files().export(fileDownloadObj.fileId, MIME_PDF)
+//                            .executeMediaAndDownloadTo(fileOutputStream);
+//                }else if(fileDownloadObj.mime.equals(MIME_IMAGE)) {
                     driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
-                }else {
-                    return null;
-                }
+//                }else {
+//                    return null;
+//                }
 
                 return localFile;
             } catch (IOException e) {

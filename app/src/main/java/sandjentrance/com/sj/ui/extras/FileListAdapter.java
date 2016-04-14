@@ -42,6 +42,9 @@ public class FileListAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View v) {
                 if (item.mime.equals(FileObj.FOLDER_MIME)) {
+                    fileListInterface.folderClicked(item);
+                }
+                else {
                     fileListInterface.fileClicked(item);
                 }
                 //// FIXME: 4/3/16 check if its a pdf  or picture and open it

@@ -3,7 +3,9 @@ package sandjentrance.com.sj.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +17,7 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
+import java.io.File;
 import java.util.Arrays;
 
 import butterknife.Bind;
@@ -24,6 +27,10 @@ import sandjentrance.com.sj.actions.ArchiveFileAction;
 import sandjentrance.com.sj.actions.ArchiveFileActionEventFailure;
 import sandjentrance.com.sj.actions.ArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
+import sandjentrance.com.sj.actions.DownloadFileAction;
+import sandjentrance.com.sj.actions.DownloadFileActionEventFailure;
+import sandjentrance.com.sj.actions.DownloadFileActionEventSuccess;
+import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
@@ -36,7 +43,9 @@ import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
 import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
+import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileListInterface;
 
@@ -44,7 +53,8 @@ import sandjentrance.com.sj.ui.extras.FileListInterface;
         FindFolderChildrenAction.class,
         MoveFileAction.class,
         RenameFileAction.class,
-        ArchiveFileAction.class
+        ArchiveFileAction.class,
+        DownloadFileAction.class
 })
 public class GenericFileListActivity extends BaseActivity implements FileListInterface {
 
@@ -62,6 +72,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
     private FileObj fileObj;
     private FileListAdapter adapter;
     private Menu menu;
+    private String actionIdDownload;
     private String actionIdFileList;
     //region PennStation----------------------
     GenericFileListActivityEventListener eventListener = new GenericFileListActivityEventListener() {
@@ -103,6 +114,25 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         @Override
         public void onEventMainThread(MoveFileActionEventFailure event) {
             progress.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onEventMainThread(DownloadFileActionEventFailure event) {
+            progress.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onEventMainThread(DownloadFileActionEventSuccess event) {
+            progress.setVisibility(View.GONE);
+            if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
+                LocalFileObj localFileObj = event.localFileObj;
+
+                File file = new File(localFileObj.localPath);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(file), localFileObj.mime);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+            }
         }
 
         @Override
@@ -189,6 +219,11 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     //endregion
 
     //region Init----------------------
@@ -231,8 +266,14 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
 
     //region Interface----------------------
     @Override
-    public void fileClicked(FileObj fileObj) {
+    public void folderClicked(FileObj fileObj) {
         startActivity(GenericFileListActivity.getInstance(this, fileObj));
+    }
+
+    @Override
+    public void fileClicked(FileObj fileObj) {
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
     }
 
     @Override

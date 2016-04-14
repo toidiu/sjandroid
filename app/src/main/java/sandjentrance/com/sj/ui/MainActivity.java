@@ -1,6 +1,5 @@
 package sandjentrance.com.sj.ui;
 
-import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
@@ -17,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -51,13 +49,18 @@ import sandjentrance.com.sj.utils.BgImageLoader;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 
+import static android.Manifest.permission.GET_ACCOUNTS;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 public class MainActivity extends Activity implements EasyPermissions.PermissionCallbacks {
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
+    static final int REQUEST_PERMISSION_ACCOUNT_STORAGE = 1003;
+    String[] PERM_REQUEST = {GET_ACCOUNTS, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE};
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.progress)
     ProgressBar progress;
@@ -132,6 +135,16 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> list) {
+        final Snackbar snackbar = Snackbar.make(progress, "Please grant permission to continue.", Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("Grant Permission", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getStarted();
+                snackbar.dismiss();
+            }
+        });
+        snackbar.setActionTextColor(getResources().getColor(R.color.snackbar_text));
+        snackbar.show();
         // Do nothing.
     }
 
@@ -157,9 +170,9 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
         }
     }
 
-    @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
+    @AfterPermissionGranted(REQUEST_PERMISSION_ACCOUNT_STORAGE)
     private void chooseAccount() {
-        if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
+        if (EasyPermissions.hasPermissions(this, PERM_REQUEST)) {
             String accountName = prefs.getUser();
             if (accountName != null) {
                 Log.d("log1", "-----------1");
@@ -177,8 +190,8 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
         } else {
             Log.d("log1", "-----------3");
             // Request the GET_ACCOUNTS permission via a user dialog
-            EasyPermissions.requestPermissions(this, "This app needs to access your Google account (via Contacts).",
-                    REQUEST_PERMISSION_GET_ACCOUNTS, Manifest.permission.GET_ACCOUNTS);
+            EasyPermissions.requestPermissions(this, getString(R.string.permission_msg),
+                    REQUEST_PERMISSION_ACCOUNT_STORAGE, PERM_REQUEST);
         }
     }
 

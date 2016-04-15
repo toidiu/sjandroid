@@ -57,8 +57,8 @@ public class FindClaimedProjAction extends BaseAction {
                 @Override
                 public void run() {
                     try {
-                        Dao<FileObj, String> fileObjDao = databaseHelper.getClaimProjDao();
-                        DeleteBuilder<FileObj, String> builder = fileObjDao.deleteBuilder();
+                        Dao<FileObj, Integer> fileObjDao = databaseHelper.getClaimProjDao();
+                        DeleteBuilder<FileObj, Integer> builder = fileObjDao.deleteBuilder();
                         builder.where().isNotNull("dbId");
                         builder.delete();
 

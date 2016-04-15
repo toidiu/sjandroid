@@ -11,6 +11,7 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.models.FileUploadObj;
 
 /**
  * Created by toidiu on 1/18/15.
@@ -23,7 +24,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private static DatabaseHelper instance;
     // @reminder Ordering matters, create foreign key dependant classes later
-    private final Class[] tableClasses = new Class[]{FileObj.class};
+    private final Class[] tableClasses = new Class[]{FileObj.class, FileUploadObj.class};
 
     private DatabaseHelper(Context context) {
         super(context, DATABASE_FILE_NAME, null, VERSION);
@@ -73,8 +74,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public Dao<FileObj, String> getClaimProjDao() throws SQLException {
+    public Dao<FileObj, Integer> getClaimProjDao() throws SQLException {
         return getDao(FileObj.class);
     }
 
+    public Dao<FileUploadObj, Integer> getFileUploadDao() throws SQLException {
+        return getDao(FileUploadObj.class);
+    }
 }

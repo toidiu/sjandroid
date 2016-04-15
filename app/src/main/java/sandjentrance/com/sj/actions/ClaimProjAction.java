@@ -18,8 +18,10 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
+import com.j256.ormlite.dao.Dao;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
@@ -71,7 +73,13 @@ public class ClaimProjAction extends BaseAction {
                     .setFields(QUERY_FIELDS)
                     .execute();
             FileObj fileObj = new FileObj(file);
-            databaseHelper.getClaimProjDao().createOrUpdate(fileObj);
+
+            Dao<FileObj, Integer> dao = databaseHelper.getClaimProjDao();
+            List<FileObj> fileObjList = dao.queryForEq("id", fileObj.id);
+            if (fileObjList.isEmpty())
+            {
+                dao.create(fileObj);
+            }
 
             return new ClaimProjActionEventSuccess(credential.getSelectedAccountName());
         } catch (Exception e) {

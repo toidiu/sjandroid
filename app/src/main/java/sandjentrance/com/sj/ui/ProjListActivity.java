@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction;
@@ -31,7 +30,7 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
-import sandjentrance.com.sj.actions.TestAction_.PsTestAction;
+import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
@@ -68,6 +67,7 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         @Override
         public void onEventMainThread(DbFindClaimedProjListActionEventSuccess event) {
             progress.setVisibility(View.GONE);
+            //// FIXME: 4/14/16 !!!! check race scenarios
             if (event.getResponseInfo().mRequestId.equals(actionIdClaimedList)) {
                 adapter.refreshView(Arrays.asList(event.results));
             }
@@ -124,19 +124,10 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
 
     //region Init----------------------
     private void initData() {
-        try {
-            PennStation.requestAction(PsTestAction.helper());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (BuildConfig.DEBUG) {
-            refreshFileList("Ralph");
-            searchView.setText("Ralph");
-            searchView.setSelection(searchView.getText().length());
-        }
-
         PennStation.requestAction(PsFindClaimedProjAction.helper());
+        actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+
+        PennStation.requestAction(PsUploadFileAction.helper());
     }
 
     private void initView() {

@@ -233,7 +233,11 @@ public class BaseAction implements Action {
     @Nullable
     protected File createFile(FileUploadObj fileUploadObj) {
         //Local file
-        FileContent mediaContent = new FileContent(fileUploadObj.mime, new java.io.File(fileUploadObj.localFilePath));
+        java.io.File file = new java.io.File(fileUploadObj.localFilePath);
+        if (!file.exists()){
+            return null;
+        }
+        FileContent mediaContent = new FileContent(fileUploadObj.mime, file);
 
         //Drive file
         List<String> parents = new ArrayList<>();
@@ -248,6 +252,39 @@ public class BaseAction implements Action {
             return driveService.files().create(fileMetadata, mediaContent)
                     .setFields(QUERY_FIELDS)
                     .execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
+    protected File replaceFile(FileUploadObj fileUploadObj) {
+        //Local file
+        java.io.File file = new java.io.File(fileUploadObj.localFilePath);
+        if (!file.exists()){
+            return null;
+        }
+        FileContent mediaContent = new FileContent(fileUploadObj.mime, file);
+
+        //Drive file
+        List<String> parents = new ArrayList<>();
+        parents.add(fileUploadObj.parentId);
+        File fileMetadata = new File();
+        fileMetadata.setName(fileUploadObj.fileName);
+        fileMetadata.setMimeType(fileUploadObj.mime);
+        fileMetadata.setParents(parents);
+
+
+        try {
+            File driveFile = driveService.files().get(fileUploadObj.fileId).setFields(QUERY_FIELDS).execute();
+
+            File execute = driveService.files().update(fileUploadObj.fileId, driveFile, mediaContent)
+                    .setFields(QUERY_FIELDS)
+                    .execute();
+
+
+            return execute;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

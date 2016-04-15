@@ -265,7 +265,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
 
     @Override
     public void fileClicked(FileObj fileObj) {
-        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.id, fileObj.title, fileObj.mime);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
     }
 

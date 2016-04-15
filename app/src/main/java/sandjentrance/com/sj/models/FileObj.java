@@ -8,6 +8,7 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.User;
 import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Comparator;
 import java.util.List;
@@ -26,7 +27,7 @@ public class FileObj implements Parcelable {
 
     //region Fields----------------------
     @DatabaseField(generatedId = true)
-    public int dbId;
+    public Integer dbId;
     @DatabaseField
     public String id;
     @DatabaseField

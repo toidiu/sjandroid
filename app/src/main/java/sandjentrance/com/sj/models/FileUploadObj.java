@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by toidiu on 4/12/16.
@@ -11,15 +13,33 @@ import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 @ParcelablePlease
 public class FileUploadObj implements Parcelable {
 
-    public int dbId;
+    @DatabaseField(generatedId = true)
+    public Integer dbId;
+    @DatabaseField
     public String fileId;
+    @DatabaseField
     public String parentId;
+    @DatabaseField
     public String fileName;
+    @DatabaseField
     public String localFilePath;
+    @DatabaseField
     public String mime;
+    public static final Creator<FileUploadObj> CREATOR = new Creator<FileUploadObj>() {
+        public FileUploadObj createFromParcel(Parcel source) {
+            FileUploadObj target = new FileUploadObj();
+            FileUploadObjParcelablePlease.readFromParcel(target, source);
+            return target;
+        }
 
-    public FileUploadObj(String parentId, String fileName, String localFilePath, String mime) {
+        public FileUploadObj[] newArray(int size) {
+            return new FileUploadObj[size];
+        }
+    };
+
+    public FileUploadObj(String parentId, String fileId, String fileName, String localFilePath, String mime) {
         this.parentId = parentId;
+        this.fileId = fileId;
         this.fileName = fileName;
         this.localFilePath = localFilePath;
         this.mime = mime;
@@ -37,16 +57,4 @@ public class FileUploadObj implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         FileUploadObjParcelablePlease.writeToParcel(this, dest, flags);
     }
-
-    public static final Creator<FileUploadObj> CREATOR = new Creator<FileUploadObj>() {
-        public FileUploadObj createFromParcel(Parcel source) {
-            FileUploadObj target = new FileUploadObj();
-            FileUploadObjParcelablePlease.readFromParcel(target, source);
-            return target;
-        }
-
-        public FileUploadObj[] newArray(int size) {
-            return new FileUploadObj[size];
-        }
-    };
 }

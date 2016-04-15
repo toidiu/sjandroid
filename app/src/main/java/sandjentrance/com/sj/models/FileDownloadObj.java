@@ -11,12 +11,14 @@ import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 @ParcelablePlease
 public class FileDownloadObj implements Parcelable {
 
+    public String parentId;
     public String fileId;
     public String fileName;
     public String mime;
 
 
-    public FileDownloadObj(String fileId, String fileName, String mime) {
+    public FileDownloadObj(String parentId, String fileId, String fileName, String mime) {
+        this.parentId = parentId;
         this.fileId = fileId;
         this.fileName = fileName;
         this.mime = mime;

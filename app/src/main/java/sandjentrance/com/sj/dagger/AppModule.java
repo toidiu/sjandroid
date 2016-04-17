@@ -9,6 +9,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveRequestInitializer;
 import com.google.api.services.drive.DriveScopes;
 
 import java.util.Arrays;
@@ -43,6 +44,7 @@ public class AppModule {
 
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
                 context.getApplicationContext(), Arrays.asList(SCOPES))
+                .setSelectedAccountName(prefs.getUser())
                 .setBackOff(new ExponentialBackOff());
 
         return credential;
@@ -52,12 +54,19 @@ public class AppModule {
     Drive provideDriveService(GoogleAccountCredential credential) {
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        Drive driveService = new Drive.Builder(
+//        HttpTransport transport = AndroidHttp.newCompatibleTransport();
+//        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+        Drive mService = new Drive.Builder(
                 transport, jsonFactory, credential)
-                .setApplicationName("SJ")
+                .setApplicationName("Drive API Android Quickstart")
                 .build();
 
-        return driveService;
+//        Drive driveService = new Drive.Builder(
+//                transport, jsonFactory, credential)
+//                .setApplicationName("SJ")
+//                .build();
+
+        return mService;
     }
 
     @Provides

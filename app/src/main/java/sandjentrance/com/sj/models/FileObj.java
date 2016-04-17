@@ -5,18 +5,16 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.ParentReference;
+import com.google.api.services.drive.model.Property;
 import com.google.api.services.drive.model.User;
 import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
-
-import sandjentrance.com.sj.actions.BaseAction;
 
 /**
  * Created by toidiu on 4/2/16.
@@ -76,22 +74,22 @@ public class FileObj implements Parcelable {
     //region Constructor----------------------
     public FileObj(File f) {
         this.id = f.getId();
-        this.title = f.getName();
+        this.title = f.getTitle();
         this.mime = f.getMimeType();
-        this.lastModified = f.getModifiedTime().toString();
+        this.lastModified = f.getModifiedDate().toString();
 
         List<User> owners = f.getOwners();
         if (owners != null && owners.size() > 0) {
             this.owner = owners.get(0).getDisplayName();
         }
-        List<String> parents = f.getParents();
+        List<ParentReference> parents = f.getParents();
         if (parents != null && parents.size() > 0) {
-            this.parent = parents.get(0);
+            this.parent = parents.get(0).getId();
         }
 
-        Map<String, String> properties = f.getProperties();
-        if (properties != null && properties.containsKey(BaseAction.CLAIM_PROPERTY)) {
-            this.claimUser = properties.get(BaseAction.CLAIM_PROPERTY);
+        List<Property> properties = f.getProperties();
+        if (properties != null && properties.size() > 0) {
+            this.claimUser = f.getProperties().get(0).getValue();
         }
     }
 

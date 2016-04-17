@@ -25,6 +25,9 @@ import sandjentrance.com.sj.actions.DbFindClaimedProjListAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListActionEventFailure;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListActionEventSuccess;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction_.PsDbFindClaimedProjListAction;
+import sandjentrance.com.sj.actions.FindClaimedProjAction;
+import sandjentrance.com.sj.actions.FindClaimedProjActionEventFailure;
+import sandjentrance.com.sj.actions.FindClaimedProjActionEventSuccess;
 import sandjentrance.com.sj.actions.FindClaimedProjAction_.PsFindClaimedProjAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
@@ -38,7 +41,8 @@ import sandjentrance.com.sj.ui.extras.FileListInterface;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
-        DbFindClaimedProjListAction.class
+        DbFindClaimedProjListAction.class,
+        FindClaimedProjAction.class
 })
 public class ProjListActivity extends BaseActivity implements FileListInterface {
 
@@ -59,6 +63,17 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
     private String actionIdClaimedList;
     //region PennStation----------------------
     ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
+        @Override
+        public void onEventMainThread(FindClaimedProjActionEventFailure event) {
+            progress.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onEventMainThread(FindClaimedProjActionEventSuccess event) {
+            progress.setVisibility(View.VISIBLE);
+            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+        }
+
         @Override
         public void onEventMainThread(DbFindClaimedProjListActionEventFailure event) {
             progress.setVisibility(View.GONE);

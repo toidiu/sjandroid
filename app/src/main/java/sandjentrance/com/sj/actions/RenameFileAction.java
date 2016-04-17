@@ -48,7 +48,7 @@ public class RenameFileAction extends BaseAction {
         }
 
         File fileMetadata = new File();
-        fileMetadata.setName(helper.newName());
+        fileMetadata.setTitle(helper.newName());
 
         try {
             driveService.files().update(fileObj.id, fileMetadata).execute();

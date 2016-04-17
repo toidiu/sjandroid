@@ -1,6 +1,7 @@
 package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.edisonwang.ps.annotations.EventClass;
 import com.edisonwang.ps.annotations.EventProducer;
@@ -43,12 +44,14 @@ public class FindClaimedProjAction extends BaseAction {
             return new FindFolderChildrenActionEventFailure();
         }
 
-        String search = "properties has { key='" + CLAIM_PROPERTY + "' and value='" + credential.getSelectedAccountName() + "' }"
-                + " and " + "name != '.DS_Store'"
+        String search =
+                "properties has { key='" + CLAIM_PROPERTY + "' and value='" + credential.getSelectedAccountName() + "' and visibility='PRIVATE' } "
+                + " and " + "title != '.DS_Store'"
                 + " and " + "'" + prefs.getBaseFolderId() + "'" + " in parents"
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
+            Log.d("----------------", search);
             List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             final FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
             Arrays.sort(array, FileObj.FileObjComparator);
@@ -73,10 +76,10 @@ public class FindClaimedProjAction extends BaseAction {
             });
 
 
-            return new DbFindClaimedProjListActionEventSuccess(array);
+            return new FindClaimedProjActionEventSuccess(array);
         } catch (Exception e) {
             e.printStackTrace();
-            return new DbFindClaimedProjListActionEventFailure();
+            return new FindClaimedProjActionEventFailure();
         }
     }
 

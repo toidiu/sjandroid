@@ -13,6 +13,7 @@ import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.ParentReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,8 +51,8 @@ public class SetupDriveAction extends BaseAction {
             return new SetupDriveActionEventFailure();
         }
 
-        List<String> parents = new ArrayList<>();
-        parents.add(parentId);
+        List<ParentReference> parents = new ArrayList<>();
+        parents.add(new ParentReference().setId(parentId));
 
         if (checkAndCreateArchive(parents) && checkAndCreatePhotos(parents)) {
             prefs.setBaseFolderId(parentId);
@@ -63,17 +64,17 @@ public class SetupDriveAction extends BaseAction {
     }
 
     @NonNull
-    private boolean checkAndCreateArchive(List<String> parents) {
+    private boolean checkAndCreateArchive(List<ParentReference> parents) {
         List<FileObj> dataFromApi = getFoldersByName(ARCHIVE_FOLDER, parentId);
 
         if (dataFromApi.size() == 0) {
             File archive = new File();
-            archive.setName(ARCHIVE_FOLDER);
+            archive.setTitle(ARCHIVE_FOLDER);
             archive.setMimeType("application/vnd.google-apps.folder");
             archive.setParents(parents);
 
             try {
-                File file = driveService.files().create(archive).setFields("id").execute();
+                File file = driveService.files().insert(archive).setFields("id").execute();
                 prefs.setArchiveFolderId(file.getId());
                 return true;
             } catch (IOException e) {
@@ -87,17 +88,17 @@ public class SetupDriveAction extends BaseAction {
     }
 
     @NonNull
-    private boolean checkAndCreatePhotos(List<String> parents) {
+    private boolean checkAndCreatePhotos(List<ParentReference> parents) {
         List<FileObj> dataFromApi = getFoldersByName(PHOTOS_FOLDER, parentId);
 
         if (dataFromApi.size() == 0) {
             File photos = new File();
-            photos.setName(PHOTOS_FOLDER);
+            photos.setTitle(PHOTOS_FOLDER);
             photos.setMimeType("application/vnd.google-apps.folder");
             photos.setParents(parents);
 
             try {
-                File file = driveService.files().create(photos).setFields("id").execute();
+                File file = driveService.files().insert(photos).setFields("id").execute();
                 prefs.setPhotosFolderId(file.getId());
                 return true;
             } catch (IOException e) {

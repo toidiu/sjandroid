@@ -1,6 +1,7 @@
 package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
@@ -18,8 +19,10 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.Property;
 import com.j256.ormlite.dao.Dao;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,13 +67,18 @@ public class ClaimProjAction extends BaseAction {
                 .build();
 
         File fileMetadata = new File();
-        Map<String, String> prop = new HashMap<>();
-        prop.put(CLAIM_PROPERTY, credential.getSelectedAccountName());
-        fileMetadata.setProperties(prop);
+//        Map<String, String> prop = new HashMap<>();
+//        prop.put(CLAIM_PROPERTY, "asdf32d");
+        List<Property> pp = new ArrayList<>();
+        Property property = new Property();
+        property.setKey(CLAIM_PROPERTY).setValue(credential.getSelectedAccountName());
+        pp.add(property);
+        fileMetadata.setProperties(pp);
 
+        Log.d("--------", credential.getSelectedAccountName());
         try {
             File file = driveService.files().update(helper.fileId(), fileMetadata)
-                    .setFields(QUERY_FIELDS)
+//                    .setFields(QUERY_FIELDS)
                     .execute();
             FileObj fileObj = new FileObj(file);
 

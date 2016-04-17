@@ -47,8 +47,8 @@ public class FindFolderChildrenAction extends BaseAction {
             return new FindFolderChildrenActionEventFailure();
         }
 
-        String search = "name contains '" + helper.searchName() + "'"
-                + " and " + "name != '.DS_Store'"
+        String search = "title contains '" + helper.searchName() + "'"
+                + " and " + "title != '.DS_Store'"
                 + " and " + "'" + helper.parentId() + "'" + " in parents";
         if (helper.folderOnly()) {
             search += " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";

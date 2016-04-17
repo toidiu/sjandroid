@@ -12,6 +12,7 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
+import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,15 +49,20 @@ public class FindBaseFolderAction extends BaseAction {
             return new FindBaseFolderActionEventFailure();
         }
 
-        String search = "name contains '" + helper.searchName() + "'"
-                + " and " + "name != '.DS_Store'"
+        String search = "title contains '" + helper.searchName() + "'"
+                + " and " + "title != '.DS_Store'"
 //                + " and " + " sharedWithMe=true "
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
         try {
+//            List<File> files = executeQueryList(search);
+
+
+
             List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
             return new FindBaseFolderActionEventSuccess(array);
+//            return null;
         } catch (IOException e) {
             e.printStackTrace();
             return new FindBaseFolderActionEventFailure();

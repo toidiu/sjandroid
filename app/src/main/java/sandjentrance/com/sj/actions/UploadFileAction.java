@@ -65,7 +65,7 @@ public class UploadFileAction extends BaseAction {
 
     private void uploadFile(Dao<FileUploadObj, Integer> dao, FileUploadObj fileUploadObj) {
         //id fileId null
-        File createdFile;
+        File createdFile = null;
         boolean deleteSatisfied = true;
         if (fileUploadObj.fileId == null) {
             //yes
@@ -78,8 +78,9 @@ public class UploadFileAction extends BaseAction {
             if (fileById != null) {
                 //yes
                 Log.d("d----------", "uploadFile: 2");
-                createdFile = createFile(fileUploadObj);
-                deleteSatisfied = deleteFile(fileById.id);
+                replaceFile(fileUploadObj);
+//                createdFile = createFile(fileUploadObj);
+//                deleteSatisfied = deleteFile(fileById.id);
             } else {
                 //no
                 createdFile = createFile(fileUploadObj);
@@ -87,15 +88,15 @@ public class UploadFileAction extends BaseAction {
             }
         }
 
-        if (createdFile != null && deleteSatisfied) {
-            //fixme delete from DB and also the local file
-            try {
-                FileUtils.deleteLocalFile(new java.io.File(fileUploadObj.localFilePath));
-                dao.deleteById(fileUploadObj.dbId);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (createdFile != null && deleteSatisfied) {
+//            //fixme delete from DB and also the local file
+//            try {
+//                FileUtils.deleteLocalFile(new java.io.File(fileUploadObj.localFilePath));
+//                dao.deleteById(fileUploadObj.dbId);
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
 }

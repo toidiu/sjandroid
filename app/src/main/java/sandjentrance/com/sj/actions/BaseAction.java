@@ -13,10 +13,14 @@ import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.FileContent;
+import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.ParentReference;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,10 +49,10 @@ import sandjentrance.com.sj.utils.RenameFileHelper;
 public class BaseAction implements Action {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
-    public static final String CLAIM_PROPERTY = "CLAIM_PROPERTY";
+    public static final String CLAIM_PROPERTY = "claim";
     public static final String ARCHIVE_FOLDER = "Archive";
     public static final String PHOTOS_FOLDER = "Photos";
-    public static final String QUERY_FIELDS = "id, name, modifiedTime, owners, mimeType, parents, properties";
+//    public static final String QUERY_FIELDS = "title";
     public static final String MIME_JPEG = "image/jpeg";
     public static final String MIME_PNG = "image/png";
     public static final String MIME_PDF = "application/pdf";
@@ -81,10 +85,10 @@ public class BaseAction implements Action {
 
         FileList result = driveService.files().list()
                 .setQ(search)
-                .setSpaces("drive")
-                .setFields("nextPageToken, files(" + QUERY_FIELDS + ")")
+//                .setSpaces("drive")
+//                .setFields(QUERY_FIELDS)
                 .execute();
-        List<File> files = result.getFiles();
+        List<File> files = result.getItems();
 
 
         return files;
@@ -102,7 +106,7 @@ public class BaseAction implements Action {
     }
 
     protected List<FileObj> getFoldersByName(String folderName, String baseFolderId) {
-        String search = "name = '" + folderName + "'"
+        String search = "title = '" + folderName + "'"
                 + " and " + "'" + baseFolderId + "'" + " in parents"
                 + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
 
@@ -121,7 +125,7 @@ public class BaseAction implements Action {
     protected FileObj getFileById(String fileId) {
         try {
             File file = driveService.files().get(fileId)
-                    .setFields(QUERY_FIELDS)
+//                    .setFields(QUERY_FIELDS)
                     .execute();
 
             return new FileObj(file);
@@ -133,7 +137,7 @@ public class BaseAction implements Action {
     }
 
     protected List<File> getFileByName(String fileName, String baseFolderId) {
-        String search = "name = '" + fileName + "'"
+        String search = "title = '" + fileName + "'"
                 + " and " + "'" + baseFolderId + "'" + " in parents";
 
         List<File> dataFromApi = new ArrayList<>();
@@ -152,7 +156,7 @@ public class BaseAction implements Action {
                     .setFields("parents")
                     .execute();
             StringBuilder previousParents = new StringBuilder();
-            for (String parent : file.getParents()) {
+            for (ParentReference parent : file.getParents()) {
                 previousParents.append(parent);
                 previousParents.append(',');
             }
@@ -160,7 +164,7 @@ public class BaseAction implements Action {
             File execute = driveService.files().update(fileId, null)
                     .setAddParents(newParentId)
                     .setRemoveParents(previousParents.toString())
-                    .setFields(QUERY_FIELDS)
+//                    .setFields(QUERY_FIELDS)
                     .execute();
 
             return true;
@@ -243,14 +247,18 @@ public class BaseAction implements Action {
         List<String> parents = new ArrayList<>();
         parents.add(fileUploadObj.parentId);
         File fileMetadata = new File();
-        fileMetadata.setName(fileUploadObj.fileName);
+        fileMetadata.setTitle(fileUploadObj.fileName);
         fileMetadata.setMimeType(fileUploadObj.mime);
-        fileMetadata.setParents(parents);
+
+//        fileMetadata.setParents(parents);
+        List<ParentReference> df = new ArrayList<>();
+        df.add(new ParentReference().setId(fileUploadObj.parentId));
+        fileMetadata.setParents(df);
 
 
         try {
-            return driveService.files().create(fileMetadata, mediaContent)
-                    .setFields(QUERY_FIELDS)
+            return driveService.files().insert(fileMetadata, mediaContent)
+//                    .setFields(QUERY_FIELDS)
                     .execute();
         } catch (IOException e) {
             e.printStackTrace();
@@ -266,21 +274,32 @@ public class BaseAction implements Action {
             return null;
         }
         FileContent mediaContent = new FileContent(fileUploadObj.mime, file);
+        FileInputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        assert inputStream != null;
+        InputStreamContent in = new InputStreamContent(fileUploadObj.mime, inputStream);
 
         //Drive file
-        List<String> parents = new ArrayList<>();
-        parents.add(fileUploadObj.parentId);
-        File fileMetadata = new File();
-        fileMetadata.setName(fileUploadObj.fileName);
-        fileMetadata.setMimeType(fileUploadObj.mime);
-        fileMetadata.setParents(parents);
+//        List<String> parents = new ArrayList<>();
+//        parents.add(fileUploadObj.parentId);
+//        File fileMetadata = new File();
+//        fileMetadata.setName(fileUploadObj.fileName);
+//        fileMetadata.setMimeType(fileUploadObj.mime);
+//        fileMetadata.setParents(parents);
 
 
         try {
-            File driveFile = driveService.files().get(fileUploadObj.fileId).setFields(QUERY_FIELDS).execute();
+            File driveFile = driveService.files()
+                    .get(fileUploadObj.fileId)
+//                    .setFields(QUERY_FIELDS)
+                    .execute();
 
-            File execute = driveService.files().update(fileUploadObj.fileId, driveFile, mediaContent)
-                    .setFields(QUERY_FIELDS)
+            File execute = driveService.files().update(fileUploadObj.fileId, driveFile, in)
+//                    .setFields(QUERY_FIELDS)
                     .execute();
 
 

@@ -16,7 +16,7 @@ import com.edisonwang.ps.lib.PennStation;
 
 import java.io.File;
 
-import sandjentrance.com.sj.actions.AddUploadFileAction_.PsAddUploadFileAction;
+import sandjentrance.com.sj.actions.DbAddUploadFileAction_.PsDbAddUploadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileUploadObj;
@@ -56,7 +56,7 @@ public class DownloadFileAction extends BaseAction {
         if (localFile != null) {
             LocalFileObj localFileObj = new LocalFileObj(localFile.getName(), fileDlObj.mime, localFile.getAbsolutePath());
 
-            PennStation.requestAction(PsAddUploadFileAction.helper(new FileUploadObj(fileDlObj.parentId, fileDlObj.fileId, fileDlObj.fileName, localFile.getAbsolutePath(), fileDlObj.mime)));
+            PennStation.requestAction(PsDbAddUploadFileAction.helper(new FileUploadObj(fileDlObj.parentId, fileDlObj.fileId, fileDlObj.fileName, localFile.getAbsolutePath(), fileDlObj.mime)));
             return new DownloadFileActionEventSuccess(localFileObj);
         } else {
             return new DownloadFileActionEventFailure();

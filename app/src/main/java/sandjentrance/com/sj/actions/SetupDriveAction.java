@@ -70,7 +70,7 @@ public class SetupDriveAction extends BaseAction {
         if (dataFromApi.size() == 0) {
             File archive = new File();
             archive.setTitle(ARCHIVE_FOLDER);
-            archive.setMimeType(FileObj.FOLDER_MIME);
+            archive.setMimeType(FOLDER_MIME);
             archive.setParents(parents);
 
             try {
@@ -96,7 +96,7 @@ public class SetupDriveAction extends BaseAction {
         if (dataFromApi.size() == 0) {
             File photos = new File();
             photos.setTitle(PHOTOS_FOLDER);
-            photos.setMimeType(FileObj.FOLDER_MIME);
+            photos.setMimeType(FOLDER_MIME);
             photos.setParents(parents);
 
             try {

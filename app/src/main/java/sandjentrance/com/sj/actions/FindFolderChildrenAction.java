@@ -51,13 +51,13 @@ public class FindFolderChildrenAction extends BaseAction {
                 + " and " + "title != '.DS_Store'"
                 + " and " + "'" + helper.parentId() + "'" + " in parents";
         if (helper.folderOnly()) {
-            search += " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
+            search += " and " + "mimeType = '" + FOLDER_MIME + "'";
         }
 
         try {
             List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            Arrays.sort(array, FileObj.FileObjComparator);
+            Arrays.sort(array, FileObj.getComparator());
             return new FindFolderChildrenActionEventSuccess(array);
         } catch (IOException e) {
             e.printStackTrace();

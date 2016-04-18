@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -21,6 +22,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
+import sandjentrance.com.sj.actions.DbAddNewFileAction;
+import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
+import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
+import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListActionEventFailure;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListActionEventSuccess;
@@ -34,18 +39,23 @@ import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
+import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.models.LocalFileObj;
+import sandjentrance.com.sj.models.NewFileObj;
+import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
-import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjListAdapter;
+import sandjentrance.com.sj.utils.FileUtils;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
         DbFindClaimedProjListAction.class,
-        FindClaimedProjAction.class
+        FindClaimedProjAction.class,
+        DbAddNewFileAction.class
 })
-public class ProjListActivity extends BaseActivity implements ProjClickInterface {
+public class ProjListActivity extends BaseActivity implements ProjClickInterface, AddFileInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -55,7 +65,6 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     ProgressBar progress;
     @Bind(R.id.search)
     EditText searchView;
-
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private ProjListAdapter adapter;
     //endregion
@@ -74,6 +83,19 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
             progress.setVisibility(View.GONE);
             adapter.refreshView(Arrays.asList(event.results));
 //            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+        }
+
+        @Override
+        public void onEventMainThread(DbAddNewFileActionEventSuccess event) {
+            progress.setVisibility(View.GONE);
+            NewFileObj newFileObj = event.newFileObj;
+            LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
+            openLocalFile(localFileObj, null);
+        }
+
+        @Override
+        public void onEventMainThread(DbAddNewFileActionEventFailure event) {
+            progress.setVisibility(View.GONE);
         }
 
         @Override
@@ -146,6 +168,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         PennStation.requestAction(PsFindClaimedProjAction.helper());
 
+        PennStation.requestAction(PsUploadNewFileAction.helper());
         PennStation.requestAction(PsUploadFileAction.helper());
     }
 
@@ -193,7 +216,6 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     }
     //endregion
 
-
     //region Interface----------------------
     @Override
     public void folderClicked(FileObj fileObj) {
@@ -208,12 +230,25 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
     @Override
     public void addClicked(FileObj fileObj) {
-
+        DialogAddFile.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
 
     @Override
     public void fileClicked(FileObj fileObj) {
+        //do nothing
+    }
 
+    @Override
+    public void purchaseOrderClicked(String projFolderId) {
+        // FIXME: 4/18/16   put all this into the pennstation task!!!   also run task in project detail
+        // FIXME: 4/18/16 also call the uploadNewFileAction more often..... maybe in onResume;
+        String localFileName = "Purchase Order" + System.currentTimeMillis();
+        File localFile = FileUtils.copyAssetsFile(getAssets(), BaseAction.PURCHASE_ORDER_PDF, localFileName, BaseAction.MIME_PDF);
+
+        if (localFile != null && localFile.exists()) {
+            NewFileObj newFileObj = new NewFileObj(BaseAction.PURCHASE_ORDERS_FOLDER, BaseAction.MIME_PDF, localFile.getName(), projFolderId, localFile.getAbsolutePath());
+            PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
+        }
     }
     //endregion
 

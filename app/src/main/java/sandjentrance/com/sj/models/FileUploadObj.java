@@ -11,7 +11,7 @@ import com.j256.ormlite.table.DatabaseTable;
  * Created by toidiu on 4/12/16.
  */
 @ParcelablePlease
-public class FileUploadObj implements Parcelable {
+public class  FileUploadObj implements Parcelable {
 
     @DatabaseField(generatedId = true)
     public Integer dbId;

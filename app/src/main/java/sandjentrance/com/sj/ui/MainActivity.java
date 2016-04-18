@@ -44,6 +44,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.SJApplication;
+import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.utils.BgImageLoader;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
@@ -143,7 +144,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
                 snackbar.dismiss();
             }
         });
-        snackbar.setActionTextColor(getResources().getColor(R.color.snackbar_text));
+        snackbar.setActionTextColor(getResources().getColor(R.color.colorAccent));
         snackbar.show();
         // Do nothing.
     }
@@ -274,7 +275,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
             String search = "title contains '" + "Jobs" + "'"
                     + " and " + "title != '.DS_Store'"
                     + " and " + " sharedWithMe=true "
-                    + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
+                    + " and " + "mimeType = '" + BaseAction.FOLDER_MIME + "'";
 
             List<FileObj> retFile = new ArrayList<>();
 

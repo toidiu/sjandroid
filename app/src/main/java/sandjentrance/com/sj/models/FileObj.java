@@ -16,12 +16,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import sandjentrance.com.sj.actions.BaseAction;
+
 /**
  * Created by toidiu on 4/2/16.
  */
 @ParcelablePlease
 public class FileObj implements Parcelable {
-    public static final String FOLDER_MIME = "application/vnd.google-apps.folder";
 
     //region Fields----------------------
     @DatabaseField(generatedId = true)
@@ -30,21 +31,6 @@ public class FileObj implements Parcelable {
     public String id;
     @DatabaseField
     public String title;
-    public static Comparator<FileObj> FileObjComparator = new Comparator<FileObj>() {
-
-        public int compare(FileObj file1, FileObj file2) {
-
-            String fileName1 = file1.title.toUpperCase();
-            String fileName2 = file2.title.toUpperCase();
-
-            //ascending order
-            return fileName1.compareTo(fileName2);
-
-            //descending order
-            //return fruitName2.compareTo(fruitName1);
-        }
-
-    };
     @DatabaseField
     public String mime;
     @DatabaseField
@@ -98,8 +84,27 @@ public class FileObj implements Parcelable {
     }
 
     //region Helper----------------------
+    public static Comparator<FileObj> getComparator() {
+        Comparator<FileObj> comparator = new Comparator<FileObj>() {
+
+            public int compare(FileObj file1, FileObj file2) {
+
+                String fileName1 = file1.title.toUpperCase();
+                String fileName2 = file2.title.toUpperCase();
+
+                //ascending order
+                return fileName1.compareTo(fileName2);
+
+                //descending order
+                //return fruitName2.compareTo(fruitName1);
+            }
+
+        };
+        return comparator;
+    }
+
     public static boolean isFolder(@NonNull String mime) {
-        return mime.equals(FOLDER_MIME);
+        return mime.equals(BaseAction.FOLDER_MIME);
     }
     //endregion
 

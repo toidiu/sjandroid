@@ -25,6 +25,7 @@ import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.utils.KeyboardUtils;
 
 /**
  * Created by toidiu on 4/4/16.
@@ -92,7 +93,7 @@ public class DialogRenameFile extends BaseDialogFrag {
 
     @Override
     public void onDestroy() {
-        PennStation.unRegisterListener(this);
+        PennStation.unRegisterListener(eventListener);
         super.onDestroy();
     }
     //endregion
@@ -103,9 +104,7 @@ public class DialogRenameFile extends BaseDialogFrag {
         renameEdit.setText(fileObj.title);
         renameEdit.setSelection(renameEdit.getText().length());
 
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-
+        KeyboardUtils.toggleKeyboard(getContext());
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -40,7 +40,7 @@ public class DbFindClaimedProjListAction extends BaseAction {
         try {
             List<FileObj> fileObjList = databaseHelper.getClaimProjDao().queryForAll();
             FileObj[] array = fileObjList.toArray(new FileObj[fileObjList.size()]);
-            Arrays.sort(array, FileObj.FileObjComparator);
+            Arrays.sort(array, FileObj.getComparator());
             return new DbFindClaimedProjListActionEventSuccess(array);
         } catch (SQLException e) {
             e.printStackTrace();

@@ -52,7 +52,7 @@ public class FindBaseFolderAction extends BaseAction {
         String search = "title contains '" + helper.searchName() + "'"
                 + " and " + "title != '.DS_Store'"
 //                + " and " + " sharedWithMe=true "
-                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
+                + " and " + "mimeType = '" + FOLDER_MIME + "'";
 
         try {
 //            List<File> files = executeQueryList(search);

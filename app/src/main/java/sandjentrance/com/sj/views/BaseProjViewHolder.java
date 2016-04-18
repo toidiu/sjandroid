@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import sandjentrance.com.sj.R;
+import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
@@ -32,7 +33,7 @@ public class BaseProjViewHolder extends RecyclerView.ViewHolder {
         this.containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (item.mime.equals(FileObj.FOLDER_MIME)) {
+                if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     fileClickInterface.folderClicked(item);
                 }
                 //// FIXME: 4/3/16 check if its a pdf  or picture and open it

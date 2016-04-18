@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.Toast;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.squareup.picasso.Picasso;
@@ -64,7 +66,7 @@ public class BaseActivity extends AppCompatActivity {
         });
     }
 
-    protected void openLocalFile(LocalFileObj localFileObj, View view) {
+    public void openLocalFile(LocalFileObj localFileObj, @Nullable View view) {
         PackageManager packageManager = getPackageManager();
         Intent testIntent = new Intent(Intent.ACTION_VIEW);
         testIntent.setType(localFileObj.mime);
@@ -72,7 +74,11 @@ public class BaseActivity extends AppCompatActivity {
 
         if (list.isEmpty()) {
             String msg = localFileObj.mime.equals(BaseAction.MIME_PDF) ? getString(R.string.install_pdf_msg) : getString(R.string.install_img_msg);
-            Snackbar.make(view, msg, Snackbar.LENGTH_LONG).show();
+            if (view != null) {
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            }
         } else {
             File file = new File(localFileObj.localPath);
             Intent intent = new Intent(Intent.ACTION_VIEW);

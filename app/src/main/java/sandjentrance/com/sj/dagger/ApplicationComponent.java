@@ -6,6 +6,7 @@ import dagger.Component;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.ui.BaseActivity;
 import sandjentrance.com.sj.ui.BaseDialogFrag;
+import sandjentrance.com.sj.ui.BaseFullScreenDialogFrag;
 import sandjentrance.com.sj.ui.MainActivity;
 
 /**
@@ -21,4 +22,5 @@ public interface ApplicationComponent {
     void inject(BaseAction obj);
 
     void inject(BaseDialogFrag obj);
+    void inject(BaseFullScreenDialogFrag obj);
 }

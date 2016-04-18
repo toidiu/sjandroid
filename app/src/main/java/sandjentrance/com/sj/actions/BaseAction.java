@@ -3,6 +3,7 @@ package sandjentrance.com.sj.actions;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.edisonwang.ps.annotations.EventClass;
 import com.edisonwang.ps.annotations.EventProducer;
@@ -21,6 +22,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
+import com.j256.ormlite.dao.Dao;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -53,6 +55,17 @@ public class BaseAction implements Action {
     public static final String CLAIM_PROPERTY = "claim";
     public static final String ARCHIVE_FOLDER = "Archive";
     public static final String PHOTOS_FOLDER = "Photos";
+    public static final String PURCHASE_ORDERS_FOLDER = "Purchase Orders";
+    public static final String FAB_SHEETS_FOLDER = "Fab Sheets";
+    public static final String NOTES_FOLDER = "Notes";
+
+    public static final String PURCHASE_ORDER_PDF = "PurchaseOrder.pdf";
+    public static final String FAB_SHEET_PDF = "FabSheet.pdf";
+    public static final String PROJECT_LABOR_PDF = "ProjectLaborRequest.pdf";
+    public static final String NOTES_PDF = "Notes.pdf";
+
+    public static final String FOLDER_MIME = "application/vnd.google-apps.folder";
+
     //    public static final String QUERY_FIELDS = "title";
     public static final String MIME_JPEG = "image/jpeg";
     public static final String MIME_PNG = "image/png";
@@ -116,7 +129,7 @@ public class BaseAction implements Action {
     protected List<FileObj> getFoldersByName(String folderName, String baseFolderId) {
         String search = "title = '" + folderName + "'"
                 + " and " + "'" + baseFolderId + "'" + " in parents"
-                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
+                + " and " + "mimeType = '" + FOLDER_MIME + "'";
 
         List<FileObj> dataFromApi = new ArrayList<>();
         try {
@@ -127,6 +140,19 @@ public class BaseAction implements Action {
         return dataFromApi;
     }
 
+    protected List<FileObj> getFoldersByNameFuzzy(String folderName, String baseFolderId) {
+        String search = "title contains '" + folderName + "'"
+                + " and " + "'" + baseFolderId + "'" + " in parents"
+                + " and " + "mimeType = '" + FOLDER_MIME + "'";
+
+        List<FileObj> dataFromApi = new ArrayList<>();
+        try {
+            dataFromApi = toFileObjs(executeQueryList(search));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return dataFromApi;
+    }
 
     //endregion
 
@@ -192,7 +218,7 @@ public class BaseAction implements Action {
 
     @Nullable
     protected java.io.File downloadFile(FileDownloadObj fileDownloadObj) {
-        java.io.File localFile = FileUtils.getLocalFile(context, fileDownloadObj.fileId, fileDownloadObj.mime);
+        java.io.File localFile = FileUtils.getLocalFile(fileDownloadObj.fileId, fileDownloadObj.mime);
         if (localFile == null) {
             return null;
         } else if (localFile.exists()) {
@@ -348,6 +374,35 @@ public class BaseAction implements Action {
             e.printStackTrace();
             return null;
         }
+    }
+
+    protected boolean uploadFile(@Nullable Dao<FileUploadObj, Integer> dao, FileUploadObj fileUploadObj) {
+        //id fileId null
+        File createdFile = null;
+        if (fileUploadObj.fileId == null) {
+            //yes
+            Log.d("d----------", "uploadFile: 3");
+            createdFile = createFile(fileUploadObj);
+        } else {
+            //no
+            //check if file exists on drive
+            FileObj fileById = getFileById(fileUploadObj.fileId);
+            if (fileById != null) {
+                //yes
+                Log.d("d----------", "uploadFile: 2");
+                createdFile = replaceFile(fileUploadObj);
+            } else {
+                //no
+                createdFile = createFile(fileUploadObj);
+                Log.d("d----------", "uploadFile: 1");
+            }
+        }
+
+        if (createdFile != null) {
+            return FileUtils.deleteLocalFile(new java.io.File(fileUploadObj.localFilePath));
+        }
+
+        return false;
     }
 
 //endregion

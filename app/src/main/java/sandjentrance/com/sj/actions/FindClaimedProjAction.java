@@ -48,13 +48,12 @@ public class FindClaimedProjAction extends BaseAction {
                 "properties has { key='" + CLAIM_PROPERTY + "' and value='" + credential.getSelectedAccountName() + "' and visibility='PRIVATE' } "
                 + " and " + "title != '.DS_Store'"
                 + " and " + "'" + prefs.getBaseFolderId() + "'" + " in parents"
-                + " and " + "mimeType = '" + FileObj.FOLDER_MIME + "'";
+                + " and " + "mimeType = '" + FOLDER_MIME + "'";
 
         try {
-            Log.d("----------------", search);
             List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             final FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            Arrays.sort(array, FileObj.FileObjComparator);
+            Arrays.sort(array, FileObj.getComparator());
 
             databaseHelper.runInTransaction(new Runnable() {
                 @Override

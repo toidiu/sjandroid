@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -13,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -57,6 +57,7 @@ import sandjentrance.com.sj.actions.RenameFileAction;
 import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.utils.ImageUtil;
@@ -69,7 +70,7 @@ import sandjentrance.com.sj.utils.ImageUtil;
         ArchiveFileAction.class,
         GetUserImgAction.class
 })
-public class ProjDetailActivity extends BaseActivity implements FileClickInterface {
+public class ProjDetailActivity extends BaseActivity implements FileClickInterface, AddFileInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
@@ -79,13 +80,15 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     @Bind(R.id.pm_name)
     TextView pmNameView;
     @Bind(R.id.cliam_btn)
-    Button claimBtn;
+    TextView claimBtn;
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
     @Bind(R.id.progress)
     ProgressBar progress;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+    @Bind(R.id.fab)
+    FloatingActionButton fab;
     @Bind(R.id.profile_img)
     CircleImageView profileImg;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
@@ -326,6 +329,13 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                 }
             }
         });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogAddFile.getInstance(fileObj).show(getSupportFragmentManager(), null);
+            }
+        });
     }
     //endregion
 
@@ -402,6 +412,11 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     @Override
     public void fileLongClicked(FileObj fileObj) {
         DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
+    }
+
+    @Override
+    public void purchaseOrderClicked(String id) {
+
     }
     //endregion
 

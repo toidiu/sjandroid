@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import sandjentrance.com.sj.R;
+import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
@@ -14,17 +15,13 @@ import sandjentrance.com.sj.ui.extras.FileClickInterface;
 public class FileViewHolder extends RecyclerView.ViewHolder {
 
     public final View containerView;
-    public final View claimContainerView;
     public final TextView titleView;
-    public final TextView claimUserView;
 
     public FileViewHolder(View itemView) {
         super(itemView);
 
         containerView = itemView.findViewById(R.id.container);
-        claimContainerView = itemView.findViewById(R.id.claim_container);
         titleView = (TextView) itemView.findViewById(R.id.title);
-        claimUserView = (TextView) itemView.findViewById(R.id.claim_user);
     }
 
     public void bind(final FileObj item, final FileClickInterface fileClickInterface) {
@@ -32,21 +29,14 @@ public class FileViewHolder extends RecyclerView.ViewHolder {
         this.containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (item.mime.equals(FileObj.FOLDER_MIME)) {
+                if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     fileClickInterface.folderClicked(item);
-                }
-                else {
+                } else {
                     fileClickInterface.fileClicked(item);
                 }
             }
         });
 
-        if (item.claimUser != null) {
-            this.claimUserView.setText(item.claimUser);
-            this.claimContainerView.setVisibility(View.VISIBLE);
-        } else {
-            this.claimContainerView.setVisibility(View.GONE);
-        }
         this.containerView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

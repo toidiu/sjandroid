@@ -1,10 +1,16 @@
 package sandjentrance.com.sj.utils;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import sandjentrance.com.sj.actions.BaseAction;
 
@@ -14,7 +20,7 @@ import sandjentrance.com.sj.actions.BaseAction;
 public class FileUtils {
 
     @Nullable
-    public static File getLocalFile(Context context, String id, String mime) {
+    public static File getLocalFile(String id, String mime) {
         String name = null;
         if (mime.equals(BaseAction.MIME_PDF)) {
             name = id + ".pdf";
@@ -38,6 +44,37 @@ public class FileUtils {
             return true;
         } else {
             return false;
+        }
+    }
+
+
+    public static File copyAssetsFile(AssetManager assetManager , String assetFileName, String newName,  String mime) {
+        File localFile = getLocalFile(newName, mime);
+
+        try {
+            InputStream in = assetManager.open(assetFileName);
+            OutputStream out = new FileOutputStream(localFile);
+//                    openFileOutput(file.getName(), Context.MODE_WORLD_READABLE);
+
+            copyFile(in, out);
+            in.close();
+            in = null;
+            out.flush();
+            out.close();
+            out = null;
+            return localFile;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("tag", e.getMessage());
+            return null;
+        }
+    }
+
+    private static void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            out.write(buffer, 0, read);
         }
     }
 

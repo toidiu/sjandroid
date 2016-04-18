@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import sandjentrance.com.sj.R;
+import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
@@ -36,7 +37,7 @@ public class ProjViewHolder extends RecyclerView.ViewHolder {
         containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (item.mime.equals(FileObj.FOLDER_MIME)) {
+                if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     projClickInterface.folderClicked(item);
                 } else {
                     projClickInterface.fileClicked(item);

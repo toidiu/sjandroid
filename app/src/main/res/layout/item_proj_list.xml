@@ -17,7 +17,6 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_vertical"
@@ -48,25 +47,23 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Claimed by: " />
+                    android:text="Project Manager: " />
 
                 <TextView
                     android:id="@+id/claim_user"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="None"
-                    android:textStyle="bold" />
+                    android:text="None" />
             </LinearLayout>
         </LinearLayout>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/big_fab"
+            android:layout_height="@dimen/big_fab"
             android:layout_gravity="bottom|center"
             android:layout_margin="@dimen/fab_margin"
             android:layout_weight="0"
-            android:foreground="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:src="@drawable/ic_content_add" />
 

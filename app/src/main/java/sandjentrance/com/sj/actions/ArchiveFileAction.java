@@ -35,7 +35,6 @@ import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 public class ArchiveFileAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private Drive driveService;
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
@@ -45,14 +44,6 @@ public class ArchiveFileAction extends BaseAction {
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
         }
-
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        driveService = new Drive.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("SJ")
-                .build();
-
 
         if (fileMoved(helper.fileId(), prefs.getArchiveFolderId())) {
             return new ArchiveFileActionEventSuccess();

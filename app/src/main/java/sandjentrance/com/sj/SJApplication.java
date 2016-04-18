@@ -6,8 +6,6 @@ import android.content.Context;
 import com.edisonwang.ps.lib.EventService;
 import com.edisonwang.ps.lib.PennStation;
 
-import sandjentrance.com.sj.actions.AddUploadFileAction_.PsAddUploadFileAction;
-import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
 import sandjentrance.com.sj.dagger.ApiModules;
 import sandjentrance.com.sj.dagger.AppModule;
 import sandjentrance.com.sj.dagger.ApplicationComponent;

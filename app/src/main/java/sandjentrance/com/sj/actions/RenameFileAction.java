@@ -1,7 +1,6 @@
 package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 
 import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
@@ -13,8 +12,6 @@ import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
 import com.google.api.services.drive.model.File;
-
-import java.io.IOException;
 
 import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
 import sandjentrance.com.sj.models.FileObj;
@@ -47,19 +44,13 @@ public class RenameFileAction extends BaseAction {
             return new SetupDriveActionEventFailure();
         }
 
-        File fileMetadata = new File();
-        fileMetadata.setTitle(helper.newName());
 
-        try {
-            driveService.files().update(fileObj.id, fileMetadata).execute();
-            renameFileHelper.parentId = fileObj.parent;
+        File file = renameFile(fileObj.id, helper.newName(), fileObj.parent);
+        if (file != null) {
             return new RenameFileActionEventSuccess();
-        } catch (IOException e) {
-            e.printStackTrace();
-
+        } else {
             return new RenameFileActionEventFailure();
         }
-
     }
 
 }

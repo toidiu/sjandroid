@@ -11,16 +11,17 @@ import com.edisonwang.ps.lib.Action;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
+import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.http.InputStreamContent;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class BaseAction implements Action {
     public static final String CLAIM_PROPERTY = "claim";
     public static final String ARCHIVE_FOLDER = "Archive";
     public static final String PHOTOS_FOLDER = "Photos";
-//    public static final String QUERY_FIELDS = "title";
+    //    public static final String QUERY_FIELDS = "title";
     public static final String MIME_JPEG = "image/jpeg";
     public static final String MIME_PNG = "image/png";
     public static final String MIME_PDF = "application/pdf";
@@ -75,6 +76,13 @@ public class BaseAction implements Action {
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         ((SJApplication) SJApplication.appContext).getAppComponent().inject(this);
+
+        HttpTransport transport = AndroidHttp.newCompatibleTransport();
+        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+        driveService = new Drive.Builder(
+                transport, jsonFactory, credential)
+                .setApplicationName("SJ")
+                .build();
 
         return new BaseActionEvent();
     }
@@ -121,6 +129,7 @@ public class BaseAction implements Action {
 
 
     //endregion
+
     //region File Helper----------------------
     protected FileObj getFileById(String fileId) {
         try {
@@ -153,17 +162,24 @@ public class BaseAction implements Action {
         try {
             // Retrieve the existing parents to remove
             File file = driveService.files().get(fileId)
-                    .setFields("parents")
+//                    .setFields("parents")
                     .execute();
+
             StringBuilder previousParents = new StringBuilder();
             for (ParentReference parent : file.getParents()) {
                 previousParents.append(parent);
                 previousParents.append(',');
             }
+
+            File file1 = new File();
+            List<ParentReference> hh = new ArrayList<>();
+            hh.add(new ParentReference().setId(newParentId));
+            file1.setParents(hh);
+
             // Move the file to the new folder
-            File execute = driveService.files().update(fileId, null)
-                    .setAddParents(newParentId)
-                    .setRemoveParents(previousParents.toString())
+            File execute = driveService.files().update(fileId, file1)
+//                    .setAddParents(newParentId)
+//                    .setRemoveParents(previousParents.toString())
 //                    .setFields(QUERY_FIELDS)
                     .execute();
 
@@ -177,8 +193,8 @@ public class BaseAction implements Action {
     @Nullable
     protected java.io.File downloadFile(FileDownloadObj fileDownloadObj) {
         java.io.File localFile = FileUtils.getLocalFile(context, fileDownloadObj.fileId, fileDownloadObj.mime);
-        if (localFile==null){
-          return null;
+        if (localFile == null) {
+            return null;
         } else if (localFile.exists()) {
             return localFile;
         } else {
@@ -191,7 +207,7 @@ public class BaseAction implements Action {
 //                    driveService.files().export(fileDownloadObj.fileId, MIME_PDF)
 //                            .executeMediaAndDownloadTo(fileOutputStream);
 //                }else if(fileDownloadObj.mime.equals(MIME_JPEG)) {
-                    driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
+                driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
 //                }else {
 //                    return null;
 //                }
@@ -238,7 +254,7 @@ public class BaseAction implements Action {
     protected File createFile(FileUploadObj fileUploadObj) {
         //Local file
         java.io.File file = new java.io.File(fileUploadObj.localFilePath);
-        if (!file.exists()){
+        if (!file.exists()) {
             return null;
         }
         FileContent mediaContent = new FileContent(fileUploadObj.mime, file);
@@ -270,18 +286,18 @@ public class BaseAction implements Action {
     protected File replaceFile(FileUploadObj fileUploadObj) {
         //Local file
         java.io.File file = new java.io.File(fileUploadObj.localFilePath);
-        if (!file.exists()){
+        if (!file.exists()) {
             return null;
         }
         FileContent mediaContent = new FileContent(fileUploadObj.mime, file);
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        assert inputStream != null;
-        InputStreamContent in = new InputStreamContent(fileUploadObj.mime, inputStream);
+//        FileInputStream inputStream = null;
+//        try {
+//            inputStream = new FileInputStream(file);
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        assert inputStream != null;
+//        InputStreamContent in = new InputStreamContent(fileUploadObj.mime, inputStream);
 
         //Drive file
 //        List<String> parents = new ArrayList<>();
@@ -293,13 +309,13 @@ public class BaseAction implements Action {
 
 
         try {
-            File driveFile = driveService.files()
-                    .get(fileUploadObj.fileId)
-//                    .setFields(QUERY_FIELDS)
-                    .execute();
+//            File driveFile = driveService.files()
+//                    .get(fileUploadObj.fileId)
+////                    .setFields(QUERY_FIELDS)
+//                    .execute();
 
-            File execute = driveService.files().update(fileUploadObj.fileId, driveFile, in)
-//                    .setFields(QUERY_FIELDS)
+            File execute = driveService.files()
+                    .update(fileUploadObj.fileId, null, mediaContent)
                     .execute();
 
 
@@ -320,6 +336,19 @@ public class BaseAction implements Action {
         }
     }
 
+    protected File renameFile(String id, String newName, String parent) {
+        File fileMetadata = new File();
+        fileMetadata.setTitle(newName);
+
+        try {
+            File execute = driveService.files().update(id, fileMetadata).execute();
+            renameFileHelper.parentId = parent;
+            return execute;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 //endregion
 

@@ -36,15 +36,16 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildr
 import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
-import sandjentrance.com.sj.ui.extras.FileListAdapter;
-import sandjentrance.com.sj.ui.extras.FileListInterface;
+import sandjentrance.com.sj.ui.extras.FileClickInterface;
+import sandjentrance.com.sj.ui.extras.ProjClickInterface;
+import sandjentrance.com.sj.ui.extras.ProjListAdapter;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
         DbFindClaimedProjListAction.class,
         FindClaimedProjAction.class
 })
-public class ProjListActivity extends BaseActivity implements FileListInterface {
+public class ProjListActivity extends BaseActivity implements ProjClickInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -56,7 +57,7 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
     EditText searchView;
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private FileListAdapter adapter;
+    private ProjListAdapter adapter;
     //endregion
     private Snackbar snackbar;
     private String actionIdFileList;
@@ -70,8 +71,9 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
 
         @Override
         public void onEventMainThread(FindClaimedProjActionEventSuccess event) {
-            progress.setVisibility(View.VISIBLE);
-            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+            progress.setVisibility(View.GONE);
+            adapter.refreshView(Arrays.asList(event.results));
+//            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         }
 
         @Override
@@ -82,7 +84,6 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         @Override
         public void onEventMainThread(DbFindClaimedProjListActionEventSuccess event) {
             progress.setVisibility(View.GONE);
-            //// FIXME: 4/14/16 !!!! check race scenarios
             if (event.getResponseInfo().mRequestId.equals(actionIdClaimedList)) {
                 adapter.refreshView(Arrays.asList(event.results));
             }
@@ -90,7 +91,8 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
 
         @Override
         public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
-            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+            progress.setVisibility(View.GONE);
+//            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         }
 
         @Override
@@ -116,8 +118,8 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         setContentView(R.layout.search_proj_activity);
         ButterKnife.bind(this);
 
-        initData();
         initView();
+        initData();
     }
 
     @Override
@@ -139,8 +141,10 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
 
     //region Init----------------------
     private void initData() {
-        PennStation.requestAction(PsFindClaimedProjAction.helper());
+        //fixme make separate queues
+        progress.setVisibility(View.VISIBLE);
         actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+        PennStation.requestAction(PsFindClaimedProjAction.helper());
 
         PennStation.requestAction(PsUploadFileAction.helper());
     }
@@ -151,7 +155,7 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new FileListAdapter(this);
+        adapter = new ProjListAdapter(this);
         recyclerView.setAdapter(adapter);
 
         searchView.setVisibility(View.VISIBLE);
@@ -193,22 +197,23 @@ public class ProjListActivity extends BaseActivity implements FileListInterface 
     //region Interface----------------------
     @Override
     public void folderClicked(FileObj fileObj) {
-        if (fileObj.title.equals(BaseAction.ARCHIVE_FOLDER) || fileObj.title.equals(BaseAction.PHOTOS_FOLDER)) {
+        if (fileObj.title.equals(BaseAction.ARCHIVE_FOLDER)) {
             startActivity(ArchiveFileListActivity.getInstance(this, fileObj));
+        } else if (fileObj.title.equals(BaseAction.PHOTOS_FOLDER)) {
+            startActivity(GenericFileListActivity.getInstance(this, fileObj));
         } else {
             startActivity(ProjDetailActivity.getInstance(this, fileObj));
         }
     }
 
     @Override
-    public void fileClicked(FileObj fileObj) {
+    public void addClicked(FileObj fileObj) {
 
     }
 
     @Override
-    public void fileLongClicked(FileObj fileObj) {
+    public void fileClicked(FileObj fileObj) {
 
-//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
     //endregion
 

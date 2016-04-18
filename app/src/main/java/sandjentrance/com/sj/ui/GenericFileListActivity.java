@@ -44,7 +44,7 @@ import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
-import sandjentrance.com.sj.ui.extras.FileListInterface;
+import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -53,7 +53,7 @@ import sandjentrance.com.sj.ui.extras.FileListInterface;
         ArchiveFileAction.class,
         DownloadFileAction.class
 })
-public class GenericFileListActivity extends BaseActivity implements FileListInterface {
+public class GenericFileListActivity extends BaseActivity implements FileClickInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
@@ -123,7 +123,6 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
                 LocalFileObj localFileObj = event.localFileObj;
-
                 openLocalFile(localFileObj, progress);
             }
         }
@@ -265,6 +264,7 @@ public class GenericFileListActivity extends BaseActivity implements FileListInt
 
     @Override
     public void fileClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
     }

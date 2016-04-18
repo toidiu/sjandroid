@@ -33,9 +33,6 @@ import sandjentrance.com.sj.models.FileObj;
 })
 public class DbFindClaimedProjListAction extends BaseAction {
 
-    private Drive driveService;
-
-
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);

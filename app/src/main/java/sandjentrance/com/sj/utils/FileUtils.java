@@ -34,7 +34,7 @@ public class FileUtils {
     }
 
     public static boolean deleteLocalFile(File file) {
-        if (file.exists() && file.delete()) {
+        if (!file.exists() || file.delete()) {
             return true;
         } else {
             return false;

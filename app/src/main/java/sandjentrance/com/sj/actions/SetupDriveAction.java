@@ -70,11 +70,13 @@ public class SetupDriveAction extends BaseAction {
         if (dataFromApi.size() == 0) {
             File archive = new File();
             archive.setTitle(ARCHIVE_FOLDER);
-            archive.setMimeType("application/vnd.google-apps.folder");
+            archive.setMimeType(FileObj.FOLDER_MIME);
             archive.setParents(parents);
 
             try {
-                File file = driveService.files().insert(archive).setFields("id").execute();
+                File file = driveService.files().insert(archive)
+//                        .setFields("id")
+                        .execute();
                 prefs.setArchiveFolderId(file.getId());
                 return true;
             } catch (IOException e) {
@@ -94,11 +96,14 @@ public class SetupDriveAction extends BaseAction {
         if (dataFromApi.size() == 0) {
             File photos = new File();
             photos.setTitle(PHOTOS_FOLDER);
-            photos.setMimeType("application/vnd.google-apps.folder");
+            photos.setMimeType(FileObj.FOLDER_MIME);
             photos.setParents(parents);
 
             try {
-                File file = driveService.files().insert(photos).setFields("id").execute();
+                File file = driveService.files()
+                        .insert(photos)
+//                        .setFields("id")
+                        .execute();
                 prefs.setPhotosFolderId(file.getId());
                 return true;
             } catch (IOException e) {

@@ -48,7 +48,7 @@
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/item_proj_list">
+        tools:listitem="@layout/item_files_list">
 
     </android.support.v7.widget.RecyclerView>
 

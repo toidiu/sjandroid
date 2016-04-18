@@ -11,33 +11,33 @@ import java.util.List;
 
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.views.FileArchiveViewHolder;
+import sandjentrance.com.sj.views.ProjViewHolder;
 
 
 /**
  * Created by toidiu on 4/2/16.
  */
-public class FileArchiveListAdapter extends RecyclerView.Adapter {
+public class ProjListAdapter extends RecyclerView.Adapter {
 
-    private final FileArchiveListInterface fileListInterface;
+    private final ProjClickInterface projClickInterface;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private List<FileObj> list = new ArrayList<>();
 
-    public FileArchiveListAdapter(FileArchiveListInterface fileListInterface) {
-        this.fileListInterface = fileListInterface;
+    public ProjListAdapter(ProjClickInterface projClickInterface) {
+        this.projClickInterface = projClickInterface;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_proj_archive_list, parent, false);
-        return new FileArchiveViewHolder(itemView);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_proj_list, parent, false);
+        return new ProjViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final FileObj item = list.get(position);
-        FileArchiveViewHolder view = (FileArchiveViewHolder) holder;
-        view.bind(item, fileListInterface);
+        ProjViewHolder view = (ProjViewHolder) holder;
+        view.bind(item, projClickInterface);
     }
 
     @Override

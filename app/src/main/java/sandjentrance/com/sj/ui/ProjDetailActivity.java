@@ -58,7 +58,7 @@ import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
-import sandjentrance.com.sj.ui.extras.FileListInterface;
+import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.utils.ImageUtil;
 
 @EventListener(producers = {
@@ -69,7 +69,7 @@ import sandjentrance.com.sj.utils.ImageUtil;
         ArchiveFileAction.class,
         GetUserImgAction.class
 })
-public class ProjDetailActivity extends BaseActivity implements FileListInterface {
+public class ProjDetailActivity extends BaseActivity implements FileClickInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants

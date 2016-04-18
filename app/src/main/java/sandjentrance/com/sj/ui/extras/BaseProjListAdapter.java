@@ -19,12 +19,12 @@ import sandjentrance.com.sj.views.BaseProjViewHolder;
  */
 public class BaseProjListAdapter extends RecyclerView.Adapter {
 
-    private final FileListInterface fileListInterface;
+    private final FileClickInterface fileClickInterface;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private List<FileObj> list = new ArrayList<>();
 
-    public BaseProjListAdapter(FileListInterface fileListInterface) {
-        this.fileListInterface = fileListInterface;
+    public BaseProjListAdapter(FileClickInterface fileClickInterface) {
+        this.fileClickInterface = fileClickInterface;
     }
 
     @Override
@@ -37,29 +37,7 @@ public class BaseProjListAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final FileObj item = list.get(position);
         BaseProjViewHolder view = (BaseProjViewHolder) holder;
-        view.titleView.setText(item.title);
-        view.containerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (item.mime.equals(FileObj.FOLDER_MIME)) {
-                    fileListInterface.folderClicked(item);
-                }
-                //// FIXME: 4/3/16 check if its a pdf  or picture and open it
-            }
-        });
-
-        if (item.owner != null) {
-            view.ownUserView.setText(item.owner);
-        } else {
-            view.ownContainerView.setVisibility(View.GONE);
-        }
-        view.containerView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                fileListInterface.fileLongClicked(item);
-                return true;
-            }
-        });
+        view.bind(item, fileClickInterface);
     }
 
     @Override

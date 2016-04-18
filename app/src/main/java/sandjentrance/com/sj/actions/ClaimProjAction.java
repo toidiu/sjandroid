@@ -48,7 +48,6 @@ import sandjentrance.com.sj.models.FileObj;
 public class ClaimProjAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-    private Drive driveService;
 
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
@@ -58,13 +57,6 @@ public class ClaimProjAction extends BaseAction {
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
         }
-
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        driveService = new Drive.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("SJ")
-                .build();
 
         File fileMetadata = new File();
 //        Map<String, String> prop = new HashMap<>();

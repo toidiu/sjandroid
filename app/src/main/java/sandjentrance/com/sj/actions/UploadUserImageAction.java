@@ -11,11 +11,8 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.model.File;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import sandjentrance.com.sj.actions.UploadUserImageAction_.PsUploadUserImageAction;
@@ -56,13 +53,7 @@ public class UploadUserImageAction extends BaseAction {
         List<File> fileByName = getFileByName(fileUploadObj.fileName, prefs.getPhotosFolderId());
         if (fileByName != null && fileByName.size() > 0) {
             //yes
-            createdFile = createFile(helper.fileUploadObj());
-            for (File f : fileByName) {
-                if (!deleteFile(f.getId())) {
-                    deleteSatisfied = false;
-                }
-            }
-
+            createdFile = replaceFile(fileUploadObj);
         } else {
             //no
             createdFile = createFile(helper.fileUploadObj());
@@ -72,7 +63,7 @@ public class UploadUserImageAction extends BaseAction {
         if (createdFile != null && deleteSatisfied) {
             //fixme delete from DB and also the local file
             return new UploadFileActionEventSuccess();
-        }else {
+        } else {
             return new UploadFileActionEventFailure();
         }
     }

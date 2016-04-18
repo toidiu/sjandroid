@@ -28,13 +28,13 @@ import sandjentrance.com.sj.actions.SetupDriveActionEventSuccess;
 import sandjentrance.com.sj.actions.SetupDriveAction_.PsSetupDriveAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.BaseProjListAdapter;
-import sandjentrance.com.sj.ui.extras.FileListInterface;
+import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
 @EventListener(producers = {
         FindBaseFolderAction.class,
         SetupDriveAction.class
 })
-public class FindBaseProjActivity extends BaseActivity implements FileListInterface {
+public class FindBaseProjActivity extends BaseActivity implements FileClickInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View

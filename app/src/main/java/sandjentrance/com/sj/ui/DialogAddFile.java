@@ -1,38 +1,32 @@
 package sandjentrance.com.sj.ui;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.edisonwang.ps.annotations.EventListener;
-import com.edisonwang.ps.lib.PennStation;
-
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
-import sandjentrance.com.sj.actions.DbAddNewFileAction;
-import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
-import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
-import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
-import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
+import sandjentrance.com.sj.ui.extras.AddFileAdapter;
 import sandjentrance.com.sj.ui.extras.AddFileInterface;
-import sandjentrance.com.sj.utils.FileUtils;
+import sandjentrance.com.sj.ui.extras.FileAddInterface;
 
 /**
  * Created by toidiu on 4/4/16.
  */
-public class DialogAddFile extends BaseFullScreenDialogFrag {
+public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddInterface {
 
     //region Fields----------------------
     public static final String FILE_OBJ_EXTRA = "FILE_OBJ_EXTRA";
@@ -41,8 +35,10 @@ public class DialogAddFile extends BaseFullScreenDialogFrag {
     View overlay;
     @Bind(R.id.container)
     View container;
-    @Bind(R.id.purchase_order)
-    View purchaseOrder;
+    @Bind(R.id.recycler)
+    RecyclerView recyclerView;
+    //    @Bind(R.id.purchase_order)
+//    View purchaseOrder;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private FileObj projFolder;
     private AddFileInterface addFileInterface;
@@ -102,18 +98,74 @@ public class DialogAddFile extends BaseFullScreenDialogFrag {
             }
         });
 
-        purchaseOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addFileInterface.purchaseOrderClicked(projFolder.id);
-                dismiss();
-            }
-        });
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+        recyclerView.setLayoutManager(layoutManager);
+
+        AddFileAdapter adapter = new AddFileAdapter(this);
+        List<String> test = new ArrayList<>();
+        test.add(BaseAction.PURCHASE_FOLDER_NAME);
+        test.add(BaseAction.FAB_FOLDER_NAME);
+        test.add(BaseAction.LABOUR_FOLDER_NAME);
+        test.add(BaseAction.PHOTOS_FOLDER_NAME);
+        test.add(BaseAction.NOTES_FOLDER_NAME);
+        adapter.refreshView(test);
+        recyclerView.setAdapter(adapter);
+
+
+//        purchaseOrder.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //// FIXME: 4/19/16 ask for file name
+//                //fake name
+//                String fakeName = "Fake Name.pdf";
+//                NewFileObj newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+//
+//                addFileInterface.addItemClicked(newFileObj);
+//                dismiss();
+//            }
+//        });
     }
 
 
     private void initData() {
         projFolder = getArguments().getParcelable(FILE_OBJ_EXTRA);
+    }
+    //endregion
+
+    //region Interface----------------------
+    @Override
+    public void itemClicked(String type) {
+        //// FIXME: 4/19/16 ask for file name
+        String fakeName = "Fake Name.pdf";
+
+        NewFileObj newFileObj = null;
+        switch (type) {
+            case BaseAction.PURCHASE_FOLDER_NAME:
+                newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                break;
+            case BaseAction.FAB_FOLDER_NAME:
+                newFileObj = new NewFileObj(BaseAction.FAB_FOLDER_NAME, BaseAction.FAB_SHEET_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                break;
+            case BaseAction.LABOUR_FOLDER_NAME:
+                newFileObj = new NewFileObj(BaseAction.LABOUR_FOLDER_NAME, BaseAction.PROJECT_LABOR_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                break;
+            case BaseAction.PHOTOS_FOLDER_NAME:
+                //fixme this should just be a photo
+                Toast.makeText(getActivity(), "TODO", Toast.LENGTH_SHORT).show();
+//                newFileObj = new NewFileObj(BaseAction.PHOTOS_FOLDER_NAME, BaseAction.PHO, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                break;
+            case BaseAction.NOTES_FOLDER_NAME:
+                Toast.makeText(getActivity(), "TODO", Toast.LENGTH_SHORT).show();
+//                newFileObj = new NewFileObj(BaseAction.NOTES_FOLDER_NAME, BaseAction.NOTES_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                break;
+            default:
+                break;
+        }
+
+        if (newFileObj != null) {
+            addFileInterface.addItemClicked(newFileObj);
+        }
+        dismiss();
     }
     //endregion
 

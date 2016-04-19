@@ -65,11 +65,11 @@ public class SetupDriveAction extends BaseAction {
 
     @NonNull
     private boolean checkAndCreateArchive(List<ParentReference> parents) {
-        List<FileObj> dataFromApi = getFoldersByName(ARCHIVE_FOLDER, parentId);
+        List<FileObj> dataFromApi = getFoldersByName(ARCHIVE_FOLDER_SETUP, parentId);
 
         if (dataFromApi.size() == 0) {
             File archive = new File();
-            archive.setTitle(ARCHIVE_FOLDER);
+            archive.setTitle(ARCHIVE_FOLDER_SETUP);
             archive.setMimeType(FOLDER_MIME);
             archive.setParents(parents);
 
@@ -91,11 +91,11 @@ public class SetupDriveAction extends BaseAction {
 
     @NonNull
     private boolean checkAndCreatePhotos(List<ParentReference> parents) {
-        List<FileObj> dataFromApi = getFoldersByName(PHOTOS_FOLDER, parentId);
+        List<FileObj> dataFromApi = getFoldersByName(PHOTOS_FOLDER_SETUP, parentId);
 
         if (dataFromApi.size() == 0) {
             File photos = new File();
-            photos.setTitle(PHOTOS_FOLDER);
+            photos.setTitle(PHOTOS_FOLDER_SETUP);
             photos.setMimeType(FOLDER_MIME);
             photos.setParents(parents);
 

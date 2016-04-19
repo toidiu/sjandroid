@@ -57,6 +57,7 @@ import sandjentrance.com.sj.actions.RenameFileAction;
 import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
@@ -415,7 +416,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
-    public void purchaseOrderClicked(String id) {
+    public void addItemClicked(NewFileObj id) {
 
     }
     //endregion

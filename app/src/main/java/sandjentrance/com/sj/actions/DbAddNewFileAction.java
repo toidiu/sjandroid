@@ -12,12 +12,13 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.edisonwang.ps.lib.PennStation;
 
+import java.io.File;
 import java.sql.SQLException;
 
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.models.NewFileObj;
+import sandjentrance.com.sj.utils.FileUtils;
 
 
 /**
@@ -44,9 +45,23 @@ public class DbAddNewFileAction extends BaseAction {
         DbAddNewFileActionHelper helper = PsDbAddNewFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
         NewFileObj newFileObj = helper.newFileObj();
 
-        if (credential.getSelectedAccountName() == null) {
-            return new SetupDriveActionEventFailure();
+        if (newFileObj.localFilePath == null) {
+            String localFileName = newFileObj.parentName + System.currentTimeMillis();
+
+            if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
+                //fixme just handle photo file and set "newFileObj.localFilePath"
+//            }else if (newFileObj.parentName.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
+//            } else if (newFileObj.parentName.equals(BaseAction.FAB_FOLDER_NAME)) {
+//
+//            } else if (newFileObj.parentName.equals(BaseAction.LABOUR_FOLDER_NAME)) {
+//
+//            } else if (newFileObj.parentName.equals(BaseAction.NOTES_FOLDER_NAME)) {
+            } else {
+                File localFile = FileUtils.copyAssetsFile(context.getAssets(), newFileObj.assetFileName, localFileName, newFileObj.mime);
+                newFileObj.localFilePath = localFile.getAbsolutePath();
+            }
         }
+
 
         try {
             databaseHelper.getNewFileObjDao().create(newFileObj);

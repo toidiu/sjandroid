@@ -53,11 +53,16 @@ public class BaseAction implements Action {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     public static final String CLAIM_PROPERTY = "claim";
-    public static final String ARCHIVE_FOLDER = "Archive";
-    public static final String PHOTOS_FOLDER = "Photos";
-    public static final String PURCHASE_ORDERS_FOLDER = "Purchase Orders";
-    public static final String FAB_SHEETS_FOLDER = "Fab Sheets";
-    public static final String NOTES_FOLDER = "Notes";
+
+    public static final String ARCHIVE_FOLDER_SETUP = "Archive";
+    public static final String PHOTOS_FOLDER_SETUP = "Photos";
+
+    public static final String PURCHASE_FOLDER_NAME = "Purchase Orders";
+    //// FIXME: 4/19/16 get actual folder name
+    public static final String LABOUR_FOLDER_NAME = "Proposals";
+    public static final String FAB_FOLDER_NAME = "Fab Sheets";
+    public static final String NOTES_FOLDER_NAME = "Notes";
+    public static final String PHOTOS_FOLDER_NAME = "Photos";
 
     public static final String PURCHASE_ORDER_PDF = "PurchaseOrder.pdf";
     public static final String FAB_SHEET_PDF = "FabSheet.pdf";

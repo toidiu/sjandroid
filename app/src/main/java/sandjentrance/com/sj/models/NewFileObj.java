@@ -24,8 +24,14 @@ public class NewFileObj implements Parcelable {
     @DatabaseField
     public String projId;
     @DatabaseField
-    @Nullable
     public String parentName;
+    @DatabaseField
+    @Nullable
+    public String assetFileName;
+    @DatabaseField
+    public String localFilePath;
+    //endregion
+
     public static final Creator<NewFileObj> CREATOR = new Creator<NewFileObj>() {
         public NewFileObj createFromParcel(Parcel source) {
             NewFileObj target = new NewFileObj();
@@ -37,25 +43,22 @@ public class NewFileObj implements Parcelable {
             return new NewFileObj[size];
         }
     };
-    //endregion
+
 
     //region Constructor----------------------
-    @DatabaseField
-    public String localFilePath;
-
     @SuppressWarnings("unused")
     public NewFileObj() {
     }
-    //endregion
 
-
-    public NewFileObj(String parentName, String mime, String title, String projId, String localFilePath) {
+    public NewFileObj(String parentName, @Nullable String assetFileName, String mime, String title, String projId, String localFilePath) {
         this.parentName = parentName;
+        this.assetFileName = assetFileName;
         this.mime = mime;
         this.title = title;
         this.projId = projId;
         this.localFilePath = localFilePath;
     }
+    //endregion
 
     @Override
     public int describeContents() {

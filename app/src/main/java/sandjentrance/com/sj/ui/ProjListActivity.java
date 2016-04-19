@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -47,7 +46,6 @@ import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjListAdapter;
-import sandjentrance.com.sj.utils.FileUtils;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -219,9 +217,9 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     //region Interface----------------------
     @Override
     public void folderClicked(FileObj fileObj) {
-        if (fileObj.title.equals(BaseAction.ARCHIVE_FOLDER)) {
+        if (fileObj.title.equals(BaseAction.ARCHIVE_FOLDER_SETUP)) {
             startActivity(ArchiveFileListActivity.getInstance(this, fileObj));
-        } else if (fileObj.title.equals(BaseAction.PHOTOS_FOLDER)) {
+        } else if (fileObj.title.equals(BaseAction.PHOTOS_FOLDER_SETUP)) {
             startActivity(GenericFileListActivity.getInstance(this, fileObj));
         } else {
             startActivity(ProjDetailActivity.getInstance(this, fileObj));
@@ -239,16 +237,11 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     }
 
     @Override
-    public void purchaseOrderClicked(String projFolderId) {
+    public void addItemClicked(NewFileObj newFileObj) {
         // FIXME: 4/18/16   put all this into the pennstation task!!!   also run task in project detail
         // FIXME: 4/18/16 also call the uploadNewFileAction more often..... maybe in onResume;
-        String localFileName = "Purchase Order" + System.currentTimeMillis();
-        File localFile = FileUtils.copyAssetsFile(getAssets(), BaseAction.PURCHASE_ORDER_PDF, localFileName, BaseAction.MIME_PDF);
 
-        if (localFile != null && localFile.exists()) {
-            NewFileObj newFileObj = new NewFileObj(BaseAction.PURCHASE_ORDERS_FOLDER, BaseAction.MIME_PDF, localFile.getName(), projFolderId, localFile.getAbsolutePath());
-            PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
-        }
+        PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
     }
     //endregion
 

@@ -3,11 +3,13 @@ package sandjentrance.com.sj.ui;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.ui.extras.AddFileAdapter;
 import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileAddInterface;
+import sandjentrance.com.sj.utils.KeyboardUtils;
 
 /**
  * Created by toidiu on 4/4/16.
@@ -37,8 +40,12 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     View container;
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
-    //    @Bind(R.id.purchase_order)
-//    View purchaseOrder;
+    @Bind(R.id.file_name)
+    EditText fileNameView;
+    @Bind(R.id.file_name_container)
+    View fileNameContainer;
+    @Bind(R.id.create)
+    View createBtn;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private FileObj projFolder;
     private AddFileInterface addFileInterface;
@@ -111,21 +118,14 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         adapter.refreshView(test);
         recyclerView.setAdapter(adapter);
 
-
-//        purchaseOrder.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //// FIXME: 4/19/16 ask for file name
-//                //fake name
-//                String fakeName = "Fake Name.pdf";
-//                NewFileObj newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
-//
-//                addFileInterface.addItemClicked(newFileObj);
-//                dismiss();
-//            }
-//        });
+        fileNameContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fileNameContainer.setVisibility(View.GONE);
+                KeyboardUtils.hideKeyboard(getActivity(), fileNameView, fileNameView);
+            }
+        });
     }
-
 
     private void initData() {
         projFolder = getArguments().getParcelable(FILE_OBJ_EXTRA);
@@ -134,29 +134,44 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
 
     //region Interface----------------------
     @Override
-    public void itemClicked(String type) {
-        //// FIXME: 4/19/16 ask for file name
-        String fakeName = "Fake Name.pdf";
+    public void itemClicked(final String type) {
+        fileNameContainer.setVisibility(View.VISIBLE);
+        KeyboardUtils.toggleKeyboard(getActivity());
+        fileNameView.requestFocus();
 
+        createBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String fileName = fileNameView.getText().toString().trim();
+                if (!fileName.isEmpty()) {
+                    if (!type.equals(BaseAction.PHOTOS_FOLDER_NAME) && !fileName.endsWith(".pdf")) {
+                        fileName = fileName + ".pdf";
+                    }
+                    createNewFile(type, fileName);
+                } else {
+                    Snackbar.make(fileNameView, "File name can't be empty.", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void createNewFile(String type, String fileName) {
         NewFileObj newFileObj = null;
         switch (type) {
             case BaseAction.PURCHASE_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.FAB_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.FAB_FOLDER_NAME, BaseAction.FAB_SHEET_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.FAB_FOLDER_NAME, BaseAction.FAB_SHEET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.LABOUR_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.LABOUR_FOLDER_NAME, BaseAction.PROJECT_LABOR_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.LABOUR_FOLDER_NAME, BaseAction.PROJECT_LABOR_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.PHOTOS_FOLDER_NAME:
-                //fixme this should just be a photo
-                Toast.makeText(getActivity(), "TODO", Toast.LENGTH_SHORT).show();
-//                newFileObj = new NewFileObj(BaseAction.PHOTOS_FOLDER_NAME, BaseAction.PHO, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.PHOTOS_FOLDER_NAME, null, BaseAction.MIME_JPEG, fileName, projFolder.id, null);
                 break;
             case BaseAction.NOTES_FOLDER_NAME:
-                Toast.makeText(getActivity(), "TODO", Toast.LENGTH_SHORT).show();
-//                newFileObj = new NewFileObj(BaseAction.NOTES_FOLDER_NAME, BaseAction.NOTES_PDF, BaseAction.MIME_PDF, fakeName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.NOTES_FOLDER_NAME, BaseAction.NOTES_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             default:
                 break;

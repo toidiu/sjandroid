@@ -39,6 +39,10 @@ import sandjentrance.com.sj.actions.ClaimProjAction;
 import sandjentrance.com.sj.actions.ClaimProjActionEventFailure;
 import sandjentrance.com.sj.actions.ClaimProjActionEventSuccess;
 import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
+import sandjentrance.com.sj.actions.DbAddNewFileAction;
+import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
+import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
+import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
@@ -57,6 +61,7 @@ import sandjentrance.com.sj.actions.RenameFileAction;
 import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileListAdapter;
@@ -69,7 +74,8 @@ import sandjentrance.com.sj.utils.ImageUtil;
         MoveFileAction.class,
         RenameFileAction.class,
         ArchiveFileAction.class,
-        GetUserImgAction.class
+        GetUserImgAction.class,
+        DbAddNewFileAction.class
 })
 public class ProjDetailActivity extends BaseActivity implements FileClickInterface, AddFileInterface {
 
@@ -99,6 +105,19 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     private String actionIdFileList;
     //region PennStation----------------------
     ProjDetailActivityEventListener eventListener = new ProjDetailActivityEventListener() {
+        @Override
+        public void onEventMainThread(DbAddNewFileActionEventSuccess event) {
+            progress.setVisibility(View.GONE);
+            NewFileObj newFileObj = event.newFileObj;
+            LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
+            openLocalFile(localFileObj, null);
+        }
+
+        @Override
+        public void onEventMainThread(DbAddNewFileActionEventFailure event) {
+            progress.setVisibility(View.GONE);
+        }
+
         @Override
         public void onEventMainThread(ArchiveFileActionEventFailure event) {
             progress.setVisibility(View.GONE);
@@ -416,8 +435,9 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
-    public void addItemClicked(NewFileObj id) {
-
+    public void addItemClicked(NewFileObj newFileObj) {
+        progress.setVisibility(View.VISIBLE);
+        PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
     }
     //endregion
 

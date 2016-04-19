@@ -150,6 +150,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         if (archiveFileHelper.wasArhived) {
             refreshFileListFromText();
         }
+
+        PennStation.requestAction(PsUploadNewFileAction.helper());
     }
 
     @Override
@@ -238,10 +240,12 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
     @Override
     public void addItemClicked(NewFileObj newFileObj) {
-        // FIXME: 4/18/16   put all this into the pennstation task!!!   also run task in project detail
-        // FIXME: 4/18/16 also call the uploadNewFileAction more often..... maybe in onResume;
-
-        PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
+        if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
+            //get photo
+        } else {
+            progress.setVisibility(View.VISIBLE);
+            PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
+        }
     }
     //endregion
 

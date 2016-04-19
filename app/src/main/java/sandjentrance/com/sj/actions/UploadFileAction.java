@@ -17,6 +17,7 @@ import java.util.List;
 
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.utils.FileUtils;
+import sandjentrance.com.sj.utils.NetworkUtils;
 
 
 /**
@@ -41,6 +42,9 @@ public class UploadFileAction extends BaseAction {
 
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
+        }
+        if (!NetworkUtils.isDeviceOnline(context)) {
+            return null;
         }
 
         List<FileUploadObj> fileUploadObjs = new ArrayList<>();

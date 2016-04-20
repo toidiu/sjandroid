@@ -4,17 +4,19 @@ package sandjentrance.com.sj.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
-
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.Bind;
@@ -36,6 +38,7 @@ import sandjentrance.com.sj.actions.UnArchiveFileActionEventFailure;
 import sandjentrance.com.sj.actions.UnArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.UnArchiveFileAction_.PsUnArchiveFileAction;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.FileArchiveListAdapter;
 import sandjentrance.com.sj.ui.extras.FileArchiveListInterface;
 
@@ -57,10 +60,12 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     ProgressBar progress;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+    @Bind(R.id.search)
+    EditText searchView;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private FileArchiveListAdapter adapter;
-
+    private Snackbar snackbar;
     private Menu menu;
     private String actionIdFileList;
     //region PennStation----------------------
@@ -129,7 +134,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.generic_activity);
+        setContentView(R.layout.archive_activity);
         ButterKnife.bind(this);
 
         fileObj = getIntent().getParcelableExtra(FILE_OBJ);
@@ -177,54 +182,53 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
 
     //region Init----------------------
     private void initData() {
-        refreshFileList();
     }
 
     private void initView() {
         initBg();
-
         toolbar.setTitle(fileObj.title);
         setSupportActionBar(toolbar);
-
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
         adapter = new FileArchiveListAdapter(this);
         recyclerView.setAdapter(adapter);
+
+
+        DelayedTextWatcher.OnTextChanged projSearchTextChanged = new DelayedTextWatcher.OnTextChanged() {
+            @Override
+            public void onTextChanged(String text) {
+                refreshFileList();
+            }
+        };
+        DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 500);
+
     }
     //endregion
 
     //region View----------------------
-//    private void refreshMenu() {
-//        if (menu != null) {
-//            if (moveFolderHelper.moveReady()) {
-//                menu.findItem(R.id.menu_paste).setVisible(true);
-//            } else {
-//                menu.findItem(R.id.menu_paste).setVisible(false);
-//            }
-//        }
-//    }
-
     private void refreshFileList() {
-        progress.setVisibility(View.VISIBLE);
-        actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
+        String searchName = searchView.getText().toString();
+        if (searchName.isEmpty()) {
+            adapter.refreshView(new ArrayList<FileObj>());
+        } else if (searchName.length() < 3) {
+            snackbar = Snackbar.make(recyclerView, R.string.search_archive_hint, Snackbar.LENGTH_INDEFINITE);
+            snackbar.show();
+        } else {
+            if (snackbar != null) {
+                snackbar.dismiss();
+            }
+            progress.setVisibility(View.VISIBLE);
+            actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper(searchName, fileObj.id, false));
+        }
+
     }
 
     //endregion
 
 
     //region Interface----------------------
-    @Override
-    public void fileClicked(FileObj fileObj) {
-        startActivity(ArchiveFileListActivity.getInstance(this, fileObj));
-    }
-
-    @Override
-    public void fileLongClicked(FileObj fileObj) {
-//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
-    }
-
     @Override
     public void unarchiveFile(FileObj item) {
         PennStation.requestAction(PsUnArchiveFileAction.helper(item.id));

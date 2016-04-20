@@ -150,7 +150,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_proj_activity);
+        setContentView(R.layout.proj_list_activity);
         ButterKnife.bind(this);
 
         initView();
@@ -219,7 +219,6 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         adapter = new ProjListAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        searchView.setVisibility(View.VISIBLE);
         DelayedTextWatcher.OnTextChanged projSearchTextChanged = new DelayedTextWatcher.OnTextChanged() {
             @Override
             public void onTextChanged(String text) {

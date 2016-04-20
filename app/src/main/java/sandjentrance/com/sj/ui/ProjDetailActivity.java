@@ -24,6 +24,8 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import butterknife.Bind;
@@ -35,6 +37,7 @@ import sandjentrance.com.sj.actions.ArchiveFileAction;
 import sandjentrance.com.sj.actions.ArchiveFileActionEventFailure;
 import sandjentrance.com.sj.actions.ArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
+import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.ClaimProjAction;
 import sandjentrance.com.sj.actions.ClaimProjActionEventFailure;
 import sandjentrance.com.sj.actions.ClaimProjActionEventSuccess;
@@ -64,8 +67,9 @@ import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.ui.extras.AddFileInterface;
-import sandjentrance.com.sj.ui.extras.FileListAdapter;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
+import sandjentrance.com.sj.ui.extras.FileListAdapter;
+import sandjentrance.com.sj.utils.FileUtils;
 import sandjentrance.com.sj.utils.ImageUtil;
 
 @EventListener(producers = {
@@ -82,7 +86,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     public static final String FILE_OBJ = "FILE_OBJ";
-    public static final int SELECT_PICTURE = 23969;
+    public static final int REQ_CODE_USER_IMG = 23969;
+    public static final int REQ_CODE_NEW_IMG = 23970;
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.pm_name)
     TextView pmNameView;
@@ -92,6 +97,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     RecyclerView recyclerView;
     @Bind(R.id.progress)
     ProgressBar progress;
+    @Bind(R.id.proj_title)
+    TextView projTitle;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.fab)
@@ -101,6 +108,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private FileListAdapter adapter;
+    private Uri imagePickerUri;
+    private NewFileObj newFileObj;
     private Menu menu;
     private String actionIdFileList;
     //region PennStation----------------------
@@ -109,8 +118,11 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         public void onEventMainThread(DbAddNewFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
             NewFileObj newFileObj = event.newFileObj;
-            LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
-            openLocalFile(localFileObj, null);
+
+            if (!newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
+                LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
+                openLocalFile(localFileObj, null);
+            }
         }
 
         @Override
@@ -201,7 +213,6 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
 
 
     };
-    private Uri imagePickerUri;
     //endregion
     //endregion
 
@@ -273,38 +284,35 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (requestCode == SELECT_PICTURE) {
-                final boolean isCamera;
-                if (data.getData() == null) {
-                    isCamera = true;
-                } else {
-                    final String action = data.getAction();
-                    if (action == null) {
-                        isCamera = false;
-                    } else {
-                        isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            if (requestCode == REQ_CODE_USER_IMG) {
+                //----------------
+                String uriString = ImageUtil.getImageUriFromIntent(data, imagePickerUri);
+                startActivityForResult(UserImageCropActivity.getInstance(this, uriString), UserImageCropActivity.RESULT_CODE);
+
+            } else if (requestCode == UserImageCropActivity.RESULT_CODE) {
+                //----------------
+                invalidateAndSetUserImage();
+            } else if (requestCode == REQ_CODE_NEW_IMG) {
+                //----------------
+                String uriString = ImageUtil.getImageUriFromIntent(data, imagePickerUri);
+
+                if (uriString.startsWith("content")) {
+                    //save content media to external storage
+                    try {
+                        InputStream source = getContentResolver().openInputStream(Uri.parse(uriString));
+                        org.apache.commons.io.FileUtils.copyInputStreamToFile(source, new File(imagePickerUri.getPath()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
 
-                Uri selectedImageUri;
-                if (isCamera) {
-                    selectedImageUri = imagePickerUri;
-                } else {
-                    selectedImageUri = data.getData();
-                }
-                if (BuildConfig.DEBUG) {
-                    Log.d("drawer_text-----------", selectedImageUri.toString());
-                }
+                newFileObj.localFilePath = imagePickerUri.getPath();
+                progress.setVisibility(View.VISIBLE);
+                PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
 
-                startActivityForResult(UserImageCropActivity.getInstance(this, selectedImageUri.toString()),
-                        UserImageCropActivity.RESULT_CODE);
-            } else if (requestCode == UserImageCropActivity.RESULT_CODE) {
-                invalidateAndSetUserImage();
-//                Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this, fileObj.claimUser));
             }
         }
     }
-
     //endregion
 
     //region Init----------------------
@@ -315,7 +323,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     private void initView() {
         initBg();
 
-        toolbar.setTitle(fileObj.title);
+        projTitle.setText(fileObj.title);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         if (fileObj.claimUser != null) {
@@ -345,7 +354,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             @Override
             public void onClick(View v) {
                 if (fileObj.claimUser.equals(prefs.getUser())) {
-                    choosePicture();
+                    File externalFile = ImageUtil.getTempFile(ProjDetailActivity.this);
+                    choosePicture(REQ_CODE_USER_IMG, externalFile);
                 }
             }
         });
@@ -395,13 +405,12 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         progress.setVisibility(View.VISIBLE);
     }
 
-    public void choosePicture() {
+    public void choosePicture(int requestCode, File externalFile) {
         Intent pickIntent = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         pickIntent.setType("image/*");
 
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File externalFile = ImageUtil.getTempFile(this);
 
         takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(externalFile));
         imagePickerUri = Uri.parse(externalFile.getAbsolutePath());
@@ -413,7 +422,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         Intent chooserIntent = Intent.createChooser(takePhotoIntent, pickTitle);
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
 
-        startActivityForResult(chooserIntent, SELECT_PICTURE);
+        startActivityForResult(chooserIntent, requestCode);
     }
     //endregion
 
@@ -436,8 +445,16 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
 
     @Override
     public void addItemClicked(NewFileObj newFileObj) {
-        progress.setVisibility(View.VISIBLE);
-        PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
+        this.newFileObj = newFileObj;
+        if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
+            //get photo
+            String fileNAme = newFileObj.title + System.currentTimeMillis();
+            File localFile = FileUtils.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
+            choosePicture(REQ_CODE_NEW_IMG, localFile);
+        } else {
+            progress.setVisibility(View.VISIBLE);
+            PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
+        }
     }
     //endregion
 

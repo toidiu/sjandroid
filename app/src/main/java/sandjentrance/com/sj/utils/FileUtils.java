@@ -20,12 +20,12 @@ import sandjentrance.com.sj.actions.BaseAction;
 public class FileUtils {
 
     @Nullable
-    public static File getLocalFile(String id, String mime) {
+    public static File getLocalFile(String idOrName, String mime) {
         String name = null;
         if (mime.equals(BaseAction.MIME_PDF)) {
-            name = id + ".pdf";
+            name = idOrName + ".pdf";
         } else if (mime.equals(BaseAction.MIME_PNG) || mime.equals(BaseAction.MIME_JPEG)) {
-            name = id + ".jpg";
+            name = idOrName + ".jpg";
         }
 
 //        assert name != null;

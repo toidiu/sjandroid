@@ -1,10 +1,13 @@
 package sandjentrance.com.sj.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
@@ -78,6 +81,29 @@ public class ImageUtil {
             e.printStackTrace();
             return null;
         }
+    }
+
+
+    public static String getImageUriFromIntent(Intent data, Uri imagePickerUri) {
+        final boolean isCamera;
+        if (data.getData() == null) {
+            isCamera = true;
+        } else {
+            final String action = data.getAction();
+            if (action == null) {
+                isCamera = false;
+            } else {
+                isCamera = action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
+            }
+        }
+
+        Uri selectedImageUri;
+        if (isCamera) {
+            selectedImageUri = imagePickerUri;
+        } else {
+            selectedImageUri = data.getData();
+        }
+        return selectedImageUri.toString();
     }
 
 }

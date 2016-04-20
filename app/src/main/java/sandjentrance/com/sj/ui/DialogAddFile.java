@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
     @Bind(R.id.file_name)
-    EditText fileNameView;
+    EditText fileNameEdit;
     @Bind(R.id.file_name_container)
     View fileNameContainer;
     @Bind(R.id.create)
@@ -122,7 +121,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             @Override
             public void onClick(View v) {
                 fileNameContainer.setVisibility(View.GONE);
-                KeyboardUtils.hideKeyboard(getActivity(), fileNameView, fileNameView);
+                KeyboardUtils.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
             }
         });
     }
@@ -137,19 +136,21 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     public void itemClicked(final String type) {
         fileNameContainer.setVisibility(View.VISIBLE);
         KeyboardUtils.toggleKeyboard(getActivity());
-        fileNameView.requestFocus();
+        fileNameEdit.requestFocus();
 
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fileName = fileNameView.getText().toString().trim();
+                String fileName = fileNameEdit.getText().toString().trim();
                 if (!fileName.isEmpty()) {
-                    if (!type.equals(BaseAction.PHOTOS_FOLDER_NAME) && !fileName.endsWith(".pdf")) {
+                    if (type.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
+                        fileName = fileName + ".jpg";
+                    } else if (!fileName.endsWith(".pdf")) {
                         fileName = fileName + ".pdf";
                     }
                     createNewFile(type, fileName);
                 } else {
-                    Snackbar.make(fileNameView, "File name can't be empty.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(fileNameEdit, "File name can't be empty.", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
@@ -180,6 +181,8 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         if (newFileObj != null) {
             addFileInterface.addItemClicked(newFileObj);
         }
+
+        KeyboardUtils.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
         dismiss();
     }
     //endregion

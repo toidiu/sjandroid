@@ -98,18 +98,11 @@ public class UserImageCropActivity extends BaseActivity {
         super.onPause();
 //        PennStation.unRegisterListener(eventListener);
     }
-
-    private void endAndSetImage() {
-//        Intent intent = new Intent().putExtra(RESULT_FILE_PATH, avatarFile.getAbsolutePath());
-        setResult(RESULT_OK, new Intent());
-        finish();
-    }
     //endregion
 
     //region Init----------------------
     private void init() {
         String path = getIntent().getStringExtra(PATH_EXTRA);
-
 
         if (path.startsWith("content")) {
             try {

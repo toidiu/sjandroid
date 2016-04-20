@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#477775</color>
+    <color name="colorPrimary">#2a6666</color>
     <color name="colorPrimaryDark">#715247</color>
     <color name="colorAccent">#fedd43</color>
 
     <color name="white">#ffffff</color>
-    <color name="search_green">#467675</color>
     <color name="white_15">#27ffffff</color>
+
+
+    <color name="black">#000000</color>
     <color name="black_50">#7d000000</color>
     <color name="black_95">#f1000000</color>
+
+    <color name="transparent">#00000000</color>
+
+    <color name="search_green">#2a6666</color>
+    <color name="green_border">#507e7f</color>
 </resources>

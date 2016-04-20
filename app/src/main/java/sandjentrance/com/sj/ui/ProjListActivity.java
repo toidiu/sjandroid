@@ -3,10 +3,13 @@ package sandjentrance.com.sj.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -14,11 +17,15 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction;
@@ -46,6 +53,8 @@ import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjListAdapter;
+import sandjentrance.com.sj.utils.FileUtils;
+import sandjentrance.com.sj.utils.ImageUtil;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -56,6 +65,8 @@ import sandjentrance.com.sj.ui.extras.ProjListAdapter;
 public class ProjListActivity extends BaseActivity implements ProjClickInterface, AddFileInterface {
 
     //region Fields----------------------
+    //~=~=~=~=~=~=~=~=~=~=~=~=Constants
+    public static final int REQ_CODE_NEW_IMG = 22935;
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
@@ -67,6 +78,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     private ProjListAdapter adapter;
     //endregion
     private Snackbar snackbar;
+    private NewFileObj newFileObj;
+    private Uri imagePickerUri;
     private String actionIdFileList;
     private String actionIdClaimedList;
     //region PennStation----------------------
@@ -87,8 +100,10 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         public void onEventMainThread(DbAddNewFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
             NewFileObj newFileObj = event.newFileObj;
-            LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
-            openLocalFile(localFileObj, null);
+            if (!newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
+                LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
+                openLocalFile(localFileObj, null);
+            }
         }
 
         @Override
@@ -159,6 +174,29 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         super.onPause();
         PennStation.unRegisterListener(eventListener);
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_CODE_NEW_IMG) {
+                String uriString = ImageUtil.getImageUriFromIntent(data, imagePickerUri);
+
+                if (uriString.startsWith("content")) {
+                    //save content media to external storage
+                    try {
+                        InputStream source = getContentResolver().openInputStream(Uri.parse(uriString));
+                        org.apache.commons.io.FileUtils.copyInputStreamToFile(source, new File(imagePickerUri.getPath()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                newFileObj.localFilePath = imagePickerUri.getPath();
+                progress.setVisibility(View.VISIBLE);
+                PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
+            }
+        }
+    }
     //endregion
 
     //region Init----------------------
@@ -216,6 +254,28 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     }
     //endregion
 
+    //region Helper----------------------
+    public void choosePicture(int requestCode, File externalFile) {
+        Intent pickIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(externalFile));
+        imagePickerUri = Uri.parse(externalFile.getAbsolutePath());
+        if (BuildConfig.DEBUG) {
+            Log.d("photo location", imagePickerUri.toString());
+        }
+
+        String pickTitle = getString(R.string.select_picture);
+        Intent chooserIntent = Intent.createChooser(takePhotoIntent, pickTitle);
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
+
+        startActivityForResult(chooserIntent, requestCode);
+    }
+    //endregion
+
     //region Interface----------------------
     @Override
     public void folderClicked(FileObj fileObj) {
@@ -240,8 +300,12 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
     @Override
     public void addItemClicked(NewFileObj newFileObj) {
+        this.newFileObj = newFileObj;
         if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
             //get photo
+            String fileNAme = newFileObj.title + System.currentTimeMillis();
+            File localFile = FileUtils.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
+            choosePicture(REQ_CODE_NEW_IMG, localFile);
         } else {
             progress.setVisibility(View.VISIBLE);
             PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));

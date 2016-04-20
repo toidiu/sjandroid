@@ -97,6 +97,7 @@ dependencies {
     compile 'com.edmodo:cropper:1.0.1'
     //    compile 'com.github.clans:fab:1.6.2'
     //OTHER-------------------------
+    compile 'commons-io:commons-io:2.4'
     compile 'pub.devrel:easypermissions:0.1.5'
     compile 'com.hannesdorfmann.parcelableplease:annotation:1.0.2'
     apt 'com.hannesdorfmann.parcelableplease:processor:1.0.2'

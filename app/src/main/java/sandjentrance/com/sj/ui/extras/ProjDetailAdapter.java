@@ -11,7 +11,6 @@ import java.util.List;
 
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.views.FileViewHolder;
 import sandjentrance.com.sj.views.ProjDetailViewHolder;
 
 

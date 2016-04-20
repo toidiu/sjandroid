@@ -21,5 +21,6 @@
     <color name="folder_yellow">#fedd43</color>
     <color name="folder_red">#ff6663</color>
     <color name="folder_blue">#067bc2</color>
+    <color name="gray_text">#757575</color>
 
 </resources>

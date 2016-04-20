@@ -7,4 +7,6 @@
     <dimen name="small_fab">40dp</dimen>
     <dimen name="big_fab">45dp</dimen>
     <dimen name="spacing">2dp</dimen>
+
+    <dimen name="proj_list_title">15sp</dimen>
 </resources>

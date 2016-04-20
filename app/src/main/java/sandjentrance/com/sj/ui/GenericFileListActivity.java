@@ -43,7 +43,7 @@ import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
-import sandjentrance.com.sj.ui.extras.FileListAdapter;
+import sandjentrance.com.sj.ui.extras.GenericListAdapter;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
 @EventListener(producers = {
@@ -67,7 +67,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     Toolbar toolbar;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
-    private FileListAdapter adapter;
+    private GenericListAdapter adapter;
     private Menu menu;
     private String actionIdDownload;
     private String actionIdFileList;
@@ -152,7 +152,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.file_list_activity);
+        setContentView(R.layout.generic_activity);
         ButterKnife.bind(this);
 
         fileObj = getIntent().getParcelableExtra(FILE_OBJ);
@@ -230,7 +230,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new FileListAdapter(this);
+        adapter = new GenericListAdapter(this);
         recyclerView.setAdapter(adapter);
     }
 

@@ -49,21 +49,62 @@ public class ProjDetailViewHolder extends RecyclerView.ViewHolder {
         });
 
 
-        titleView.setTextColor(itemView.getResources().getColor(R.color.white));
         if (item.title.matches("(?i)drawing.*|proposal.*|note.*")) {
-            folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_red));
+            colorRed();
         } else if (item.title.matches("(?i).*mail.*|Insurance.*|Transmittal.*")) {
-            folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_blue));
+            colorBlue();
         } else if (item.title.matches("(?i).*contract.*|Fab.*|Close.*|Purchase.*")) {
-            folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_green));
+            colorGreen();
         } else if (item.title.matches("(?i)Approval.*|Certificate.*|Inventory.*|Photo.*")) {
-            folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_teal));
-            titleView.setTextColor(itemView.getResources().getColor(R.color.black));
+            colorTeal();
         } else if (item.title.matches("(?i)Billing.*|Hardware.*|Quote.*")) {
-            folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_yellow));
-            titleView.setTextColor(itemView.getResources().getColor(R.color.black));
+            colorYellow();
         } else {
-            folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_green));
+
+            int i = Math.abs(item.title.hashCode()) % 4;
+            switch (i) {
+                case 0:
+                    colorYellow();
+                    break;
+                case 1:
+                    colorRed();
+                    break;
+                case 2:
+                    colorTeal();
+                    break;
+                case 3:
+                    colorBlue();
+                    break;
+                case 4:
+                    colorGreen();
+                    break;
+
+            }
         }
+    }
+
+    private void colorTeal() {
+        folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_teal));
+        titleView.setTextColor(itemView.getResources().getColor(R.color.black));
+    }
+
+    private void colorYellow() {
+        folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_yellow));
+        titleView.setTextColor(itemView.getResources().getColor(R.color.black));
+    }
+
+    private void colorGreen() {
+        folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_green));
+        titleView.setTextColor(itemView.getResources().getColor(R.color.white));
+    }
+
+    private void colorBlue() {
+        folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_blue));
+        titleView.setTextColor(itemView.getResources().getColor(R.color.white));
+    }
+
+    private void colorRed() {
+        folderCard.setCardBackgroundColor(itemView.getResources().getColor(R.color.folder_red));
+        titleView.setTextColor(itemView.getResources().getColor(R.color.white));
     }
 }

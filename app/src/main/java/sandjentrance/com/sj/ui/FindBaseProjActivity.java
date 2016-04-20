@@ -82,7 +82,7 @@ public class FindBaseProjActivity extends BaseActivity implements FileClickInter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.file_list_activity);
+        setContentView(R.layout.generic_activity);
 
 //        setContentView(R.layout.search_proj_activity);
         ButterKnife.bind(this);

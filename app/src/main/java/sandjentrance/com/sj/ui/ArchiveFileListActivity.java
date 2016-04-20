@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -54,6 +55,8 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     RecyclerView recyclerView;
     @Bind(R.id.progress)
     ProgressBar progress;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private FileArchiveListAdapter adapter;
@@ -126,7 +129,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.file_list_activity);
+        setContentView(R.layout.generic_activity);
         ButterKnife.bind(this);
 
         fileObj = getIntent().getParcelableExtra(FILE_OBJ);
@@ -179,6 +182,10 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
 
     private void initView() {
         initBg();
+
+        toolbar.setTitle(fileObj.title);
+        setSupportActionBar(toolbar);
+
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);

@@ -12,6 +12,7 @@ import java.util.List;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.views.FileViewHolder;
+import sandjentrance.com.sj.views.ProjDetailViewHolder;
 
 
 /**
@@ -30,13 +31,13 @@ public class ProjDetailAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_proj_detail, parent, false);
-        return new FileViewHolder(itemView);
+        return new ProjDetailViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final FileObj item = list.get(position);
-        FileViewHolder view = (FileViewHolder) holder;
+        ProjDetailViewHolder view = (ProjDetailViewHolder) holder;
         view.bind(item, fileClickInterface);
     }
 

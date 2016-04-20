@@ -9,7 +9,7 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    card_view:cardBackgroundColor="@color/folder_blue"
+    card_view:cardBackgroundColor="@color/folder_yellow"
     card_view:cardCornerRadius="4dp">
 
     <RelativeLayout
@@ -21,6 +21,8 @@
         android:focusable="true"
         android:gravity="center_vertical"
         android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp"
         android:padding="16dp">
 
         <ImageView
@@ -38,7 +40,6 @@
             android:ellipsize="end"
             android:lines="3"
             android:maxLines="3"
-            android:textStyle="bold"
             tools:text="title" />
 
     </RelativeLayout>

@@ -46,6 +46,7 @@ import sandjentrance.com.sj.actions.DbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
 import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
+import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
@@ -63,6 +64,8 @@ import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
 import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
+import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
+import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
@@ -107,6 +110,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     @Bind(R.id.profile_img)
     CircleImageView profileImg;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
+    private String actionIdDownload;
     private FileObj fileObj;
     private ProjDetailAdapter adapter;
     private Uri imagePickerUri;
@@ -246,6 +250,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             moveFolderHelper.resetState();
         }
 
+        PennStation.requestAction(PsUploadNewFileAction.helper());
         refreshMenu();
     }
 
@@ -437,7 +442,9 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
 
     @Override
     public void fileClicked(FileObj fileObj) {
-
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
     }
 
     @Override

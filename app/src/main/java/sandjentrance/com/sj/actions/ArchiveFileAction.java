@@ -11,13 +11,13 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+
+import java.sql.SQLException;
 
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
+import sandjentrance.com.sj.models.FileObj;
 
 
 /**
@@ -45,7 +45,16 @@ public class ArchiveFileAction extends BaseAction {
             return new SetupDriveActionEventFailure();
         }
 
-        if (fileMoved(helper.fileId(), prefs.getArchiveFolderId())) {
+        String fileId = helper.fileId();
+        if (fileMoved(fileId, prefs.getArchiveFolderId())) {
+            try {
+                Dao<FileObj, Integer> dao = databaseHelper.getClaimProjDao();
+                DeleteBuilder<FileObj, Integer> builder = dao.deleteBuilder();
+                builder.where().eq("id", fileId);
+                builder.delete();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             return new ArchiveFileActionEventSuccess();
         } else {
             return new ArchiveFileActionEventFailure();

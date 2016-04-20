@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -42,6 +43,8 @@ public class FindBaseProjActivity extends BaseActivity implements FileClickInter
     RecyclerView recyclerView;
     @Bind(R.id.progress)
     ProgressBar progress;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private BaseProjListAdapter adapter;
 
@@ -103,6 +106,8 @@ public class FindBaseProjActivity extends BaseActivity implements FileClickInter
 
     private void initView() {
         initBg();
+        toolbar.setTitle("Select Base Folder");
+        setSupportActionBar(toolbar);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);

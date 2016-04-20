@@ -14,6 +14,12 @@
 
     <color name="transparent">#00000000</color>
 
-    <color name="search_green">#2a6666</color>
     <color name="green_border">#507e7f</color>
+
+    <color name="folder_teal">#78cdd7</color>
+    <color name="folder_green">#2a6666</color>
+    <color name="folder_yellow">#fedd43</color>
+    <color name="folder_red">#ff6663</color>
+    <color name="folder_blue">#067bc2</color>
+
 </resources>

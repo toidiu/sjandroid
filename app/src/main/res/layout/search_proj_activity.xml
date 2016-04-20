@@ -28,7 +28,7 @@
             android:textCursorDrawable="@null"
             android:textSize="14sp"
             app:layout_scrollFlags="scroll|enterAlways"
-            tools:background="@color/search_green" />
+            tools:background="@color/colorPrimary" />
 
     </android.support.design.widget.AppBarLayout>
 

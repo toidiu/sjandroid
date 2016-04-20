@@ -28,7 +28,7 @@
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="130dp"
-            android:background="@color/search_green"
+            android:background="@color/colorPrimary"
             android:paddingBottom="15dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
@@ -53,10 +53,11 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/profile_img"
                     android:background="?android:attr/selectableItemBackground"
+                    android:maxLines="2"
                     android:padding="8dp"
-                    android:text="Proj Title"
                     android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:text="Proj Title Proj Title Proj Title Proj Title Proj Title " />
             </RelativeLayout>
 
             <TextView
@@ -98,8 +99,8 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/item_files_list">
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_proj_detail">
 
         </android.support.v7.widget.RecyclerView>
 

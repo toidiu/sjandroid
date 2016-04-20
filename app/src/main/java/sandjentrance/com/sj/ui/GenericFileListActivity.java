@@ -224,8 +224,6 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     }
 
     private void initView() {
-        initBg();
-
         toolbar.setTitle(fileObj.title);
         setSupportActionBar(toolbar);
 

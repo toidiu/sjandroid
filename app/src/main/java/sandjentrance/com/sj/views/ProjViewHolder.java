@@ -8,7 +8,6 @@ import android.widget.TextView;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 
 /**
@@ -34,6 +33,12 @@ public class ProjViewHolder extends RecyclerView.ViewHolder {
 
     public void bind(final FileObj item, final ProjClickInterface projClickInterface) {
         titleView.setText(item.title);
+        if (item.title.equals(BaseAction.PHOTOS_FOLDER_SETUP) || item.title.equals(BaseAction.ARCHIVE_FOLDER_SETUP)) {
+            fabView.setVisibility(View.GONE);
+        } else {
+            fabView.setVisibility(View.VISIBLE);
+        }
+
         containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

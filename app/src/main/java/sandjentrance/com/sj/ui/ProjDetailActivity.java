@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -68,9 +68,10 @@ import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.ui.extras.AddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
-import sandjentrance.com.sj.ui.extras.FileListAdapter;
+import sandjentrance.com.sj.ui.extras.ProjDetailAdapter;
 import sandjentrance.com.sj.utils.FileUtils;
 import sandjentrance.com.sj.utils.ImageUtil;
+import sandjentrance.com.sj.views.SpaceItemDecoration;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -107,7 +108,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     CircleImageView profileImg;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
-    private FileListAdapter adapter;
+    private ProjDetailAdapter adapter;
     private Uri imagePickerUri;
     private NewFileObj newFileObj;
     private Menu menu;
@@ -321,8 +322,6 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     private void initView() {
-        initBg();
-
         projTitle.setText(fileObj.title);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
@@ -341,10 +340,13 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             }
         });
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 4);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new FileListAdapter(this);
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.spacing);
+        recyclerView.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
+
+        adapter = new ProjDetailAdapter(this);
         recyclerView.setAdapter(adapter);
 
         //// FIXME: 4/13/16 receive event and replace image if it exists

@@ -69,11 +69,11 @@ import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
-import sandjentrance.com.sj.ui.extras.AddFileInterface;
+import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjDetailAdapter;
-import sandjentrance.com.sj.utils.FileUtils;
-import sandjentrance.com.sj.utils.ImageUtil;
+import sandjentrance.com.sj.utils.UtilFile;
+import sandjentrance.com.sj.utils.UtilImage;
 import sandjentrance.com.sj.views.SpaceItemDecoration;
 
 @EventListener(producers = {
@@ -85,7 +85,7 @@ import sandjentrance.com.sj.views.SpaceItemDecoration;
         GetUserImgAction.class,
         DbAddNewFileAction.class
 })
-public class ProjDetailActivity extends BaseActivity implements FileClickInterface, AddFileInterface {
+public class ProjDetailActivity extends BaseActivity implements FileClickInterface, FabAddFileInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
@@ -292,7 +292,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         if (resultCode == RESULT_OK) {
             if (requestCode == REQ_CODE_USER_IMG) {
                 //----------------
-                String uriString = ImageUtil.getImageUriFromIntent(data, imagePickerUri);
+                String uriString = UtilImage.getImageUriFromIntent(data, imagePickerUri);
                 startActivityForResult(UserImageCropActivity.getInstance(this, uriString), UserImageCropActivity.RESULT_CODE);
 
             } else if (requestCode == UserImageCropActivity.RESULT_CODE) {
@@ -300,7 +300,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                 invalidateAndSetUserImage();
             } else if (requestCode == REQ_CODE_NEW_IMG) {
                 //----------------
-                String uriString = ImageUtil.getImageUriFromIntent(data, imagePickerUri);
+                String uriString = UtilImage.getImageUriFromIntent(data, imagePickerUri);
 
                 if (uriString.startsWith("content")) {
                     //save content media to external storage
@@ -355,12 +355,12 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         recyclerView.setAdapter(adapter);
 
         PennStation.requestAction(PsGetUserImgAction.helper(fileObj.claimUser));
-        Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser)).placeholder(R.drawable.profile_image).into(profileImg);
+        Picasso.with(this).load(UtilImage.getAvatarFile(this, fileObj.claimUser)).placeholder(R.drawable.profile_image).into(profileImg);
         profileImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (fileObj.claimUser.equals(prefs.getUser())) {
-                    File externalFile = ImageUtil.getTempFile(ProjDetailActivity.this);
+                    File externalFile = UtilImage.getTempFile(ProjDetailActivity.this);
                     choosePicture(REQ_CODE_USER_IMG, externalFile);
                 }
             }
@@ -397,8 +397,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     private void invalidateAndSetUserImage() {
-        Picasso.with(this).invalidate(ImageUtil.getAvatarFile(this, fileObj.claimUser));
-        Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser))
+        Picasso.with(this).invalidate(UtilImage.getAvatarFile(this, fileObj.claimUser));
+        Picasso.with(this).load(UtilImage.getAvatarFile(this, fileObj.claimUser))
                 .placeholder(R.drawable.profile_image)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
                 .memoryPolicy(MemoryPolicy.NO_CACHE).into(profileImg);
@@ -440,15 +440,37 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
-    public void fileClicked(FileObj fileObj) {
+    public void editClicked(FileObj fileObj) {
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
     }
 
     @Override
-    public void fileLongClicked(FileObj fileObj) {
-        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
+    public void renameLongClicked(FileObj fileObj) {
+        DialogRenameFile.getInstance(fileObj).show(getSupportFragmentManager(), null);
+    }
+
+    @Override
+    public void moveLongClicked(FileObj fileObj) {
+        moveFolderHelper.startMove(fileObj.id, fileObj.parent);
+        PennStation.postLocalEvent(new MoveFileActionEventPrime());
+    }
+
+
+//    @Override
+//    public void fileLongClicked(FileObj fileObj) {
+//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
+//    }
+
+    @Override
+    public void shareClicked(FileObj fileObj) {
+
+    }
+
+    @Override
+    public void printClicked(FileObj fileObj) {
+
     }
 
     @Override
@@ -457,7 +479,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
             //get photo
             String fileNAme = newFileObj.title + System.currentTimeMillis();
-            File localFile = FileUtils.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
+            File localFile = UtilFile.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
             choosePicture(REQ_CODE_NEW_IMG, localFile);
         } else {
             progress.setVisibility(View.VISIBLE);

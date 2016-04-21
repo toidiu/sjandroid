@@ -9,7 +9,7 @@ import android.widget.EditText;
 /**
  * Created by toidiu on 4/18/16.
  */
-public class KeyboardUtils {
+public class UtilKeyboard {
 
     public static void hideKeyboard(Context context, View view, @Nullable EditText editText) {
         if (editText != null) {

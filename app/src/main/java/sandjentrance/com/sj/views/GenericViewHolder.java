@@ -14,7 +14,8 @@ import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
-import sandjentrance.com.sj.utils.DateUtil;
+import sandjentrance.com.sj.utils.UtilsDate;
+import sandjentrance.com.sj.utils.UtilsView;
 
 /**
  * Created by toidiu on 4/2/16.
@@ -43,25 +44,27 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
                 if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     fileClickInterface.folderClicked(item);
                 } else {
-                    fileClickInterface.fileClicked(item);
+                    UtilsView.fileClickPopup(containerView, item, fileClickInterface);
                 }
             }
         });
 
         DateTime parse = DateTime.parse(item.lastModified);
-        modifiedView.setText(DateUtil.dateFormatter.print(parse));
+        modifiedView.setText(UtilsDate.dateFormatter.print(parse));
 
         this.containerView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                fileClickInterface.fileLongClicked(item);
+                if (!item.mime.equals(BaseAction.FOLDER_MIME)) {
+                    UtilsView.fileLongClickPopup(containerView, item, fileClickInterface);
+                }
                 return true;
             }
         });
 
         if (FileObj.isFolder(item.mime)) {
             Picasso.with(SJApplication.appContext).load(R.drawable.ic_content_folder).into(fileIconView);
-        }else {
+        } else {
             Picasso.with(SJApplication.appContext).load(R.drawable.ic_document).into(fileIconView);
         }
     }

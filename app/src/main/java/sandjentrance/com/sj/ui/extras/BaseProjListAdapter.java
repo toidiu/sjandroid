@@ -19,12 +19,12 @@ import sandjentrance.com.sj.views.BaseProjViewHolder;
  */
 public class BaseProjListAdapter extends RecyclerView.Adapter {
 
-    private final FileClickInterface fileClickInterface;
+    private final BaseProjClickInterface baseProjClickInterface;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private List<FileObj> list = new ArrayList<>();
 
-    public BaseProjListAdapter(FileClickInterface fileClickInterface) {
-        this.fileClickInterface = fileClickInterface;
+    public BaseProjListAdapter(BaseProjClickInterface baseProjClickInterface) {
+        this.baseProjClickInterface = baseProjClickInterface;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class BaseProjListAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final FileObj item = list.get(position);
         BaseProjViewHolder view = (BaseProjViewHolder) holder;
-        view.bind(item, fileClickInterface);
+        view.bind(item, baseProjClickInterface);
     }
 
     @Override

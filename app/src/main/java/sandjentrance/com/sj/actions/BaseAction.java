@@ -36,7 +36,7 @@ import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
-import sandjentrance.com.sj.utils.FileUtils;
+import sandjentrance.com.sj.utils.UtilFile;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
@@ -223,7 +223,7 @@ public class BaseAction implements Action {
 
     @Nullable
     protected java.io.File downloadFile(FileDownloadObj fileDownloadObj) {
-        java.io.File localFile = FileUtils.getLocalFile(fileDownloadObj.fileId, fileDownloadObj.mime);
+        java.io.File localFile = UtilFile.getLocalFile(fileDownloadObj.fileId, fileDownloadObj.mime);
         if (localFile == null) {
             return null;
         } else if (localFile.exists()) {
@@ -404,7 +404,7 @@ public class BaseAction implements Action {
         }
 
         if (createdFile != null) {
-            return FileUtils.deleteLocalFile(new java.io.File(fileUploadObj.localFilePath));
+            return UtilFile.deleteLocalFile(new java.io.File(fileUploadObj.localFilePath));
         }
 
         return false;

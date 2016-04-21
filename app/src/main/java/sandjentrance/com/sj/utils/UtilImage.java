@@ -19,7 +19,7 @@ import java.io.IOException;
 /**
  * Created by toidiu on 2/26/16.
  */
-public class ImageUtil {
+public class UtilImage {
     public static final int IMAGE_RESOLUTION = 300;
 
     public static float convertDpToPixel(float dp) {
@@ -68,7 +68,7 @@ public class ImageUtil {
     public static File saveUserImage(Context context, Bitmap croppedImage, String user) {
         //save image to file
         try {
-            File avatarFile = ImageUtil.getAvatarFile(context, user);
+            File avatarFile = UtilImage.getAvatarFile(context, user);
             FileOutputStream fOut = new FileOutputStream(avatarFile);
             croppedImage.compress(Bitmap.CompressFormat.PNG, 60, fOut);
             fOut.flush();

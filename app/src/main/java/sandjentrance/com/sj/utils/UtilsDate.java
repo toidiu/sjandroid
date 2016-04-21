@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by toidiu on 4/13/16.
  */
-public class DateUtil {
+public class UtilsDate {
 
     public static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("MMMM dd, yyyy");
 

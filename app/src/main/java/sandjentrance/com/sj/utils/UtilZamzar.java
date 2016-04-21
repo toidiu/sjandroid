@@ -20,7 +20,7 @@ import okhttp3.Response;
 import okhttp3.Route;
 import sandjentrance.com.sj.SecretUtils;
 
-public class ZamzarUtil {
+public class UtilZamzar {
 
     //region Helper----------------------
     private static OkHttpClient okHttpClient;

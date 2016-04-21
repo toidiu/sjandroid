@@ -21,9 +21,9 @@ import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.ui.extras.AddFileAdapter;
-import sandjentrance.com.sj.ui.extras.AddFileInterface;
+import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileAddInterface;
-import sandjentrance.com.sj.utils.KeyboardUtils;
+import sandjentrance.com.sj.utils.UtilKeyboard;
 
 /**
  * Created by toidiu on 4/4/16.
@@ -47,7 +47,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     View createBtn;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private FileObj projFolder;
-    private AddFileInterface addFileInterface;
+    private FabAddFileInterface addFileInterface;
     //endregion
 
     //region Lifecycle----------------------
@@ -71,7 +71,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        addFileInterface = (AddFileInterface) activity;
+        addFileInterface = (FabAddFileInterface) activity;
     }
 
     @Override
@@ -121,7 +121,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             @Override
             public void onClick(View v) {
                 fileNameContainer.setVisibility(View.GONE);
-                KeyboardUtils.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+                UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
             }
         });
     }
@@ -135,7 +135,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     @Override
     public void itemClicked(final String type) {
         fileNameContainer.setVisibility(View.VISIBLE);
-        KeyboardUtils.toggleKeyboard(getActivity());
+        UtilKeyboard.toggleKeyboard(getActivity());
         fileNameEdit.requestFocus();
 
         createBtn.setOnClickListener(new View.OnClickListener() {
@@ -182,7 +182,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             addFileInterface.addItemClicked(newFileObj);
         }
 
-        KeyboardUtils.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+        UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
         dismiss();
     }
     //endregion

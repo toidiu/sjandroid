@@ -28,14 +28,14 @@ import sandjentrance.com.sj.actions.SetupDriveActionEventFailure;
 import sandjentrance.com.sj.actions.SetupDriveActionEventSuccess;
 import sandjentrance.com.sj.actions.SetupDriveAction_.PsSetupDriveAction;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.ui.extras.BaseProjClickInterface;
 import sandjentrance.com.sj.ui.extras.BaseProjListAdapter;
-import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
 @EventListener(producers = {
         FindBaseFolderAction.class,
         SetupDriveAction.class
 })
-public class FindBaseProjActivity extends BaseActivity implements FileClickInterface {
+public class FindBaseProjActivity extends BaseActivity implements BaseProjClickInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=View
@@ -130,26 +130,18 @@ public class FindBaseProjActivity extends BaseActivity implements FileClickInter
     }
     //endregion
 
+    //region Helper----------------------
+    private void startProjListActivity() {
+        startActivity(ProjListActivity.getInstance(this));
+        finish();
+    }
+    //endregion
+
     //region Interface----------------------
     @Override
     public void folderClicked(FileObj fileObj) {
         PennStation.requestAction(PsSetupDriveAction.helper(fileObj.id));
         progress.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void fileClicked(FileObj fileObj) {
-
-    }
-
-    @Override
-    public void fileLongClicked(FileObj fileObj) {
-        //should remain empty!!
-    }
-
-    private void startProjListActivity() {
-        startActivity(ProjListActivity.getInstance(this));
-        finish();
     }
     //endregion
 

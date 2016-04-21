@@ -1,13 +1,10 @@
 package sandjentrance.com.sj.ui;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -25,7 +22,7 @@ import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
 import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.utils.KeyboardUtils;
+import sandjentrance.com.sj.utils.UtilKeyboard;
 
 /**
  * Created by toidiu on 4/4/16.
@@ -104,7 +101,7 @@ public class DialogRenameFile extends BaseDialogFrag {
         renameEdit.setText(fileObj.title);
         renameEdit.setSelection(renameEdit.getText().length());
 
-        KeyboardUtils.toggleKeyboard(getContext());
+        UtilKeyboard.toggleKeyboard(getContext());
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override

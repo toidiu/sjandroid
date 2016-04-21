@@ -7,7 +7,16 @@ import sandjentrance.com.sj.models.FileObj;
  */
 public interface FileClickInterface {
     void folderClicked(FileObj fileObj);
-    void fileClicked(FileObj fileObj);
 
-    void fileLongClicked(FileObj fileObj);
+//    void fileLongClicked(FileObj fileObj);
+    void renameLongClicked(FileObj fileObj);
+    void moveLongClicked(FileObj fileObj);
+
+
+//        void fileClicked(FileObj fileObj);
+    void shareClicked(FileObj fileObj);
+
+    void printClicked(FileObj fileObj);
+
+    void editClicked(FileObj fileObj);
 }

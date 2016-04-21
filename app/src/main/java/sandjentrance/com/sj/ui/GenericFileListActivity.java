@@ -43,8 +43,8 @@ import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
-import sandjentrance.com.sj.ui.extras.GenericListAdapter;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
+import sandjentrance.com.sj.ui.extras.GenericListAdapter;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -211,17 +211,19 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
     }
 
+    //endregion
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    //endregion
-
     //region Init----------------------
     private void initData() {
         refreshFileList();
     }
+
+    //endregion
 
     private void initView() {
         toolbar.setTitle(fileObj.title);
@@ -234,8 +236,6 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         recyclerView.setAdapter(adapter);
     }
 
-    //endregion
-
     //region View----------------------
     private void refreshMenu() {
         if (menu != null) {
@@ -247,12 +247,12 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
     }
 
+    //endregion
+
     private void refreshFileList() {
         progress.setVisibility(View.VISIBLE);
         actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
     }
-
-    //endregion
 
     //region Interface----------------------
     @Override
@@ -261,15 +261,36 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     }
 
     @Override
-    public void fileClicked(FileObj fileObj) {
-        progress.setVisibility(View.VISIBLE);
-        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
+    public void renameLongClicked(FileObj fileObj) {
+                DialogRenameFile.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
 
     @Override
-    public void fileLongClicked(FileObj fileObj) {
-        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
+    public void moveLongClicked(FileObj fileObj) {
+                moveFolderHelper.startMove(fileObj.id, fileObj.parent);
+                PennStation.postLocalEvent(new MoveFileActionEventPrime());
+    }
+
+//    @Override
+//    public void fileLongClicked(FileObj fileObj) {
+//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
+//    }
+
+    @Override
+    public void shareClicked(FileObj fileObj) {
+
+    }
+
+    @Override
+    public void printClicked(FileObj fileObj) {
+
+    }
+
+    @Override
+    public void editClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
     }
     //endregion
 

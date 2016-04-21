@@ -5,6 +5,6 @@ import sandjentrance.com.sj.models.NewFileObj;
 /**
  * Created by toidiu on 4/18/16.
  */
-public interface AddFileInterface {
+public interface FabAddFileInterface {
     void addItemClicked(NewFileObj newFileObj);
 }

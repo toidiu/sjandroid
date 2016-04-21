@@ -19,8 +19,8 @@ import org.joda.time.DateTime;
 import java.util.List;
 
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
-import sandjentrance.com.sj.utils.DateUtil;
-import sandjentrance.com.sj.utils.ImageUtil;
+import sandjentrance.com.sj.utils.UtilsDate;
+import sandjentrance.com.sj.utils.UtilImage;
 
 
 /**
@@ -46,7 +46,7 @@ public class GetUserImgAction extends BaseAction {
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
         GetUserImgActionHelper helper = PsGetUserImgAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
-        java.io.File avatarFile = ImageUtil.getAvatarFile(context, helper.userName());
+        java.io.File avatarFile = UtilImage.getAvatarFile(context, helper.userName());
         String fileName = avatarFile.getName();
 
 
@@ -56,7 +56,7 @@ public class GetUserImgAction extends BaseAction {
         if (fileByName != null && fileByName.size() > 0) {
             //see how old the local avatar file is
             DateTime dateTime = new DateTime(avatarFile.lastModified());
-            if (DateUtil.isDayOld(dateTime)) {
+            if (UtilsDate.isDayOld(dateTime)) {
                 //download it
                 java.io.File file = downloadUserImg(avatarFile, fileByName.get(0).getId());
                 if (file == null || !file.exists()) {

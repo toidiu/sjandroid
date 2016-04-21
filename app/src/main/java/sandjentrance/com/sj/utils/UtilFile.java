@@ -17,7 +17,7 @@ import sandjentrance.com.sj.actions.BaseAction;
 /**
  * Created by toidiu on 4/13/16.
  */
-public class FileUtils {
+public class UtilFile {
 
     @Nullable
     public static File getLocalFile(String idOrName, String mime) {

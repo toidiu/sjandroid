@@ -19,8 +19,8 @@ import sandjentrance.com.sj.views.ProjViewHolder;
  */
 public class ProjListAdapter extends RecyclerView.Adapter {
 
-    private final ProjClickInterface projClickInterface;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
+    private final ProjClickInterface projClickInterface;
     private List<FileObj> list = new ArrayList<>();
 
     public ProjListAdapter(ProjClickInterface projClickInterface) {

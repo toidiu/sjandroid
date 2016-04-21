@@ -18,7 +18,7 @@ import java.util.List;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.models.NewFileObj;
-import sandjentrance.com.sj.utils.NetworkUtils;
+import sandjentrance.com.sj.utils.UtilNetwork;
 
 
 /**
@@ -51,7 +51,7 @@ public class UploadNewFileAction extends BaseAction {
             e.printStackTrace();
         }
 
-        if (!NetworkUtils.isDeviceOnline(context)) {
+        if (!UtilNetwork.isDeviceOnline(context)) {
             return null;
         }
         for (NewFileObj obj : newFileObjs) {

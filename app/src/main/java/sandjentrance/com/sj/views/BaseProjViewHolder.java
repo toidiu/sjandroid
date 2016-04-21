@@ -7,6 +7,7 @@ import android.widget.TextView;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.ui.extras.BaseProjClickInterface;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
 /**
@@ -28,7 +29,7 @@ public class BaseProjViewHolder extends RecyclerView.ViewHolder {
         ownUserView = (TextView) itemView.findViewById(R.id.own_user);
     }
 
-    public void bind(final FileObj item, final FileClickInterface fileClickInterface) {
+    public void bind(final FileObj item, final BaseProjClickInterface fileClickInterface) {
         this.titleView.setText(item.title);
         this.containerView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,12 +45,5 @@ public class BaseProjViewHolder extends RecyclerView.ViewHolder {
         } else {
             this.ownContainerView.setVisibility(View.GONE);
         }
-        this.containerView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                fileClickInterface.fileLongClicked(item);
-                return true;
-            }
-        });
     }
 }

@@ -26,7 +26,7 @@ import okhttp3.Route;
 /**
  * Created by toidiu on 4/1/16.
  */
-public class NetworkUtils {
+public class UtilNetwork {
 
     public static boolean isDeviceOnline(Context context) {
         ConnectivityManager connMgr =

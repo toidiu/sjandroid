@@ -22,7 +22,7 @@ import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.UploadUserImageAction_.PsUploadUserImageAction;
 import sandjentrance.com.sj.models.FileUploadObj;
-import sandjentrance.com.sj.utils.ImageUtil;
+import sandjentrance.com.sj.utils.UtilImage;
 
 /**
  * Created by toidiu on 2/25/16.
@@ -129,11 +129,11 @@ public class UserImageCropActivity extends BaseActivity {
 
         Bitmap croppedImage = cropImageView.getCroppedImage();
         cropImageView.setImageBitmap(croppedImage);
-        croppedImage = ImageUtil.getResizedBitmap(croppedImage, ImageUtil.IMAGE_RESOLUTION, ImageUtil.IMAGE_RESOLUTION);
-        File file = ImageUtil.saveUserImage(context, croppedImage, prefs.getUser());
+        croppedImage = UtilImage.getResizedBitmap(croppedImage, UtilImage.IMAGE_RESOLUTION, UtilImage.IMAGE_RESOLUTION);
+        File file = UtilImage.saveUserImage(context, croppedImage, prefs.getUser());
 
         if (file != null) {
-            File avatarFile = ImageUtil.getAvatarFile(UserImageCropActivity.this, prefs.getUser());
+            File avatarFile = UtilImage.getAvatarFile(UserImageCropActivity.this, prefs.getUser());
             FileUploadObj fileUploadObj = new FileUploadObj(prefs.getPhotosFolderId(), null, avatarFile.getName(), file.getAbsolutePath(), BaseAction.MIME_JPEG);
             PennStation.requestAction(PsUploadUserImageAction.helper(fileUploadObj));
         }

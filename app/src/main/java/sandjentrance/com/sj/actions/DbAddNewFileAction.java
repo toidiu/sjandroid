@@ -18,7 +18,7 @@ import java.sql.SQLException;
 
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.models.NewFileObj;
-import sandjentrance.com.sj.utils.FileUtils;
+import sandjentrance.com.sj.utils.UtilFile;
 
 
 /**
@@ -51,7 +51,7 @@ public class DbAddNewFileAction extends BaseAction {
             if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
                 //photo file should already have path
             } else {
-                File localFile = FileUtils.copyAssetsFile(context.getAssets(), newFileObj.assetFileName, localFileName, newFileObj.mime);
+                File localFile = UtilFile.copyAssetsFile(context.getAssets(), newFileObj.assetFileName, localFileName, newFileObj.mime);
                 newFileObj.localFilePath = localFile.getAbsolutePath();
             }
         }

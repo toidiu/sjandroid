@@ -49,12 +49,12 @@ import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
-import sandjentrance.com.sj.ui.extras.AddFileInterface;
+import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjListAdapter;
-import sandjentrance.com.sj.utils.FileUtils;
-import sandjentrance.com.sj.utils.ImageUtil;
+import sandjentrance.com.sj.utils.UtilFile;
+import sandjentrance.com.sj.utils.UtilImage;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -62,7 +62,7 @@ import sandjentrance.com.sj.utils.ImageUtil;
         FindClaimedProjAction.class,
         DbAddNewFileAction.class
 })
-public class ProjListActivity extends BaseActivity implements ProjClickInterface, AddFileInterface {
+public class ProjListActivity extends BaseActivity implements ProjClickInterface, FabAddFileInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
@@ -179,7 +179,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQ_CODE_NEW_IMG) {
-                String uriString = ImageUtil.getImageUriFromIntent(data, imagePickerUri);
+                String uriString = UtilImage.getImageUriFromIntent(data, imagePickerUri);
 
                 if (uriString.startsWith("content")) {
                     //save content media to external storage
@@ -303,7 +303,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
             //get photo
             String fileNAme = newFileObj.title + System.currentTimeMillis();
-            File localFile = FileUtils.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
+            File localFile = UtilFile.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
             choosePicture(REQ_CODE_NEW_IMG, localFile);
         } else {
             progress.setVisibility(View.VISIBLE);

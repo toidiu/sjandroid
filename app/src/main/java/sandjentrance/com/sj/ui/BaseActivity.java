@@ -91,7 +91,6 @@ public class BaseActivity extends AppCompatActivity {
     public void shareIntentFile(LocalFileObj localFileObj) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-//        intent.putExtra(Intent.EXTRA_SUBJECT, "subject");
         intent.putExtra(Intent.EXTRA_TEXT, "I have attached the requested file..");
 
         File file = new File(localFileObj.localPath);

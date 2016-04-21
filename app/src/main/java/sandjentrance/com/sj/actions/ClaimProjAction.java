@@ -1,7 +1,6 @@
 package sandjentrance.com.sj.actions;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.edisonwang.ps.annotations.ClassField;
 import com.edisonwang.ps.annotations.EventClass;
@@ -13,22 +12,8 @@ import com.edisonwang.ps.annotations.RequestActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.Property;
-import com.j256.ormlite.dao.Dao;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
-import sandjentrance.com.sj.models.FileObj;
 
 
 /**
@@ -58,32 +43,9 @@ public class ClaimProjAction extends BaseAction {
             return new SetupDriveActionEventFailure();
         }
 
-        File fileMetadata = new File();
-//        Map<String, String> prop = new HashMap<>();
-//        prop.put(CLAIM_PROPERTY, "asdf32d");
-        List<Property> pp = new ArrayList<>();
-        Property property = new Property();
-        property.setKey(CLAIM_PROPERTY).setValue(credential.getSelectedAccountName());
-        pp.add(property);
-        fileMetadata.setProperties(pp);
-
-        Log.d("--------", credential.getSelectedAccountName());
-        try {
-            File file = driveService.files().update(helper.fileId(), fileMetadata)
-//                    .setFields(QUERY_FIELDS)
-                    .execute();
-            FileObj fileObj = new FileObj(file);
-
-            Dao<FileObj, Integer> dao = databaseHelper.getClaimProjDao();
-            List<FileObj> fileObjList = dao.queryForEq("id", fileObj.id);
-            if (fileObjList.isEmpty())
-            {
-                dao.create(fileObj);
-            }
-
+        if (claimProj(helper.fileId())) {
             return new ClaimProjActionEventSuccess(credential.getSelectedAccountName());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
             return new ClaimProjActionEventFailure();
         }
 

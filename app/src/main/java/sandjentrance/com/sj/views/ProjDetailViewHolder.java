@@ -16,36 +16,36 @@ import sandjentrance.com.sj.utils.UtilsView;
  */
 public class ProjDetailViewHolder extends RecyclerView.ViewHolder {
 
-    public final View containerView;
+//    public final View containerView;
     public final TextView titleView;
     private final CardView folderCard;
 
     public ProjDetailViewHolder(View itemView) {
         super(itemView);
 
-        containerView = itemView.findViewById(R.id.container);
+//        containerView = itemView.findViewById(R.id.container);
         titleView = (TextView) itemView.findViewById(R.id.title);
         folderCard = (CardView) itemView.findViewById(R.id.folder_card);
     }
 
     public void bind(final FileObj item, final FileClickInterface fileClickInterface) {
         this.titleView.setText(item.title);
-        this.containerView.setOnClickListener(new View.OnClickListener() {
+        this.folderCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     fileClickInterface.folderClicked(item);
                 } else {
-                    UtilsView.fileClickPopup(containerView, item, fileClickInterface);
+                    UtilsView.fileClickPopup(folderCard, item, fileClickInterface);
                 }
             }
         });
 
-        this.containerView.setOnLongClickListener(new View.OnLongClickListener() {
+        this.folderCard.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (!item.mime.equals(BaseAction.FOLDER_MIME)) {
-                    UtilsView.fileLongClickPopup(containerView, item, fileClickInterface);
+                    UtilsView.fileLongClickPopup(folderCard, item, fileClickInterface);
                 }
                 return true;
             }

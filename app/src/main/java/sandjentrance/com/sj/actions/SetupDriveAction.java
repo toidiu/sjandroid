@@ -54,7 +54,7 @@ public class SetupDriveAction extends BaseAction {
         List<ParentReference> parents = new ArrayList<>();
         parents.add(new ParentReference().setId(parentId));
 
-        if (checkAndCreateArchive(parents) && checkAndCreatePhotos(parents)) {
+        if (checkAndCreateArchive(parents, parentId) && checkAndCreatePhotos(parents, parentId)) {
             prefs.setBaseFolderId(parentId);
             return new SetupDriveActionEventSuccess();
         } else {
@@ -62,59 +62,5 @@ public class SetupDriveAction extends BaseAction {
         }
 
     }
-
-    @NonNull
-    private boolean checkAndCreateArchive(List<ParentReference> parents) {
-        List<FileObj> dataFromApi = getFoldersByName(ARCHIVE_FOLDER_SETUP, parentId);
-
-        if (dataFromApi.size() == 0) {
-            File archive = new File();
-            archive.setTitle(ARCHIVE_FOLDER_SETUP);
-            archive.setMimeType(FOLDER_MIME);
-            archive.setParents(parents);
-
-            try {
-                File file = driveService.files().insert(archive)
-//                        .setFields("id")
-                        .execute();
-                prefs.setArchiveFolderId(file.getId());
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-            prefs.setArchiveFolderId(dataFromApi.get(0).id);
-            return true;
-        }
-    }
-
-    @NonNull
-    private boolean checkAndCreatePhotos(List<ParentReference> parents) {
-        List<FileObj> dataFromApi = getFoldersByName(PHOTOS_FOLDER_SETUP, parentId);
-
-        if (dataFromApi.size() == 0) {
-            File photos = new File();
-            photos.setTitle(PHOTOS_FOLDER_SETUP);
-            photos.setMimeType(FOLDER_MIME);
-            photos.setParents(parents);
-
-            try {
-                File file = driveService.files()
-                        .insert(photos)
-//                        .setFields("id")
-                        .execute();
-                prefs.setPhotosFolderId(file.getId());
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-            prefs.setPhotosFolderId(dataFromApi.get(0).id);
-            return true;
-        }
-    }
-
 
 }

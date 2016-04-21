@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
@@ -287,9 +288,10 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void printClicked(FileObj fileObj) {
-        progress.setVisibility(View.VISIBLE);
-        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
+        Toast.makeText(GenericFileListActivity.this, "TODO", Toast.LENGTH_SHORT).show();
+//        progress.setVisibility(View.VISIBLE);
+//        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+//        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
     }
 
     @Override

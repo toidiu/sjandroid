@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
@@ -47,6 +49,8 @@ import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
 import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
+import sandjentrance.com.sj.actions.DownloadFileActionEventFailure;
+import sandjentrance.com.sj.actions.DownloadFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
@@ -84,7 +88,8 @@ import sandjentrance.com.sj.views.SpaceItemDecoration;
         RenameFileAction.class,
         ArchiveFileAction.class,
         GetUserImgAction.class,
-        DbAddNewFileAction.class
+        DbAddNewFileAction.class,
+        DownloadFileAction.class
 })
 public class ProjDetailActivity extends BaseActivity implements FileClickInterface, FabAddFileInterface {
 
@@ -127,7 +132,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
 
             if (!newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
                 LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
-                openLocalFile(localFileObj, null);
+                openLocalFile(localFileObj, progress);
             }
         }
 
@@ -217,7 +222,24 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             }
         }
 
+        @Override
+        public void onEventMainThread(DownloadFileActionEventFailure event) {
+            progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
+        }
 
+        @Override
+        public void onEventMainThread(DownloadFileActionEventSuccess event) {
+            progress.setVisibility(View.GONE);
+            if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
+                LocalFileObj localFileObj = event.localFileObj;
+                if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.EDIT.name())) {
+                    openLocalFile(localFileObj, progress);
+                } else if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.SHARE.name())) {
+                    shareIntentFile(localFileObj);
+                }
+            }
+        }
     };
     //endregion
     //endregion
@@ -349,7 +371,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         GridLayoutManager layoutManager = new GridLayoutManager(this, 4);
         recyclerView.setLayoutManager(layoutManager);
 
-        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.spacing);
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.proj_detail_spacing);
         recyclerView.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
 
         adapter = new ProjDetailAdapter(this);
@@ -441,13 +463,6 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
-    public void editClicked(FileObj fileObj) {
-        progress.setVisibility(View.VISIBLE);
-        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.EDIT.name()));
-    }
-
-    @Override
     public void renameLongClicked(FileObj fileObj) {
         DialogRenameFile.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
@@ -459,13 +474,25 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
-    public void shareClicked(FileObj fileObj) {
+    public void editClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.EDIT.name()));
+    }
 
+    @Override
+    public void shareClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.SHARE.name()));
     }
 
     @Override
     public void printClicked(FileObj fileObj) {
-
+        Toast.makeText(this, "TODO", Toast.LENGTH_SHORT).show();
+//        progress.setVisibility(View.VISIBLE);
+//        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+//        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
     }
 
     @Override

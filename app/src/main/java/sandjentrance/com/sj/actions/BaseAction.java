@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
+import com.google.api.services.drive.model.Property;
 import com.j256.ormlite.dao.Dao;
 
 import java.io.FileOutputStream;
@@ -36,10 +38,10 @@ import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
-import sandjentrance.com.sj.utils.UtilFile;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
+import sandjentrance.com.sj.utils.UtilFile;
 
 
 /**
@@ -159,6 +161,81 @@ public class BaseAction implements Action {
         return dataFromApi;
     }
 
+    protected boolean claimProj(String fileId) {
+        File fileMetadata = new File();
+        List<Property> pp = new ArrayList<>();
+        Property property = new Property();
+        property.setKey(CLAIM_PROPERTY).setValue(credential.getSelectedAccountName());
+        pp.add(property);
+        fileMetadata.setProperties(pp);
+
+        try {
+            File file = driveService.files().update(fileId, fileMetadata)
+                    .execute();
+            FileObj fileObj = new FileObj(file);
+
+            Dao<FileObj, Integer> dao = databaseHelper.getClaimProjDao();
+            List<FileObj> fileObjList = dao.queryForEq("id", fileObj.id);
+            if (fileObjList.isEmpty()) {
+                dao.create(fileObj);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @NonNull
+    protected boolean checkAndCreateArchive(List<ParentReference> parents, String parentId) {
+        List<FileObj> dataFromApi = getFoldersByName(ARCHIVE_FOLDER_SETUP, parentId);
+
+        if (dataFromApi.size() == 0) {
+            File archive = new File();
+            archive.setTitle(ARCHIVE_FOLDER_SETUP);
+            archive.setMimeType(FOLDER_MIME);
+            archive.setParents(parents);
+
+            try {
+                File file = driveService.files().insert(archive)
+                        .execute();
+                prefs.setArchiveFolderId(file.getId());
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            prefs.setArchiveFolderId(dataFromApi.get(0).id);
+            return true;
+        }
+    }
+
+    @NonNull
+    protected boolean checkAndCreatePhotos(List<ParentReference> parents, String parentId) {
+        List<FileObj> dataFromApi = getFoldersByName(PHOTOS_FOLDER_SETUP, parentId);
+
+        if (dataFromApi.size() == 0) {
+            File photos = new File();
+            photos.setTitle(PHOTOS_FOLDER_SETUP);
+            photos.setMimeType(FOLDER_MIME);
+            photos.setParents(parents);
+
+            try {
+                File file = driveService.files()
+                        .insert(photos)
+                        .execute();
+                prefs.setPhotosFolderId(file.getId());
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            prefs.setPhotosFolderId(dataFromApi.get(0).id);
+            return true;
+        }
+    }
     //endregion
 
     //region File Helper----------------------

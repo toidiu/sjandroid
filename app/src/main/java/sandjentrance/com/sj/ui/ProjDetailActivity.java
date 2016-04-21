@@ -354,7 +354,6 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         adapter = new ProjDetailAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        //// FIXME: 4/13/16 receive event and replace image if it exists
         PennStation.requestAction(PsGetUserImgAction.helper(fileObj.claimUser));
         Picasso.with(this).load(ImageUtil.getAvatarFile(this, fileObj.claimUser)).placeholder(R.drawable.profile_image).into(profileImg);
         profileImg.setOnClickListener(new View.OnClickListener() {

@@ -46,9 +46,7 @@ public class UploadUserImageAction extends BaseAction {
         }
 
 
-        File createdFile = null;
-        boolean deleteSatisfied = true;
-
+        File createdFile;
         //check if the file already exists
         List<File> fileByName = getFileByName(fileUploadObj.fileName, prefs.getPhotosFolderId());
         if (fileByName != null && fileByName.size() > 0) {
@@ -60,8 +58,7 @@ public class UploadUserImageAction extends BaseAction {
         }
 
 
-        if (createdFile != null && deleteSatisfied) {
-            //fixme delete from DB and also the local file
+        if (createdFile != null) {
             return new UploadFileActionEventSuccess();
         } else {
             return new UploadFileActionEventFailure();

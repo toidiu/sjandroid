@@ -41,9 +41,6 @@ public class ImageUtil {
         // "RECREATE" THE NEW BITMAP
         Bitmap resizedBitmap = Bitmap.createBitmap(
                 bm, 0, 0, width, height, matrix, false);
-//fixme !!! make sure we dont need this
-//        http://stackoverflow.com/questions/3879992/get-bitmap-from-an-uri-android
-//        bm.recycle();
         return resizedBitmap;
     }
 

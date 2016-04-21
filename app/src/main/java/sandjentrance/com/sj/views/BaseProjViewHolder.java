@@ -36,7 +36,6 @@ public class BaseProjViewHolder extends RecyclerView.ViewHolder {
                 if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     fileClickInterface.folderClicked(item);
                 }
-                //// FIXME: 4/3/16 check if its a pdf  or picture and open it
             }
         });
 

@@ -3,13 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black_50"
+    tools:background="@color/colorPrimary"
     tools:context=".ui.MainActivity">
 
     <RelativeLayout
         android:id="@+id/layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:alpha="0.0"
+        android:scaleX="1.05"
+        android:scaleY="1.05"
+        tools:alpha="1.0">
 
         <RelativeLayout
             android:layout_width="wrap_content"

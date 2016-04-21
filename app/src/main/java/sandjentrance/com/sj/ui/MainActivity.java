@@ -14,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -66,6 +67,10 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     ProgressBar progress;
     @Bind(R.id.signin)
     View signinView;
+    @Bind(R.id.logo)
+    ImageView logoView;
+    @Bind(R.id.layout)
+    View layout;
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
@@ -80,14 +85,16 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((SJApplication) getApplication()).getAppComponent().inject(this);
+        if (prefs.getBaseFolderId() != null) {
+            startBaseProjActivity();
+            return;
+        }
+
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
-
-        ((SJApplication) getApplication()).getAppComponent().inject(this);
-
         Log.d("log", "-----------1");
-        init();
-        initBg();
+        initView();
     }
 
     @Override
@@ -233,10 +240,10 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     //endregion
 
     //region Init----------------------
-    private void init() {
-        if (prefs.getBaseFolderId() != null) {
-            startBaseProjActivity();
-        }
+    private void initView() {
+        Picasso.with(this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
+        initBg();
+
         signinView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -246,12 +253,12 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     }
 
     protected void initBg() {
-        final View layout = findViewById(R.id.layout);
         ViewTreeObserver vto = layout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Picasso.with(MainActivity.this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
+                Picasso.with(MainActivity.this).load(R.drawable.app_bg)
+                        .into(new BgImageLoader(getResources(), layout, true));
             }
         });
     }

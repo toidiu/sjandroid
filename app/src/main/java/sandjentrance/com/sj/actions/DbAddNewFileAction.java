@@ -49,13 +49,7 @@ public class DbAddNewFileAction extends BaseAction {
             String localFileName = newFileObj.parentName + System.currentTimeMillis();
 
             if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
-                //fixme just handle photo file and set "newFileObj.localFilePath"
-//            }else if (newFileObj.parentName.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
-//            } else if (newFileObj.parentName.equals(BaseAction.FAB_FOLDER_NAME)) {
-//
-//            } else if (newFileObj.parentName.equals(BaseAction.LABOUR_FOLDER_NAME)) {
-//
-//            } else if (newFileObj.parentName.equals(BaseAction.NOTES_FOLDER_NAME)) {
+                //photo file should already have path
             } else {
                 File localFile = FileUtils.copyAssetsFile(context.getAssets(), newFileObj.assetFileName, localFileName, newFileObj.mime);
                 newFileObj.localFilePath = localFile.getAbsolutePath();
@@ -65,7 +59,6 @@ public class DbAddNewFileAction extends BaseAction {
 
         try {
             databaseHelper.getNewFileObjDao().create(newFileObj);
-//            PennStation.postLocalStickyEvent(new DbAddNewFileActionEventSuccess(newFileObj));
             return new DbAddNewFileActionEventSuccess(newFileObj);
         } catch (SQLException e) {
             e.printStackTrace();

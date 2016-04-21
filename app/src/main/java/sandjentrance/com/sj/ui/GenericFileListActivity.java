@@ -262,19 +262,14 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void renameLongClicked(FileObj fileObj) {
-                DialogRenameFile.getInstance(fileObj).show(getSupportFragmentManager(), null);
+        DialogRenameFile.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
 
     @Override
     public void moveLongClicked(FileObj fileObj) {
-                moveFolderHelper.startMove(fileObj.id, fileObj.parent);
-                PennStation.postLocalEvent(new MoveFileActionEventPrime());
+        moveFolderHelper.startMove(fileObj.id, fileObj.parent);
+        PennStation.postLocalEvent(new MoveFileActionEventPrime());
     }
-
-//    @Override
-//    public void fileLongClicked(FileObj fileObj) {
-//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
-//    }
 
     @Override
     public void shareClicked(FileObj fileObj) {

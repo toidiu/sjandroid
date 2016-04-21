@@ -457,12 +457,6 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         PennStation.postLocalEvent(new MoveFileActionEventPrime());
     }
 
-
-//    @Override
-//    public void fileLongClicked(FileObj fileObj) {
-//        DialogChooseFileAction.getInstance(fileObj).show(getSupportFragmentManager(), null);
-//    }
-
     @Override
     public void shareClicked(FileObj fileObj) {
 

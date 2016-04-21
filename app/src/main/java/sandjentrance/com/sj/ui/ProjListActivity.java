@@ -167,6 +167,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         }
 
         PennStation.requestAction(PsUploadNewFileAction.helper());
+        PennStation.requestAction(PsUploadFileAction.helper());
     }
 
     @Override

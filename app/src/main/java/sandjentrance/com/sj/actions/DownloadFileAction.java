@@ -14,13 +14,17 @@ import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
 import com.edisonwang.ps.lib.PennStation;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 
 import sandjentrance.com.sj.actions.DbAddUploadFileAction_.PsDbAddUploadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.models.LocalFileObj;
+import sandjentrance.com.sj.utils.UtilFile;
 
 
 /**
@@ -29,38 +33,66 @@ import sandjentrance.com.sj.models.LocalFileObj;
 @RequestAction
 @RequestActionHelper(variables = {
         @ClassField(name = "fileDl", kind = @Kind(clazz = FileDownloadObj.class), required = true),
+        @ClassField(name = "ActionEnum", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
         @EventClass(classPostFix = "Success", fields = {
                 @ParcelableClassField(name = "localFileObj", kind = @Kind(clazz = LocalFileObj.class)),
+                @ParcelableClassField(name = "ActionEnum", kind = @Kind(clazz = String.class)),
         }),
         @EventClass(classPostFix = "Failure")
 })
 
 public class DownloadFileAction extends BaseAction {
 
-    //~=~=~=~=~=~=~=~=~=~=~=~=Field
-
     @Override
     public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
         super.processRequest(service, actionRequest, bundle);
         DownloadFileActionHelper helper = PsDownloadFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
         FileDownloadObj fileDlObj = helper.fileDl();
+        String actionEnum = helper.ActionEnum();
 
         if (credential.getSelectedAccountName() == null) {
             return new SetupDriveActionEventFailure();
         }
 
-        File localFile = downloadFile(fileDlObj);
+        File localFile = null;
+        if (actionEnum.equals(ActionEnum.EDIT.name())) {
+            File fileLocation = UtilFile.getLocalFile(fileDlObj.fileId, fileDlObj.mime);
+            localFile = downloadFile(fileDlObj, fileLocation);
+        } else {
+            //see if local file exists and copy it over to cache
+            File tempFile = UtilFile.getLocalFile(fileDlObj.fileId, fileDlObj.mime);
+            File fileLocation = UtilFile.getCachedFile(fileDlObj.fileName, fileDlObj.mime);
 
-        if (localFile != null) {
+            if (tempFile != null || tempFile.exists()) {
+                try {
+                    FileUtils.copyFile(tempFile, fileLocation);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            localFile = downloadFile(fileDlObj, fileLocation);
+        }
+
+        if (localFile != null && localFile.exists()) {
             LocalFileObj localFileObj = new LocalFileObj(localFile.getName(), fileDlObj.mime, localFile.getAbsolutePath());
 
-            PennStation.requestAction(PsDbAddUploadFileAction.helper(new FileUploadObj(fileDlObj.parentId, fileDlObj.fileId, fileDlObj.fileName, localFile.getAbsolutePath(), fileDlObj.mime)));
-            return new DownloadFileActionEventSuccess(localFileObj);
+            if (actionEnum.equals(ActionEnum.EDIT.name())) {
+                PennStation.requestAction(PsDbAddUploadFileAction.helper(new FileUploadObj(fileDlObj.parentId, fileDlObj.fileId, fileDlObj.fileName, localFile.getAbsolutePath(), fileDlObj.mime)));
+            }
+            return new DownloadFileActionEventSuccess(localFileObj, actionEnum);
         } else {
             return new DownloadFileActionEventFailure();
         }
     }
+
+    //~=~=~=~=~=~=~=~=~=~=~=~=Field
+    public enum ActionEnum {
+        SHARE,
+        PRINT,
+        EDIT
+    }
+
 
 }

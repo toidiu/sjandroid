@@ -87,4 +87,22 @@ public class BaseActivity extends AppCompatActivity {
             startActivityForResult(intent, OPEN_FILE_REQUEST_CODE);
         }
     }
+
+    public void shareIntentFile(LocalFileObj localFileObj) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+//        intent.putExtra(Intent.EXTRA_SUBJECT, "subject");
+        intent.putExtra(Intent.EXTRA_TEXT, "I have attached the requested file..");
+
+        File file = new File(localFileObj.localPath);
+        if (!file.exists() || !file.canRead()) {
+            Toast.makeText(this, "Attachment Error", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        Uri uri = Uri.fromFile(file);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(intent, "Send email..."));
+    }
 }

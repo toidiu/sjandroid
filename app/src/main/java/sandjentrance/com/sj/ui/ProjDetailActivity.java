@@ -46,6 +46,7 @@ import sandjentrance.com.sj.actions.DbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
 import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
+import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
@@ -281,7 +282,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             case R.id.menu_claim:
                 claimProject();
             default:
-                // If we got here, the user's action was not recognized.
+                // If we got here, the user's ActionEnum was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
         }
@@ -443,7 +444,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     public void editClicked(FileObj fileObj) {
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.EDIT.name()));
     }
 
     @Override

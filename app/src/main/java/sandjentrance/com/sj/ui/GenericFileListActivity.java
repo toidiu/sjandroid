@@ -4,6 +4,7 @@ package sandjentrance.com.sj.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -25,6 +26,7 @@ import sandjentrance.com.sj.actions.ArchiveFileActionEventFailure;
 import sandjentrance.com.sj.actions.ArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
+import sandjentrance.com.sj.actions.DownloadFileAction.ActionEnum;
 import sandjentrance.com.sj.actions.DownloadFileActionEventFailure;
 import sandjentrance.com.sj.actions.DownloadFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
@@ -116,14 +118,19 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         @Override
         public void onEventMainThread(DownloadFileActionEventFailure event) {
             progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEventMainThread(DownloadFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
-                LocalFileObj localFileObj = event.localFileObj;
-                openLocalFile(localFileObj, progress);
+                    LocalFileObj localFileObj = event.localFileObj;
+                if (event.ActionEnum.equals(ActionEnum.EDIT.name())) {
+                    openLocalFile(localFileObj, progress);
+                }else if(event.ActionEnum.equals(ActionEnum.SHARE.name())){
+                    shareIntentFile(localFileObj);
+                }
             }
         }
 
@@ -205,7 +212,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
                 progress.setVisibility(View.VISIBLE);
                 return true;
             default:
-                // If we got here, the user's action was not recognized.
+                // If we got here, the user's ActionEnum was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
         }
@@ -273,19 +280,23 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void shareClicked(FileObj fileObj) {
-
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.SHARE.name()));
     }
 
     @Override
     public void printClicked(FileObj fileObj) {
-
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
     }
 
     @Override
     public void editClicked(FileObj fileObj) {
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj));
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.EDIT.name()));
     }
     //endregion
 

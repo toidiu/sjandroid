@@ -222,8 +222,7 @@ public class BaseAction implements Action {
     }
 
     @Nullable
-    protected java.io.File downloadFile(FileDownloadObj fileDownloadObj) {
-        java.io.File localFile = UtilFile.getLocalFile(fileDownloadObj.fileId, fileDownloadObj.mime);
+    protected java.io.File downloadFile(FileDownloadObj fileDownloadObj, java.io.File localFile) {
         if (localFile == null) {
             return null;
         } else if (localFile.exists()) {
@@ -233,15 +232,7 @@ public class BaseAction implements Action {
             FileOutputStream fileOutputStream = null;
             try {
                 fileOutputStream = new FileOutputStream(localFile);
-//                if (fileDownloadObj.mime.equals(MIME_PDF))
-//                {
-//                    driveService.files().export(fileDownloadObj.fileId, MIME_PDF)
-//                            .executeMediaAndDownloadTo(fileOutputStream);
-//                }else if(fileDownloadObj.mime.equals(MIME_JPEG)) {
                 driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
-//                }else {
-//                    return null;
-//                }
 
                 return localFile;
             } catch (IOException e) {

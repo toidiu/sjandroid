@@ -1,8 +1,8 @@
 package sandjentrance.com.sj.utils;
 
-import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.actions.BaseAction;
 
 /**
@@ -28,15 +29,44 @@ public class UtilFile {
             name = idOrName + ".jpg";
         }
 
-//        assert name != null;
-//        return new File(context.getFilesDir(), name);
-        File sj = new File(Environment.getExternalStorageDirectory(), "SJ");
-        sj.mkdirs();
+        File sj = getLocalAppFolder();
         if (name == null) {
             return null;
         } else {
             return new File(sj, name);
         }
+    }
+
+    public static File getCachedFile(String idOrName, String mime) {
+        String name = null;
+        if (mime.equals(BaseAction.MIME_PDF) && !idOrName.endsWith(".pdf")) {
+            name = idOrName + ".pdf";
+        } else if (mime.equals(BaseAction.MIME_PNG) && !idOrName.endsWith(".png") || (!idOrName.endsWith(".jpg") && mime.equals(BaseAction.MIME_JPEG))) {
+            name = idOrName + ".jpg";
+        } else {
+            name = idOrName;
+        }
+
+        File cacheAppFolder = getCustomCacheAppFolder();
+        File file = new File(cacheAppFolder, name);
+        if (file.exists()) {
+            file.delete();
+        }
+        return file;
+    }
+
+    @NonNull
+    private static File getCustomCacheAppFolder() {
+        File cache = SJApplication.appContext.getExternalCacheDir();
+        cache.mkdirs();
+        return cache;
+    }
+
+    @NonNull
+    public static File getLocalAppFolder() {
+        File sj = new File(Environment.getExternalStorageDirectory(), "SJ");
+        sj.mkdirs();
+        return sj;
     }
 
     public static boolean deleteLocalFile(File file) {
@@ -48,7 +78,7 @@ public class UtilFile {
     }
 
 
-    public static File copyAssetsFile(AssetManager assetManager , String assetFileName, String newName,  String mime) {
+    public static File copyAssetsFile(AssetManager assetManager, String assetFileName, String newName, String mime) {
         File localFile = getLocalFile(newName, mime);
 
         try {

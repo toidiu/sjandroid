@@ -134,6 +134,12 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     //region Interface----------------------
     @Override
     public void itemClicked(final String type) {
+        if (type.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
+            String name = "photo" + System.currentTimeMillis() + ".jpg";
+            createNewFile(type, name);
+            return;
+        }
+
         fileNameContainer.setVisibility(View.VISIBLE);
         UtilKeyboard.toggleKeyboard(getActivity());
         fileNameEdit.requestFocus();

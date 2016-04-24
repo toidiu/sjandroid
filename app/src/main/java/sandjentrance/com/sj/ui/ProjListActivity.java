@@ -49,8 +49,8 @@ import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
-import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
+import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjListAdapter;
 import sandjentrance.com.sj.utils.UtilFile;
@@ -223,7 +223,11 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         DelayedTextWatcher.OnTextChanged projSearchTextChanged = new DelayedTextWatcher.OnTextChanged() {
             @Override
             public void onTextChanged(String text) {
-                refreshFileListFromText();
+                if (text.isEmpty())
+                    actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+                else
+                    refreshFileListFromText();
+
             }
         };
         DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 500);

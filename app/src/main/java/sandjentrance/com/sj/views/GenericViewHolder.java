@@ -40,6 +40,18 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
 
     public void bind(final FileObj item, final FileClickInterface fileClickInterface) {
         this.titleView.setText(item.title);
+        DateTime parse = DateTime.parse(item.lastModified);
+        modifiedView.setText(UtilsDate.dateFormatter.print(parse));
+
+        if (FileObj.isFolder(item.mime)) {
+            Picasso.with(SJApplication.appContext).load(R.drawable.ic_content_folder).into(fileIconView);
+            overflowView.setVisibility(View.GONE);
+        } else if (item.mime.equals(BaseAction.MIME_DWG1) ) {
+            overflowView.setVisibility(View.GONE);
+        } else {
+            Picasso.with(SJApplication.appContext).load(R.drawable.ic_document).into(fileIconView);
+        }
+
         this.containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,9 +70,6 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
             }
         });
 
-        DateTime parse = DateTime.parse(item.lastModified);
-        modifiedView.setText(UtilsDate.dateFormatter.print(parse));
-
         this.containerView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -71,10 +80,5 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
             }
         });
 
-        if (FileObj.isFolder(item.mime)) {
-            Picasso.with(SJApplication.appContext).load(R.drawable.ic_content_folder).into(fileIconView);
-        } else {
-            Picasso.with(SJApplication.appContext).load(R.drawable.ic_document).into(fileIconView);
-        }
     }
 }

@@ -40,7 +40,8 @@ import sandjentrance.com.sj.utils.UtilFile;
                 @ParcelableClassField(name = "localFileObj", kind = @Kind(clazz = LocalFileObj.class)),
                 @ParcelableClassField(name = "ActionEnum", kind = @Kind(clazz = String.class)),
         }),
-        @EventClass(classPostFix = "Failure")
+        @EventClass(classPostFix = "Failure"),
+        @EventClass(classPostFix = "DwgConversion")
 })
 
 public class DownloadFileAction extends BaseAction {
@@ -61,8 +62,9 @@ public class DownloadFileAction extends BaseAction {
             File fileLocation = UtilFile.getLocalFile(fileDlObj.fileId, fileDlObj.mime);
             localFile = downloadFile(fileDlObj, fileLocation);
         } else {
-            //see if local file exists and copy it over to cache
+            //if we print or share.. see if local file exists and copy it over to cache
             File tempFile = UtilFile.getLocalFile(fileDlObj.fileId, fileDlObj.mime);
+            //make a file in the cache folder
             File fileLocation = UtilFile.getCachedFile(fileDlObj.fileName, fileDlObj.mime);
 
             if (tempFile != null || tempFile.exists()) {
@@ -78,7 +80,12 @@ public class DownloadFileAction extends BaseAction {
         if (localFile != null && localFile.exists()) {
             LocalFileObj localFileObj = new LocalFileObj(localFile.getName(), fileDlObj.mime, localFile.getAbsolutePath());
 
-            if (actionEnum.equals(ActionEnum.EDIT.name())) {
+            if (fileDlObj.mime.equals(BaseAction.MIME_DWG1) && actionEnum.equals(ActionEnum.EDIT.name())) {
+                //fixme zamzar conversion
+                //do the zamzar conversion and don upload because we dont need to reupload the file
+
+                return new DownloadFileActionEventDwgConversion();
+            } else if (actionEnum.equals(ActionEnum.EDIT.name())) {
                 PennStation.requestAction(PsDbAddUploadFileAction.helper(new FileUploadObj(fileDlObj.parentId, fileDlObj.fileId, fileDlObj.fileName, localFile.getAbsolutePath(), fileDlObj.mime)));
             }
             return new DownloadFileActionEventSuccess(localFileObj, actionEnum);

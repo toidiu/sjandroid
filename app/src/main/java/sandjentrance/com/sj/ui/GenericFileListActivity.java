@@ -27,6 +27,7 @@ import sandjentrance.com.sj.actions.ArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction.ActionEnum;
+import sandjentrance.com.sj.actions.DownloadFileActionEventDwgConversion;
 import sandjentrance.com.sj.actions.DownloadFileActionEventFailure;
 import sandjentrance.com.sj.actions.DownloadFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
@@ -134,6 +135,12 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
                     printIntentFile(localFileObj);
                 }
             }
+        }
+
+        @Override
+        public void onEventMainThread(DownloadFileActionEventDwgConversion event) {
+            progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.zamzar_started, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
@@ -290,10 +297,6 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void printClicked(FileObj fileObj) {
-//        progress.setVisibility(View.VISIBLE);
-//        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-//        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.SHARE.name()));
-
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));

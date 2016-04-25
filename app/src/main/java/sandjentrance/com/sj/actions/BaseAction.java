@@ -77,6 +77,9 @@ public class BaseAction implements Action {
     public static final String MIME_JPEG = "image/jpeg";
     public static final String MIME_PNG = "image/png";
     public static final String MIME_PDF = "application/pdf";
+    public static final String MIME_DWG1 = "application/acad";
+    public static final String MIME_DWG2 = "image/vnd.dwg";
+
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject
     Context context;

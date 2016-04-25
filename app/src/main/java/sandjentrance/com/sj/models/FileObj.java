@@ -24,6 +24,17 @@ import sandjentrance.com.sj.actions.BaseAction;
 @ParcelablePlease
 public class FileObj implements Parcelable {
 
+    public static final Creator<FileObj> CREATOR = new Creator<FileObj>() {
+        public FileObj createFromParcel(Parcel source) {
+            FileObj target = new FileObj();
+            FileObjParcelablePlease.readFromParcel(target, source);
+            return target;
+        }
+
+        public FileObj[] newArray(int size) {
+            return new FileObj[size];
+        }
+    };
     //region Fields----------------------
     @DatabaseField(generatedId = true)
     public Integer dbId;
@@ -44,24 +55,18 @@ public class FileObj implements Parcelable {
     @android.support.annotation.Nullable
     @DatabaseField
     public String claimUser;
-    public static final Creator<FileObj> CREATOR = new Creator<FileObj>() {
-        public FileObj createFromParcel(Parcel source) {
-            FileObj target = new FileObj();
-            FileObjParcelablePlease.readFromParcel(target, source);
-            return target;
-        }
-
-        public FileObj[] newArray(int size) {
-            return new FileObj[size];
-        }
-    };
     //endregion
 
     //region Constructor----------------------
     public FileObj(File f) {
         this.id = f.getId();
         this.title = f.getTitle();
-        this.mime = f.getMimeType();
+
+        if (title.endsWith(".dwg")) {
+            this.mime = BaseAction.MIME_DWG1;
+        } else {
+            this.mime = f.getMimeType();
+        }
         this.lastModified = f.getModifiedDate().toString();
 
         List<User> owners = f.getOwners();

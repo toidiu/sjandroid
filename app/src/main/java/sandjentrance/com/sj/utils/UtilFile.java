@@ -27,7 +27,10 @@ public class UtilFile {
             name = idOrName + ".pdf";
         } else if (mime.equals(BaseAction.MIME_PNG) || mime.equals(BaseAction.MIME_JPEG)) {
             name = idOrName + ".jpg";
+        } else if (mime.equals(BaseAction.MIME_DWG1)) {
+            name = idOrName+ ".dwg";
         }
+
 
         File sj = getLocalAppFolder();
         if (name == null) {

@@ -49,6 +49,7 @@ import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
 import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
+import sandjentrance.com.sj.actions.DownloadFileActionEventDwgConversion;
 import sandjentrance.com.sj.actions.DownloadFileActionEventFailure;
 import sandjentrance.com.sj.actions.DownloadFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
@@ -240,6 +241,13 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                 }
             }
         }
+
+        @Override
+        public void onEventMainThread(DownloadFileActionEventDwgConversion event) {
+            progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.zamzar_started, Snackbar.LENGTH_SHORT).show();
+        }
+
     };
     //endregion
     //endregion

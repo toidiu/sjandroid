@@ -26,6 +26,7 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
     public final TextView titleView;
     public final TextView modifiedView;
     public final CircleImageView fileIconView;
+    private final View overflowView;
 
     public GenericViewHolder(View itemView) {
         super(itemView);
@@ -34,6 +35,7 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
         titleView = (TextView) itemView.findViewById(R.id.title);
         modifiedView = (TextView) itemView.findViewById(R.id.modified);
         fileIconView = (CircleImageView) itemView.findViewById(R.id.file_icon);
+        overflowView = itemView.findViewById(R.id.overflow);
     }
 
     public void bind(final FileObj item, final FileClickInterface fileClickInterface) {
@@ -44,8 +46,15 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
                 if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     fileClickInterface.folderClicked(item);
                 } else {
-                    UtilsView.fileClickPopup(containerView, item, fileClickInterface);
+                    fileClickInterface.editClicked(item);
                 }
+            }
+        });
+
+        overflowView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UtilsView.fileClickPopup(overflowView, item, fileClickInterface);
             }
         });
 

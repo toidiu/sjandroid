@@ -26,9 +26,6 @@ public class UtilsView {
                 if (listener != null) {
 
                     switch (menuItem.getItemId()) {
-                        case R.id.edit:
-                            listener.editClicked(fileObj);
-                            return true;
                         case R.id.share:
                             listener.shareClicked(fileObj);
                             return true;

@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
@@ -126,11 +125,13 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         public void onEventMainThread(DownloadFileActionEventSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
-                    LocalFileObj localFileObj = event.localFileObj;
+                LocalFileObj localFileObj = event.localFileObj;
                 if (event.ActionEnum.equals(ActionEnum.EDIT.name())) {
                     openLocalFile(localFileObj, progress);
-                }else if(event.ActionEnum.equals(ActionEnum.SHARE.name())){
+                } else if (event.ActionEnum.equals(ActionEnum.SHARE.name())) {
                     shareIntentFile(localFileObj);
+                } else if (event.ActionEnum.equals(ActionEnum.PRINT.name())) {
+                    printIntentFile(localFileObj);
                 }
             }
         }
@@ -147,6 +148,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
             refreshMenu();
         }
     };
+
     //endregion
     //endregion
 
@@ -288,10 +290,13 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void printClicked(FileObj fileObj) {
-        Toast.makeText(GenericFileListActivity.this, "TODO", Toast.LENGTH_SHORT).show();
 //        progress.setVisibility(View.VISIBLE);
 //        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-//        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
+//        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.SHARE.name()));
+
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
     }
 
     @Override

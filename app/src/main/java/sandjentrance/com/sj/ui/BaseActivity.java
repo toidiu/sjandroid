@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -103,5 +104,15 @@ public class BaseActivity extends AppCompatActivity {
         Uri uri = Uri.fromFile(file);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(Intent.createChooser(intent, "Send email..."));
+    }
+
+
+    protected void printIntentFile(LocalFileObj localFileObj) {
+        File file = new File(localFileObj.localPath);
+
+        Intent printIntent = new Intent(this, PrintDialogActivity.class);
+        printIntent.setDataAndType(Uri.fromFile(file), localFileObj.mime);
+        printIntent.putExtra("title", localFileObj.title);
+        startActivity(printIntent);
     }
 }

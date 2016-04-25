@@ -113,8 +113,6 @@ public class BaseAction implements Action {
 
         FileList result = driveService.files().list()
                 .setQ(search)
-//                .setSpaces("drive")
-//                .setFields(QUERY_FIELDS)
                 .execute();
         List<File> files = result.getItems();
 
@@ -354,6 +352,7 @@ public class BaseAction implements Action {
         //Local file
         java.io.File file = new java.io.File(fileUploadObj.localFilePath);
         if (!file.exists()) {
+            //fixme well this is not recoverable...
             return null;
         }
         FileContent mediaContent = new FileContent(fileUploadObj.mime, file);
@@ -373,7 +372,6 @@ public class BaseAction implements Action {
 
         try {
             return driveService.files().insert(fileMetadata, mediaContent)
-//                    .setFields(QUERY_FIELDS)
                     .execute();
         } catch (IOException e) {
             e.printStackTrace();
@@ -467,6 +465,7 @@ public class BaseAction implements Action {
             } else {
                 //no
                 createdFile = createFile(fileUploadObj);
+                //fixme this might also return a not null value if it fails
                 Log.d("d----------", "uploadFile: 1");
             }
         }

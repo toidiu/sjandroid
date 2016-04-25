@@ -52,7 +52,8 @@ public class UploadNewFileAction extends BaseAction {
         }
 
         if (!UtilNetwork.isDeviceOnline(context)) {
-            return null;
+            //fixme uncomment maybe
+//            return null;
         }
         for (NewFileObj obj : newFileObjs) {
             //locate proper folder else put in base of project folder

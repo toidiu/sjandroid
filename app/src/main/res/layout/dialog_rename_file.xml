@@ -51,7 +51,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rename"
         android:layout_centerHorizontal="true"
-        android:text="submit" />
+        android:background="@color/green_border"
+        android:padding="8dp"
+        android:text="submit"
+        android:textColor="@color/white" />
 
     <ProgressBar
         android:id="@+id/progress"

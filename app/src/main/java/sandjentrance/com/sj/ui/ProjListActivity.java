@@ -166,8 +166,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
             refreshFileListFromText();
         }
 
-        PennStation.requestAction(PsUploadNewFileAction.helper());
-        PennStation.requestAction(PsUploadFileAction.helper());
+        PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
+        PennStation.requestAction(PsUploadFileAction.helper(), longTaskQueue);
     }
 
     @Override
@@ -239,7 +239,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     private void refreshFileListFromText() {
         String searchName = searchView.getText().toString();
         if (searchName.isEmpty()) {
-            adapter.refreshView(new ArrayList<FileObj>());
+            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         } else if (searchName.length() < 3) {
             snackbar = Snackbar.make(recyclerView, R.string.search_proj_hint, Snackbar.LENGTH_INDEFINITE);
             snackbar.show();

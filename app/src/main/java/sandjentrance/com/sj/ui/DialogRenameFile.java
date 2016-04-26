@@ -35,7 +35,7 @@ public class DialogRenameFile extends BaseDialogFrag {
     //region Fields----------------------
     public static final String FILE_OBJ_EXTRA = "FILE_OBJ_EXTRA";
     @Bind(R.id.submit)
-    Button submitBtn;
+    View submitBtn;
     @Bind(R.id.orig_name)
     TextView origNameView;
     @Bind(R.id.rename)

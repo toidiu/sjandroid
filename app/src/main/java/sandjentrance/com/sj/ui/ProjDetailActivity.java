@@ -75,6 +75,7 @@ import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
+import sandjentrance.com.sj.ui.extras.ArchiveInterface;
 import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjDetailAdapter;
@@ -92,7 +93,7 @@ import sandjentrance.com.sj.views.SpaceItemDecoration;
         DbAddNewFileAction.class,
         DownloadFileAction.class
 })
-public class ProjDetailActivity extends BaseActivity implements FileClickInterface, FabAddFileInterface {
+public class ProjDetailActivity extends BaseActivity implements FileClickInterface, FabAddFileInterface, ArchiveInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
@@ -307,8 +308,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                 progress.setVisibility(View.VISIBLE);
                 return true;
             case R.id.menu_archive:
-                PennStation.requestAction(PsArchiveFileAction.helper(fileObj.id));
-                progress.setVisibility(View.VISIBLE);
+                DialogConfirmArchive.getInstance().show(getSupportFragmentManager(), null);
             case R.id.menu_claim:
                 claimProject();
             default:
@@ -515,6 +515,12 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             progress.setVisibility(View.VISIBLE);
             PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
         }
+    }
+
+    @Override
+    public void archiveClicked() {
+        PennStation.requestAction(PsArchiveFileAction.helper(fileObj.id));
+        progress.setVisibility(View.VISIBLE);
     }
     //endregion
 

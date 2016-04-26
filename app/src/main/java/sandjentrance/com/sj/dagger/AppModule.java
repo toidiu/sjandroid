@@ -2,6 +2,7 @@ package sandjentrance.com.sj.dagger;
 
 import android.content.Context;
 
+import com.edisonwang.ps.lib.LimitedQueueInfo;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
@@ -57,7 +58,7 @@ public class AppModule {
 //        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         Drive mService = new Drive.Builder(
                 transport, jsonFactory, credential)
-                .setApplicationName("Drive API Android Quickstart")
+                .setApplicationName("SJ")
                 .build();
 
 //        Drive driveService = new Drive.Builder(
@@ -66,6 +67,12 @@ public class AppModule {
 //                .build();
 
         return mService;
+    }
+
+    @Provides
+    @Singleton
+    LimitedQueueInfo provideLongTaskQueue() {
+        return new LimitedQueueInfo(100, 10, "persistQueue");
     }
 
     @Provides

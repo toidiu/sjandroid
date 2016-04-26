@@ -1,25 +1,16 @@
 package sandjentrance.com.sj.actions;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
-
 import com.edisonwang.ps.annotations.Event;
-
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-
-
-
 import com.edisonwang.ps.annotations.ParcelableField;
-
-import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
-import com.edisonwang.ps.lib.EventServiceImpl;
 import com.edisonwang.ps.lib.RequestEnv;
 import com.google.api.services.drive.model.File;
 
@@ -31,8 +22,8 @@ import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
 import sandjentrance.com.sj.actions.events.GetUserImgActionFailure;
 import sandjentrance.com.sj.actions.events.GetUserImgActionNoFile;
 import sandjentrance.com.sj.actions.events.GetUserImgActionSuccess;
-import sandjentrance.com.sj.utils.UtilsDate;
 import sandjentrance.com.sj.utils.UtilImage;
+import sandjentrance.com.sj.utils.UtilsDate;
 
 
 /**
@@ -59,7 +50,6 @@ public class GetUserImgAction extends BaseAction {
         java.io.File avatarFile = UtilImage.getAvatarFile(context, helper.userName());
         String fileName = avatarFile.getName();
 
-
         //see if file exists on server
         List<File> fileByName = getFileByName(fileName, prefs.getPhotosFolderId());
         // yes
@@ -84,6 +74,6 @@ public class GetUserImgAction extends BaseAction {
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new GetUserImgActionFailure();
     }
 }

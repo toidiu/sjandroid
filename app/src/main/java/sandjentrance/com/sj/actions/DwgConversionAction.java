@@ -13,6 +13,7 @@ import com.edisonwang.ps.annotations.Kind;
 import com.edisonwang.ps.annotations.ParcelableField;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
+import com.edisonwang.ps.lib.PennStation;
 import com.edisonwang.ps.lib.RequestEnv;
 import com.edisonwang.ps.lib.ResultDeliver;
 
@@ -21,11 +22,11 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.util.List;
 
+import sandjentrance.com.sj.actions.DbAddUploadFileAction_.PsDbAddUploadFileAction;
 import sandjentrance.com.sj.actions.DwgConversionAction_.PsDwgConversionAction;
 import sandjentrance.com.sj.actions.events.DwgConversionActionFailure;
 import sandjentrance.com.sj.actions.events.DwgConversionActionSuccess;
 import sandjentrance.com.sj.models.FileDownloadObj;
-import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.utils.UtilFile;
@@ -49,6 +50,7 @@ import sandjentrance.com.sj.utils.UtilZamzar;
 
 public class DwgConversionAction extends BaseAction {
 
+    public static final int DELAY_TIME = 5000;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private int errorCnt = 0;
     private PowerManager.WakeLock wakeLock;
@@ -84,7 +86,7 @@ public class DwgConversionAction extends BaseAction {
         //ask for status and if successful download file. Try 3 times
         Log.d("-----zamzar wait", "3");
         while (errorCnt <= 3) {
-            Thread.sleep(5000);
+            Thread.sleep(DELAY_TIME);
             Log.d("-----zamzar wait", "after 5 secs");
 
             UtilZamzar.AskResp askResp = UtilZamzar.askStatus(convert.id);
@@ -124,17 +126,19 @@ public class DwgConversionAction extends BaseAction {
         FileUploadObj fileUploadObj = new FileUploadObj(fileDownloadObj.parentId, null, pdfFileName, localPdfFile.getAbsolutePath(), MIME_PDF);
 
         List<com.google.api.services.drive.model.File> fileList = getFileByName(pdfFileName, fileDownloadObj.parentId);
+        com.google.api.services.drive.model.File createdFile;
         if (fileList.isEmpty()) {
             //create
-            createFile(fileUploadObj);
-            //// FIXME: 4/26/16 if this fails then add it to be uploaded later
-            //// FIXME: 4/26/16 also save it locally with the new id name
+            createdFile = createFile(fileUploadObj);
         } else {
             fileUploadObj.fileId = fileList.get(0).getId();
             //replace
-            //// FIXME: 4/26/16 if this fails then add it to be uploaded later
-            replaceFile(fileUploadObj);
+            createdFile = replaceFile(fileUploadObj);
         }
+        if (createdFile == null) {
+            PennStation.requestAction(PsDbAddUploadFileAction.helper(fileUploadObj));
+        }
+
     }
 
     @Override

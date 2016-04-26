@@ -1,20 +1,15 @@
 package sandjentrance.com.sj.actions;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
-
 import com.edisonwang.ps.annotations.Event;
-
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
-import com.edisonwang.ps.lib.EventServiceImpl;
 import com.edisonwang.ps.lib.RequestEnv;
 
 import sandjentrance.com.sj.actions.UnArchiveFileAction_.PsUnArchiveFileAction;
@@ -42,11 +37,6 @@ public class UnArchiveFileAction extends BaseAction {
     protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
         UnArchiveFileActionHelper helper = PsUnArchiveFileAction.helper(request.getArguments(getClass().getClassLoader()));
 
-        if (credential.getSelectedAccountName() == null) {
-            //// FIXME: 4/25/16
-//            return new SetupDriveFailure();
-        }
-
         if (fileMoved(helper.fileId(), prefs.getBaseFolderId())) {
             return new UnArchiveFileActionSuccess();
         } else {
@@ -56,6 +46,6 @@ public class UnArchiveFileAction extends BaseAction {
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new UnArchiveFileActionFailure();
     }
 }

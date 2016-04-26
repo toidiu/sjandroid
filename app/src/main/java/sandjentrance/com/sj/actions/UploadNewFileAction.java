@@ -1,7 +1,6 @@
 package sandjentrance.com.sj.actions;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
@@ -9,7 +8,6 @@ import com.edisonwang.ps.annotations.Event;
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
-import com.edisonwang.ps.lib.EventServiceImpl;
 import com.edisonwang.ps.lib.RequestEnv;
 import com.j256.ormlite.dao.Dao;
 
@@ -38,11 +36,6 @@ public class UploadNewFileAction extends BaseAction {
 
     @Override
     protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
-        if (credential.getSelectedAccountName() == null) {
-            //// FIXME: 4/25/16
-//            return new SetupDriveFailure();
-        }
-
         Dao<NewFileObj, Integer> newFileObjDao = null;
         List<NewFileObj> newFileObjs = new ArrayList<>();
         try {

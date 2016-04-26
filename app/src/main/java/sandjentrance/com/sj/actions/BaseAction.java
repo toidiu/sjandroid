@@ -11,6 +11,7 @@ import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.FullAction;
+import com.edisonwang.ps.lib.LimitedQueueInfo;
 import com.edisonwang.ps.lib.RequestEnv;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -95,6 +96,8 @@ public class BaseAction extends FullAction {
     RenameFileHelper renameFileHelper;
     @Inject
     DatabaseHelper databaseHelper;
+    @Inject
+    LimitedQueueInfo longTaskQueue;
 
     @Override
     protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
@@ -435,30 +438,8 @@ public class BaseAction extends FullAction {
             return null;
         }
         FileContent mediaContent = new FileContent(fileUploadObj.mime, file);
-//        FileInputStream inputStream = null;
-//        try {
-//            inputStream = new FileInputStream(file);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        assert inputStream != null;
-//        InputStreamContent in = new InputStreamContent(fileUploadObj.mime, inputStream);
-
-        //Drive file
-//        List<String> parents = new ArrayList<>();
-//        parents.add(fileUploadObj.parentId);
-//        File fileMetadata = new File();
-//        fileMetadata.setName(fileUploadObj.fileName);
-//        fileMetadata.setMimeType(fileUploadObj.mime);
-//        fileMetadata.setParents(parents);
-
 
         try {
-//            File driveFile = driveService.files()
-//                    .get(fileUploadObj.fileId)
-////                    .setFields(QUERY_FIELDS)
-//                    .execute();
-
             File execute = driveService.files()
                     .update(fileUploadObj.fileId, null, mediaContent)
                     .execute();

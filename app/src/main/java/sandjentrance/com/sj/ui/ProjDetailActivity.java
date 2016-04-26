@@ -281,7 +281,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             moveFolderHelper.resetState();
         }
 
-        PennStation.requestAction(PsUploadNewFileAction.helper());
+        PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
         refreshMenu();
     }
 

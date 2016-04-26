@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
+import com.edisonwang.ps.lib.LimitedQueueInfo;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.squareup.picasso.Picasso;
 
@@ -47,6 +48,8 @@ public class BaseActivity extends AppCompatActivity {
     ArchiveFileHelper archiveFileHelper;
     @Inject
     Context context;
+    @Inject
+    LimitedQueueInfo longTaskQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

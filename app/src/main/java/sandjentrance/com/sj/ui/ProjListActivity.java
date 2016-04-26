@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.edisonwang.ps.annotations.EventListener;
-import com.edisonwang.ps.lib.LimitedQueueInfo;
 import com.edisonwang.ps.lib.PennStation;
 
 import java.io.File;
@@ -203,14 +202,13 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
     //region Init----------------------
     private void initData() {
-        //fixme make separate queues
         progress.setVisibility(View.VISIBLE);
         actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         PennStation.requestAction(PsFindClaimedProjAction.helper());
 
-        LimitedQueueInfo persistQueue = new LimitedQueueInfo(100, 10, "persistQueue");
-        PennStation.requestAction(PsUploadNewFileAction.helper(), persistQueue);
-        PennStation.requestAction(PsUploadFileAction.helper(), persistQueue);
+
+        PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
+        PennStation.requestAction(PsUploadFileAction.helper(), longTaskQueue);
     }
 
     private void initView() {

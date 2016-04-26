@@ -1,20 +1,15 @@
 package sandjentrance.com.sj.actions;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
-
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Kind;
-
 import com.edisonwang.ps.annotations.ParcelableField;
-
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
-import com.edisonwang.ps.lib.EventServiceImpl;
 import com.edisonwang.ps.lib.RequestEnv;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
@@ -25,7 +20,6 @@ import java.util.List;
 
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionFailure;
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionSuccess;
-import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
 import sandjentrance.com.sj.models.FileObj;
 
 
@@ -44,11 +38,6 @@ public class FindClaimedProjAction extends BaseAction {
 
     @Override
     protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
-
-        if (credential.getSelectedAccountName() == null) {
-            //// FIXME: 4/25/16
-//            return new FindFolderChildrenActionFailure();
-        }
 
         String search =
                 "properties has { key='" + CLAIM_PROPERTY + "' and value='" + credential.getSelectedAccountName() + "' and visibility='PRIVATE' } "
@@ -90,6 +79,6 @@ public class FindClaimedProjAction extends BaseAction {
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new FindClaimedProjActionFailure();
     }
 }

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 
-import com.edisonwang.ps.lib.PennStation;
 import com.edmodo.cropper.CropImageView;
 
 import java.io.File;

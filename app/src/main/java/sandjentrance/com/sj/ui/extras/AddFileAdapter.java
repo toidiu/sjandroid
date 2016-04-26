@@ -10,10 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sandjentrance.com.sj.R;
-import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.ui.DialogAddFile;
 import sandjentrance.com.sj.views.AddFileViewHolder;
-import sandjentrance.com.sj.views.ProjViewHolder;
 
 
 /**

@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.edisonwang.ps.annotations.EventListener;
+import com.edisonwang.ps.lib.LimitedQueueInfo;
 import com.edisonwang.ps.lib.PennStation;
 
 import java.io.File;
@@ -29,23 +30,23 @@ import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction;
-import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
-import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction;
-import sandjentrance.com.sj.actions.DbFindClaimedProjListActionEventFailure;
-import sandjentrance.com.sj.actions.DbFindClaimedProjListActionEventSuccess;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction_.PsDbFindClaimedProjListAction;
 import sandjentrance.com.sj.actions.FindClaimedProjAction;
-import sandjentrance.com.sj.actions.FindClaimedProjActionEventFailure;
-import sandjentrance.com.sj.actions.FindClaimedProjActionEventSuccess;
 import sandjentrance.com.sj.actions.FindClaimedProjAction_.PsFindClaimedProjAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
 import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
+import sandjentrance.com.sj.actions.events.DbAddNewFileActionFailure;
+import sandjentrance.com.sj.actions.events.DbAddNewFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DbFindClaimedProjListActionFailure;
+import sandjentrance.com.sj.actions.events.DbFindClaimedProjListActionSuccess;
+import sandjentrance.com.sj.actions.events.FindClaimedProjActionFailure;
+import sandjentrance.com.sj.actions.events.FindClaimedProjActionSuccess;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
@@ -85,19 +86,19 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     //region PennStation----------------------
     ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
         @Override
-        public void onEventMainThread(FindClaimedProjActionEventFailure event) {
+        public void onEventMainThread(FindClaimedProjActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(FindClaimedProjActionEventSuccess event) {
+        public void onEventMainThread(FindClaimedProjActionSuccess event) {
             progress.setVisibility(View.GONE);
             adapter.refreshView(Arrays.asList(event.results));
 //            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         }
 
         @Override
-        public void onEventMainThread(DbAddNewFileActionEventSuccess event) {
+        public void onEventMainThread(DbAddNewFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             NewFileObj newFileObj = event.newFileObj;
             if (!newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
@@ -107,17 +108,17 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         }
 
         @Override
-        public void onEventMainThread(DbAddNewFileActionEventFailure event) {
+        public void onEventMainThread(DbAddNewFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(DbFindClaimedProjListActionEventFailure event) {
+        public void onEventMainThread(DbFindClaimedProjListActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(DbFindClaimedProjListActionEventSuccess event) {
+        public void onEventMainThread(DbFindClaimedProjListActionSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdClaimedList)) {
                 adapter.refreshView(Arrays.asList(event.results));
@@ -125,13 +126,13 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         }
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
+        public void onEventMainThread(FindFolderChildrenActionFailure event) {
             progress.setVisibility(View.GONE);
 //            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         }
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
+        public void onEventMainThread(FindFolderChildrenActionSuccess event) {
             progress.setVisibility(View.GONE);
             archiveFileHelper.wasArhived = false;
 
@@ -207,8 +208,9 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         PennStation.requestAction(PsFindClaimedProjAction.helper());
 
-        PennStation.requestAction(PsUploadNewFileAction.helper());
-        PennStation.requestAction(PsUploadFileAction.helper());
+        LimitedQueueInfo persistQueue = new LimitedQueueInfo(100, 10, "persistQueue");
+        PennStation.requestAction(PsUploadNewFileAction.helper(), persistQueue);
+        PennStation.requestAction(PsUploadFileAction.helper(), persistQueue);
     }
 
     private void initView() {

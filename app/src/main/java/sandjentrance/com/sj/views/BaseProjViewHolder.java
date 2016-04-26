@@ -8,7 +8,6 @@ import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.BaseProjClickInterface;
-import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
 /**
  * Created by toidiu on 4/2/16.

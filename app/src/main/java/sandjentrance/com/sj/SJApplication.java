@@ -11,7 +11,6 @@ import sandjentrance.com.sj.dagger.AppModule;
 import sandjentrance.com.sj.dagger.ApplicationComponent;
 import sandjentrance.com.sj.dagger.ContextModule;
 import sandjentrance.com.sj.dagger.DaggerApplicationComponent;
-import sandjentrance.com.sj.models.FileUploadObj;
 
 /**
  * Created by toidiu on 3/28/16.

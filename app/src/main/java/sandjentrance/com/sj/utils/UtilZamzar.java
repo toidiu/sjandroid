@@ -2,6 +2,10 @@ package sandjentrance.com.sj.utils;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -22,6 +26,7 @@ import sandjentrance.com.sj.SecretUtils;
 
 public class UtilZamzar {
 
+    public static final int TIMEOUT = 10;
     //region Helper----------------------
     private static OkHttpClient okHttpClient;
 
@@ -39,25 +44,33 @@ public class UtilZamzar {
                 return response.request().newBuilder().header("Authorization", credential).build();
             }
         });
-        client.connectTimeout(10, TimeUnit.SECONDS);
-        client.writeTimeout(10, TimeUnit.SECONDS);
-        client.readTimeout(15, TimeUnit.SECONDS);
+        client.connectTimeout(TIMEOUT, TimeUnit.SECONDS);
+        client.writeTimeout(TIMEOUT, TimeUnit.SECONDS);
+        client.readTimeout(TIMEOUT, TimeUnit.SECONDS);
         okHttpClient = client.build();
         return okHttpClient;
     }
     //endregion
 
     //region API CALLS----------------------
-    public static void info() throws IOException {
+    public static String info() {
         String endpoint = "https://sandbox.zamzar.com/v1/formats/dwg";
         Request request = new Request.Builder()
                 .url(endpoint).get().build();
 
-        Response execute = getClientInstance().newCall(request).execute();
-        Log.d("----------", execute.body().string());
+        Response execute = null;
+        try {
+            execute = getClientInstance().newCall(request).execute();
+            String string = execute.body().string();
+            Log.d("info----------", string);
+            return string;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static void convert(File sourceFile) throws Exception {
+    public static ConvertResp convert(File sourceFile) {
         String endpoint = "https://sandbox.zamzar.com/v1/jobs";
 
         String targetFormat = "pdf";
@@ -73,38 +86,93 @@ public class UtilZamzar {
         Request request = new Request.Builder()
                 .url(endpoint).post(requestBody).build();
 
-        Response execute = getClientInstance().newCall(request).execute();
-        Log.d("----------", execute.body().string());
+        Response execute = null;
+        try {
+            execute = getClientInstance().newCall(request).execute();
+            String string = execute.body().string();
+            Log.d("convert----------", string);
+            ConvertResp convertResp = new Gson().fromJson(string, ConvertResp.class);
+            return convertResp;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static void askStatus(int jobId) throws Exception {
+    public static AskResp askStatus(int jobId) {
         String endpoint = "https://sandbox.zamzar.com/v1/jobs/" + jobId;
         Request request = new Request.Builder()
                 .url(endpoint).get().build();
-        Response execute = getClientInstance().newCall(request).execute();
-        Log.d("----------", execute.body().string());
+        Response execute = null;
+        try {
+            execute = getClientInstance().newCall(request).execute();
+            String string = execute.body().string();
+            Log.d("askStatus----------", string);
+            AskResp askResp = new Gson().fromJson(string, AskResp.class);
+            return askResp;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static void download(int fileId, File localFile) throws IOException {
+    public static File download(int fileId, final File localFile) {
         String endpoint = "https://sandbox.zamzar.com/v1/files/" + fileId + "/content";
 
         Request request = new Request.Builder().url(endpoint).get().build();
-        Response execute = getClientInstance().newCall(request).execute();
+
+        try {
+            Response execute = getClientInstance().newCall(request).execute();
+//            if(execute.code() == 404){
+//                return null;
+//            }
+            BufferedInputStream bis = new BufferedInputStream(execute.body().byteStream());
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(localFile));
 
 
-        BufferedInputStream bis = new BufferedInputStream(execute.body().byteStream());
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(localFile));
-        int inByte;
-        while ((inByte = bis.read()) != -1) {
-            bos.write(inByte);
+//            byte[] buffer = new byte[1024];
+//            int len;
+//            while ((len = bis.read(buffer)) != -1) {
+//                bos.write(buffer, 0, len);
+//            }
+
+//            int inByte;
+//            while ((inByte = bis.read()) != -1) {
+//                bos.write(inByte);
+//            }
+//            Log.d("download----------", "File downloaded");
+//            execute.body().close();
+//            bos.close();
+//            bis.close();
+
+            FileUtils.copyInputStreamToFile(bis, localFile);
+            bis.close();
+            return localFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-
-        Log.d("----------", "File downloaded");
-
-        execute.body().close();
-        bos.close();
-        bis.close();
     }
     //endregion
+
+
+    public static class ConvertResp {
+        public Integer id;
+        public String key;
+        public String status;
+        public Integer credit_cost;
+    }
+
+    public static class AskResp {
+        public Integer id;
+        public String key;
+        public String status;
+        public TargetFiles[] target_files;
+    }
+
+    public static class TargetFiles {
+        public Integer id;
+        public String name;
+    }
 
 }

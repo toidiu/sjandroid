@@ -19,6 +19,19 @@ import sandjentrance.com.sj.actions.BaseAction;
  * Created by toidiu on 4/13/16.
  */
 public class UtilFile {
+    @NonNull
+    private static File getCustomCacheAppFolder() {
+        File cache = SJApplication.appContext.getExternalCacheDir();
+        cache.mkdirs();
+        return cache;
+    }
+
+    @NonNull
+    public static File getExternalAppFolder() {
+        File sj = new File(Environment.getExternalStorageDirectory(), "SJ");
+        sj.mkdirs();
+        return sj;
+    }
 
     @Nullable
     public static File getLocalFile(String idOrName, String mime) {
@@ -28,11 +41,11 @@ public class UtilFile {
         } else if (mime.equals(BaseAction.MIME_PNG) || mime.equals(BaseAction.MIME_JPEG)) {
             name = idOrName + ".jpg";
         } else if (mime.equals(BaseAction.MIME_DWG1)) {
-            name = idOrName+ ".dwg";
+            name = idOrName + ".dwg";
         }
 
 
-        File sj = getLocalAppFolder();
+        File sj = getExternalAppFolder();
         if (name == null) {
             return null;
         } else {
@@ -56,20 +69,6 @@ public class UtilFile {
             file.delete();
         }
         return file;
-    }
-
-    @NonNull
-    private static File getCustomCacheAppFolder() {
-        File cache = SJApplication.appContext.getExternalCacheDir();
-        cache.mkdirs();
-        return cache;
-    }
-
-    @NonNull
-    public static File getLocalAppFolder() {
-        File sj = new File(Environment.getExternalStorageDirectory(), "SJ");
-        sj.mkdirs();
-        return sj;
     }
 
     public static boolean deleteLocalFile(File file) {

@@ -22,27 +22,30 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.ArchiveFileAction;
-import sandjentrance.com.sj.actions.ArchiveFileActionEventFailure;
-import sandjentrance.com.sj.actions.ArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction.ActionEnum;
-import sandjentrance.com.sj.actions.DownloadFileActionEventDwgConversion;
-import sandjentrance.com.sj.actions.DownloadFileActionEventFailure;
-import sandjentrance.com.sj.actions.DownloadFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
+import sandjentrance.com.sj.actions.DwgConversionAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
-import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
-import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
-import sandjentrance.com.sj.actions.MoveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
-import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
-import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
+import sandjentrance.com.sj.actions.events.ArchiveFileActionFailure;
+import sandjentrance.com.sj.actions.events.ArchiveFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
+import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
+import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DwgConversionActionFailure;
+import sandjentrance.com.sj.actions.events.DwgConversionActionSuccess;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
+import sandjentrance.com.sj.actions.events.MoveFileActionFailure;
+import sandjentrance.com.sj.actions.events.MoveFileActionPrime;
+import sandjentrance.com.sj.actions.events.MoveFileActionSuccess;
+import sandjentrance.com.sj.actions.events.RenameFileActionFailure;
+import sandjentrance.com.sj.actions.events.RenameFileActionSuccess;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
@@ -54,7 +57,8 @@ import sandjentrance.com.sj.ui.extras.GenericListAdapter;
         MoveFileAction.class,
         RenameFileAction.class,
         ArchiveFileAction.class,
-        DownloadFileAction.class
+        DownloadFileAction.class,
+        DwgConversionAction.class
 })
 public class GenericFileListActivity extends BaseActivity implements FileClickInterface {
 
@@ -77,34 +81,34 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     //region PennStation----------------------
     GenericFileListActivityEventListener eventListener = new GenericFileListActivityEventListener() {
         @Override
-        public void onEventMainThread(ArchiveFileActionEventFailure event) {
+        public void onEventMainThread(ArchiveFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(RenameFileActionEventSuccess event) {
+        public void onEventMainThread(RenameFileActionSuccess event) {
             refreshFileList();
         }
 
         @Override
-        public void onEventMainThread(RenameFileActionEventFailure event) {
+        public void onEventMainThread(RenameFileActionFailure event) {
 
         }
 
         @Override
-        public void onEventMainThread(ArchiveFileActionEventSuccess event) {
+        public void onEventMainThread(ArchiveFileActionSuccess event) {
             progress.setVisibility(View.GONE);
         }
 
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
+        public void onEventMainThread(FindFolderChildrenActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
+        public void onEventMainThread(FindFolderChildrenActionSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
                 adapter.refreshView(Arrays.asList(event.results));
@@ -112,18 +116,18 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventFailure event) {
+        public void onEventMainThread(MoveFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(DownloadFileActionEventFailure event) {
+        public void onEventMainThread(DownloadFileActionFailure event) {
             progress.setVisibility(View.GONE);
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
-        public void onEventMainThread(DownloadFileActionEventSuccess event) {
+        public void onEventMainThread(DownloadFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
                 LocalFileObj localFileObj = event.localFileObj;
@@ -138,20 +142,33 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
 
         @Override
-        public void onEventMainThread(DownloadFileActionEventDwgConversion event) {
+        public void onEventMainThread(DownloadFileActionDwgConversion event) {
             progress.setVisibility(View.GONE);
             Snackbar.make(progress, R.string.zamzar_started, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventSuccess event) {
+        public void onEventMainThread(DwgConversionActionSuccess event) {
+            Snackbar.make(progress, R.string.zamzar_success, Snackbar.LENGTH_SHORT).show();
+            if (event.parentId.equals(fileObj.id)){
+                refreshFileList();
+            }
+        }
+
+        @Override
+        public void onEventMainThread(DwgConversionActionFailure event) {
+            Snackbar.make(progress, R.string.zamzar_failed, Snackbar.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onEventMainThread(MoveFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             refreshMenu();
             refreshFileList();
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventPrime event) {
+        public void onEventMainThread(MoveFileActionPrime event) {
             refreshMenu();
         }
     };
@@ -285,7 +302,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     @Override
     public void moveLongClicked(FileObj fileObj) {
         moveFolderHelper.startMove(fileObj.id, fileObj.parent);
-        PennStation.postLocalEvent(new MoveFileActionEventPrime());
+        PennStation.postLocalEvent(new MoveFileActionPrime());
     }
 
     @Override

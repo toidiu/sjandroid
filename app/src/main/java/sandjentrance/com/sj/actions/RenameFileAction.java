@@ -1,56 +1,67 @@
 package sandjentrance.com.sj.actions;
 
+import android.content.Context;
 import android.os.Bundle;
 
-import com.edisonwang.ps.annotations.ClassField;
-import com.edisonwang.ps.annotations.EventClass;
+import com.edisonwang.ps.annotations.Action;
+import com.edisonwang.ps.annotations.ActionHelper;
+
+import com.edisonwang.ps.annotations.Event;
+
 import com.edisonwang.ps.annotations.EventProducer;
+import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-import com.edisonwang.ps.annotations.RequestAction;
-import com.edisonwang.ps.annotations.RequestActionHelper;
+
+import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
+import com.edisonwang.ps.lib.RequestEnv;
 import com.google.api.services.drive.model.File;
 
 import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
+import sandjentrance.com.sj.actions.events.RenameFileActionFailure;
+import sandjentrance.com.sj.actions.events.RenameFileActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 
 
 /**
  * Created by toidiu on 3/28/16.
  */
-@RequestAction
-@RequestActionHelper(variables = {
-        @ClassField(name = "file", kind = @Kind(clazz = FileObj.class), required = true),
-        @ClassField(name = "newName", kind = @Kind(clazz = String.class), required = true)
+@Action
+@ActionHelper(args = {
+        @Field(name = "file", kind = @Kind(clazz = FileObj.class), required = true),
+        @Field(name = "newName", kind = @Kind(clazz = String.class), required = true)
 })
 @EventProducer(generated = {
-        @EventClass(classPostFix = "Success"),
-        @EventClass(classPostFix = "Failure")
+        @Event(postFix = "Success"),
+        @Event(postFix = "Failure")
 })
 
 public class RenameFileAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-
     @Override
-    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
-        super.processRequest(service, actionRequest, bundle);
-        RenameFileActionHelper helper = PsRenameFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
+        RenameFileActionHelper helper = PsRenameFileAction.helper(request.getArguments(getClass().getClassLoader()));
         FileObj fileObj = helper.file();
 
         if (credential.getSelectedAccountName() == null) {
-            return new SetupDriveActionEventFailure();
+            //// FIXME: 4/25/16
+//            return new SetupDriveFailure();
         }
 
 
         File file = renameFile(fileObj.id, helper.newName(), fileObj.parent);
         if (file != null) {
-            return new RenameFileActionEventSuccess();
+            return new RenameFileActionSuccess();
         } else {
-            return new RenameFileActionEventFailure();
+            return new RenameFileActionFailure();
         }
     }
 
+    @Override
+    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        return null;
+    }
 }

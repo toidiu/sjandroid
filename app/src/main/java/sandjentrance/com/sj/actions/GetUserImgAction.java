@@ -1,17 +1,26 @@
 package sandjentrance.com.sj.actions;
 
+import android.content.Context;
 import android.os.Bundle;
 
-import com.edisonwang.ps.annotations.ClassField;
-import com.edisonwang.ps.annotations.EventClass;
+import com.edisonwang.ps.annotations.Action;
+import com.edisonwang.ps.annotations.ActionHelper;
+
+import com.edisonwang.ps.annotations.Event;
+
 import com.edisonwang.ps.annotations.EventProducer;
+import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-import com.edisonwang.ps.annotations.ParcelableClassField;
-import com.edisonwang.ps.annotations.RequestAction;
-import com.edisonwang.ps.annotations.RequestActionHelper;
+
+
+
+import com.edisonwang.ps.annotations.ParcelableField;
+
+import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
+import com.edisonwang.ps.lib.RequestEnv;
 import com.google.api.services.drive.model.File;
 
 import org.joda.time.DateTime;
@@ -19,6 +28,9 @@ import org.joda.time.DateTime;
 import java.util.List;
 
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
+import sandjentrance.com.sj.actions.events.GetUserImgActionFailure;
+import sandjentrance.com.sj.actions.events.GetUserImgActionNoFile;
+import sandjentrance.com.sj.actions.events.GetUserImgActionSuccess;
 import sandjentrance.com.sj.utils.UtilsDate;
 import sandjentrance.com.sj.utils.UtilImage;
 
@@ -26,26 +38,24 @@ import sandjentrance.com.sj.utils.UtilImage;
 /**
  * Created by toidiu on 3/28/16.
  */
-@RequestAction
-@RequestActionHelper(variables = {
-        @ClassField(name = "userName", kind = @Kind(clazz = String.class), required = true),
+@Action
+@ActionHelper(args = {
+        @Field(name = "userName", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
-        @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "userName", kind = @Kind(clazz = String.class))
+        @Event(postFix = "Success", fields = {
+                @ParcelableField(name = "userName", kind = @Kind(clazz = String.class))
         }),
-        @EventClass(classPostFix = "Failure"),
-        @EventClass(classPostFix = "NoFile")
+        @Event(postFix = "Failure"),
+        @Event(postFix = "NoFile")
 })
 
 public class GetUserImgAction extends BaseAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
-
     @Override
-    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
-        super.processRequest(service, actionRequest, bundle);
-        GetUserImgActionHelper helper = PsGetUserImgAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
+        GetUserImgActionHelper helper = PsGetUserImgAction.helper(request.getArguments(getClass().getClassLoader()));
         java.io.File avatarFile = UtilImage.getAvatarFile(context, helper.userName());
         String fileName = avatarFile.getName();
 
@@ -60,16 +70,20 @@ public class GetUserImgAction extends BaseAction {
                 //download it
                 java.io.File file = downloadUserImg(avatarFile, fileByName.get(0).getId());
                 if (file == null || !file.exists()) {
-                    return new GetUserImgActionEventFailure();
+                    return new GetUserImgActionFailure();
                 }
-                return new GetUserImgActionEventSuccess(helper.userName());
+                return new GetUserImgActionSuccess(helper.userName());
             } else {
                 //no
-                return new GetUserImgActionEventFailure();
+                return new GetUserImgActionFailure();
             }
         } else {
-            return new GetUserImgActionEventNoFile();
+            return new GetUserImgActionNoFile();
         }
+    }
 
+    @Override
+    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        return null;
     }
 }

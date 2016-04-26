@@ -23,20 +23,20 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
-import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
-import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
-import sandjentrance.com.sj.actions.MoveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.RenameFileAction;
-import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
-import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.actions.UnArchiveFileAction;
-import sandjentrance.com.sj.actions.UnArchiveFileActionEventFailure;
-import sandjentrance.com.sj.actions.UnArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.UnArchiveFileAction_.PsUnArchiveFileAction;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
+import sandjentrance.com.sj.actions.events.MoveFileActionFailure;
+import sandjentrance.com.sj.actions.events.MoveFileActionPrime;
+import sandjentrance.com.sj.actions.events.MoveFileActionSuccess;
+import sandjentrance.com.sj.actions.events.RenameFileActionFailure;
+import sandjentrance.com.sj.actions.events.RenameFileActionSuccess;
+import sandjentrance.com.sj.actions.events.UnArchiveFileActionFailure;
+import sandjentrance.com.sj.actions.events.UnArchiveFileActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.FileArchiveListAdapter;
@@ -71,33 +71,33 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     //region PennStation----------------------
     ArchiveFileListActivityEventListener eventListener = new ArchiveFileListActivityEventListener() {
         @Override
-        public void onEventMainThread(UnArchiveFileActionEventSuccess event) {
+        public void onEventMainThread(UnArchiveFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             refreshFileList();
         }
 
         @Override
-        public void onEventMainThread(UnArchiveFileActionEventFailure event) {
+        public void onEventMainThread(UnArchiveFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(RenameFileActionEventSuccess event) {
+        public void onEventMainThread(RenameFileActionSuccess event) {
             refreshFileList();
         }
 
         @Override
-        public void onEventMainThread(RenameFileActionEventFailure event) {
+        public void onEventMainThread(RenameFileActionFailure event) {
 
         }
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
+        public void onEventMainThread(FindFolderChildrenActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
+        public void onEventMainThread(FindFolderChildrenActionSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
                 adapter.refreshView(Arrays.asList(event.results));
@@ -105,17 +105,17 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventPrime event) {
+        public void onEventMainThread(MoveFileActionPrime event) {
 
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventFailure event) {
+        public void onEventMainThread(MoveFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventSuccess event) {
+        public void onEventMainThread(MoveFileActionSuccess event) {
             progress.setVisibility(View.GONE);
 //            refreshMenu();
             refreshFileList();

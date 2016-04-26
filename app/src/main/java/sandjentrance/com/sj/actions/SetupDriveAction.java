@@ -1,38 +1,41 @@
 package sandjentrance.com.sj.actions;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
-import com.edisonwang.ps.annotations.ClassField;
-import com.edisonwang.ps.annotations.EventClass;
+import com.edisonwang.ps.annotations.Action;
+import com.edisonwang.ps.annotations.ActionHelper;
+
+import com.edisonwang.ps.annotations.Event;
+
 import com.edisonwang.ps.annotations.EventProducer;
+import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-import com.edisonwang.ps.annotations.RequestAction;
-import com.edisonwang.ps.annotations.RequestActionHelper;
+
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
-import com.google.api.services.drive.model.File;
+import com.edisonwang.ps.lib.RequestEnv;
 import com.google.api.services.drive.model.ParentReference;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
-import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.actions.SetupDriveAction_.PsSetupDriveAction;
+import sandjentrance.com.sj.actions.events.SetupDriveActionFailure;
+import sandjentrance.com.sj.actions.events.SetupDriveActionSuccess;
 
 
 /**
  * Created by toidiu on 3/28/16.
  */
-@RequestAction
-@RequestActionHelper(variables = {
-        @ClassField(name = "parentId", kind = @Kind(clazz = String.class), required = true),
+@Action
+@ActionHelper(args = {
+        @Field(name = "parentId", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
-        @EventClass(classPostFix = "Success"),
-        @EventClass(classPostFix = "Failure")
+        @Event(postFix = "Success"),
+        @Event(postFix = "Failure")
 })
 
 public class SetupDriveAction extends BaseAction {
@@ -40,15 +43,13 @@ public class SetupDriveAction extends BaseAction {
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private String parentId;
 
-
     @Override
-    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
-        super.processRequest(service, actionRequest, bundle);
-        FindFolderChildrenActionHelper helper = PsFindFolderChildrenAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
+        SetupDriveActionHelper helper = PsSetupDriveAction.helper(request.getArguments(getClass().getClassLoader()));
         parentId = helper.parentId();
 
         if (credential.getSelectedAccountName() == null) {
-            return new SetupDriveActionEventFailure();
+            return new SetupDriveActionFailure();
         }
 
         List<ParentReference> parents = new ArrayList<>();
@@ -56,11 +57,15 @@ public class SetupDriveAction extends BaseAction {
 
         if (checkAndCreateArchive(parents, parentId) && checkAndCreatePhotos(parents, parentId)) {
             prefs.setBaseFolderId(parentId);
-            return new SetupDriveActionEventSuccess();
+            return new SetupDriveActionSuccess();
         } else {
-            return new SetupDriveActionEventFailure();
+            return new SetupDriveActionFailure();
         }
 
     }
 
+    @Override
+    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        return null;
+    }
 }

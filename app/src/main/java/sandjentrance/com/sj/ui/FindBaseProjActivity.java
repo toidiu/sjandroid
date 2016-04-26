@@ -20,13 +20,13 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.FindBaseFolderAction;
-import sandjentrance.com.sj.actions.FindBaseFolderActionEventFailure;
-import sandjentrance.com.sj.actions.FindBaseFolderActionEventSuccess;
 import sandjentrance.com.sj.actions.FindBaseFolderAction_.PsFindBaseFolderAction;
 import sandjentrance.com.sj.actions.SetupDriveAction;
-import sandjentrance.com.sj.actions.SetupDriveActionEventFailure;
-import sandjentrance.com.sj.actions.SetupDriveActionEventSuccess;
 import sandjentrance.com.sj.actions.SetupDriveAction_.PsSetupDriveAction;
+import sandjentrance.com.sj.actions.events.FindBaseFolderActionFailure;
+import sandjentrance.com.sj.actions.events.FindBaseFolderActionSuccess;
+import sandjentrance.com.sj.actions.events.SetupDriveActionFailure;
+import sandjentrance.com.sj.actions.events.SetupDriveActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.BaseProjClickInterface;
 import sandjentrance.com.sj.ui.extras.BaseProjListAdapter;
@@ -51,25 +51,25 @@ public class FindBaseProjActivity extends BaseActivity implements BaseProjClickI
     //region PennStation----------------------
     FindBaseProjActivityEventListener eventListener = new FindBaseProjActivityEventListener() {
         @Override
-        public void onEventMainThread(FindBaseFolderActionEventFailure event) {
+        public void onEventMainThread(FindBaseFolderActionFailure event) {
             progress.setVisibility(View.GONE);
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
-        public void onEventMainThread(FindBaseFolderActionEventSuccess event) {
+        public void onEventMainThread(FindBaseFolderActionSuccess event) {
             progress.setVisibility(View.GONE);
             adapter.refreshView(Arrays.asList(event.results));
         }
 
         @Override
-        public void onEventMainThread(SetupDriveActionEventSuccess event) {
+        public void onEventMainThread(SetupDriveActionSuccess event) {
             progress.setVisibility(View.GONE);
             startProjListActivity();
         }
 
         @Override
-        public void onEventMainThread(SetupDriveActionEventFailure event) {
+        public void onEventMainThread(SetupDriveActionFailure event) {
             progress.setVisibility(View.GONE);
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }

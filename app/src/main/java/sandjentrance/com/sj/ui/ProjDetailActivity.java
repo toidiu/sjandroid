@@ -36,41 +36,41 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.ArchiveFileAction;
-import sandjentrance.com.sj.actions.ArchiveFileActionEventFailure;
-import sandjentrance.com.sj.actions.ArchiveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.ClaimProjAction;
-import sandjentrance.com.sj.actions.ClaimProjActionEventFailure;
-import sandjentrance.com.sj.actions.ClaimProjActionEventSuccess;
 import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction;
-import sandjentrance.com.sj.actions.DbAddNewFileActionEventFailure;
-import sandjentrance.com.sj.actions.DbAddNewFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
-import sandjentrance.com.sj.actions.DownloadFileActionEventDwgConversion;
-import sandjentrance.com.sj.actions.DownloadFileActionEventFailure;
-import sandjentrance.com.sj.actions.DownloadFileActionEventSuccess;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventFailure;
-import sandjentrance.com.sj.actions.FindFolderChildrenActionEventSuccess;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.GetUserImgAction;
-import sandjentrance.com.sj.actions.GetUserImgActionEventFailure;
-import sandjentrance.com.sj.actions.GetUserImgActionEventNoFile;
-import sandjentrance.com.sj.actions.GetUserImgActionEventSuccess;
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
-import sandjentrance.com.sj.actions.MoveFileActionEventFailure;
-import sandjentrance.com.sj.actions.MoveFileActionEventPrime;
-import sandjentrance.com.sj.actions.MoveFileActionEventSuccess;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
-import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
-import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
+import sandjentrance.com.sj.actions.events.ArchiveFileActionFailure;
+import sandjentrance.com.sj.actions.events.ArchiveFileActionSuccess;
+import sandjentrance.com.sj.actions.events.ClaimProjActionFailure;
+import sandjentrance.com.sj.actions.events.ClaimProjActionSuccess;
+import sandjentrance.com.sj.actions.events.DbAddNewFileActionFailure;
+import sandjentrance.com.sj.actions.events.DbAddNewFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
+import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
+import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
+import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
+import sandjentrance.com.sj.actions.events.GetUserImgActionFailure;
+import sandjentrance.com.sj.actions.events.GetUserImgActionNoFile;
+import sandjentrance.com.sj.actions.events.GetUserImgActionSuccess;
+import sandjentrance.com.sj.actions.events.MoveFileActionFailure;
+import sandjentrance.com.sj.actions.events.MoveFileActionPrime;
+import sandjentrance.com.sj.actions.events.MoveFileActionSuccess;
+import sandjentrance.com.sj.actions.events.RenameFileActionFailure;
+import sandjentrance.com.sj.actions.events.RenameFileActionSuccess;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
@@ -127,7 +127,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     //region PennStation----------------------
     ProjDetailActivityEventListener eventListener = new ProjDetailActivityEventListener() {
         @Override
-        public void onEventMainThread(DbAddNewFileActionEventSuccess event) {
+        public void onEventMainThread(DbAddNewFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             NewFileObj newFileObj = event.newFileObj;
 
@@ -138,41 +138,41 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         }
 
         @Override
-        public void onEventMainThread(DbAddNewFileActionEventFailure event) {
+        public void onEventMainThread(DbAddNewFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(ArchiveFileActionEventFailure event) {
+        public void onEventMainThread(ArchiveFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(ArchiveFileActionEventSuccess event) {
+        public void onEventMainThread(ArchiveFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             archiveFileHelper.wasArhived = true;
             finish();
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventPrime event) {
+        public void onEventMainThread(MoveFileActionPrime event) {
             refreshMenu();
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventSuccess event) {
+        public void onEventMainThread(MoveFileActionSuccess event) {
             refreshFileList();
             moveFolderHelper.resetState();
             refreshMenu();
         }
 
         @Override
-        public void onEventMainThread(MoveFileActionEventFailure event) {
+        public void onEventMainThread(MoveFileActionFailure event) {
 
         }
 
         @Override
-        public void onEventMainThread(ClaimProjActionEventSuccess event) {
+        public void onEventMainThread(ClaimProjActionSuccess event) {
             progress.setVisibility(View.GONE);
             claimBtn.setVisibility(View.GONE);
             fileObj.claimUser = event.claimUser;
@@ -180,27 +180,27 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         }
 
         @Override
-        public void onEventMainThread(ClaimProjActionEventFailure event) {
+        public void onEventMainThread(ClaimProjActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(RenameFileActionEventSuccess event) {
+        public void onEventMainThread(RenameFileActionSuccess event) {
             refreshFileList();
         }
 
         @Override
-        public void onEventMainThread(RenameFileActionEventFailure event) {
+        public void onEventMainThread(RenameFileActionFailure event) {
 
         }
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventFailure event) {
+        public void onEventMainThread(FindFolderChildrenActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(FindFolderChildrenActionEventSuccess event) {
+        public void onEventMainThread(FindFolderChildrenActionSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
                 adapter.refreshView(Arrays.asList(event.results));
@@ -208,29 +208,29 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         }
 
         @Override
-        public void onEventMainThread(GetUserImgActionEventFailure event) {
+        public void onEventMainThread(GetUserImgActionFailure event) {
         }
 
         @Override
-        public void onEventMainThread(GetUserImgActionEventNoFile event) {
+        public void onEventMainThread(GetUserImgActionNoFile event) {
 
         }
 
         @Override
-        public void onEventMainThread(GetUserImgActionEventSuccess event) {
+        public void onEventMainThread(GetUserImgActionSuccess event) {
             if (event.userName.equals(fileObj.claimUser)) {
                 invalidateAndSetUserImage();
             }
         }
 
         @Override
-        public void onEventMainThread(DownloadFileActionEventFailure event) {
+        public void onEventMainThread(DownloadFileActionFailure event) {
             progress.setVisibility(View.GONE);
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
-        public void onEventMainThread(DownloadFileActionEventSuccess event) {
+        public void onEventMainThread(DownloadFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
                 LocalFileObj localFileObj = event.localFileObj;
@@ -243,7 +243,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         }
 
         @Override
-        public void onEventMainThread(DownloadFileActionEventDwgConversion event) {
+        public void onEventMainThread(DownloadFileActionDwgConversion event) {
             progress.setVisibility(View.GONE);
             Snackbar.make(progress, R.string.zamzar_started, Snackbar.LENGTH_SHORT).show();
         }
@@ -478,7 +478,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     @Override
     public void moveLongClicked(FileObj fileObj) {
         moveFolderHelper.startMove(fileObj.id, fileObj.parent);
-        PennStation.postLocalEvent(new MoveFileActionEventPrime());
+        PennStation.postLocalEvent(new MoveFileActionPrime());
     }
 
     @Override

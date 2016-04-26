@@ -18,9 +18,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.RenameFileAction;
-import sandjentrance.com.sj.actions.RenameFileActionEventFailure;
-import sandjentrance.com.sj.actions.RenameFileActionEventSuccess;
 import sandjentrance.com.sj.actions.RenameFileAction_.PsRenameFileAction;
+import sandjentrance.com.sj.actions.events.RenameFileActionFailure;
+import sandjentrance.com.sj.actions.events.RenameFileActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.utils.UtilKeyboard;
 
@@ -47,13 +47,13 @@ public class DialogRenameFile extends BaseDialogFrag {
     //region PennStation----------------------
     private DialogRenameFileEventListener eventListener = new DialogRenameFileEventListener() {
         @Override
-        public void onEventMainThread(RenameFileActionEventSuccess event) {
+        public void onEventMainThread(RenameFileActionSuccess event) {
             dismiss();
             progress.setVisibility(View.GONE);
         }
 
         @Override
-        public void onEventMainThread(RenameFileActionEventFailure event) {
+        public void onEventMainThread(RenameFileActionFailure event) {
             progress.setVisibility(View.GONE);
         }
     };

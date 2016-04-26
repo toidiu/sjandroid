@@ -20,7 +20,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
-import sandjentrance.com.sj.actions.UploadUserImageAction_.PsUploadUserImageAction;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.utils.UtilImage;
 
@@ -57,13 +56,13 @@ public class UserImageCropActivity extends BaseActivity {
     //region PennStation----------------------
 //    UserImageCropActivityEventListener eventListener = new UserImageCropActivityEventListener() {
 //        @Override
-//        public void onEventMainThread(UploadFileActionEventFailure event) {
+//        public void onEventMainThread(UploadFileActionFailure event) {
 //            progress.setVisibility(View.GONE);
 //            Snackbar.make(cropImageView, "Error, please check your connection.", Snackbar.LENGTH_SHORT).show();
 //        }
 //
 //        @Override
-//        public void onEventMainThread(UploadFileActionEventSuccess event) {
+//        public void onEventMainThread(UploadFileActionSuccess event) {
 //            progress.setVisibility(View.GONE);
 //            finish();
 //        }
@@ -135,7 +134,8 @@ public class UserImageCropActivity extends BaseActivity {
         if (file != null) {
             File avatarFile = UtilImage.getAvatarFile(UserImageCropActivity.this, prefs.getUser());
             FileUploadObj fileUploadObj = new FileUploadObj(prefs.getPhotosFolderId(), null, avatarFile.getName(), file.getAbsolutePath(), BaseAction.MIME_JPEG);
-            PennStation.requestAction(PsUploadUserImageAction.helper(fileUploadObj));
+//// FIXME: 4/25/16
+//            PennStation.requestAction(PsUploadUserImageAction.helper(fileUploadObj));
         }
 
         setResult(RESULT_OK);

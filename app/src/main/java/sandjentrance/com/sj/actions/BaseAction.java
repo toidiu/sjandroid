@@ -1,18 +1,17 @@
 package sandjentrance.com.sj.actions;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.edisonwang.ps.annotations.EventClass;
+import com.edisonwang.ps.annotations.ActionHelper;
+import com.edisonwang.ps.annotations.Event;
 import com.edisonwang.ps.annotations.EventProducer;
-import com.edisonwang.ps.annotations.RequestAction;
-import com.edisonwang.ps.lib.Action;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
-import com.edisonwang.ps.lib.EventServiceImpl;
+import com.edisonwang.ps.lib.FullAction;
+import com.edisonwang.ps.lib.RequestEnv;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.FileContent;
@@ -47,11 +46,12 @@ import sandjentrance.com.sj.utils.UtilFile;
 /**
  * Created by toidiu on 3/28/16.
  */
-@RequestAction
+@ActionHelper
 @EventProducer(generated = {
-        @EventClass
+        @Event
 })
-public class BaseAction implements Action {
+@com.edisonwang.ps.annotations.Action
+public class BaseAction extends FullAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     public static final String CLAIM_PROPERTY = "claim";
@@ -97,7 +97,19 @@ public class BaseAction implements Action {
     DatabaseHelper databaseHelper;
 
     @Override
-    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
+    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
+        //do nothing
+        return null;
+    }
+
+    @Override
+    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        //do nothing
+        return null;
+    }
+
+    @Override
+    protected ActionResult preProcess(Context context, ActionRequest request, RequestEnv env) {
         ((SJApplication) SJApplication.appContext).getAppComponent().inject(this);
 
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -107,8 +119,41 @@ public class BaseAction implements Action {
                 .setApplicationName("SJ")
                 .build();
 
-        return new BaseActionEvent();
+        return super.preProcess(context, request, env);
     }
+
+//    @Override
+//    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
+//        ((SJApplication) SJApplication.appContext).getAppComponent().inject(this);
+//
+//        HttpTransport transport = AndroidHttp.newCompatibleTransport();
+//        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+//        driveService = new Drive.Builder(
+//                transport, jsonFactory, credential)
+//                .setApplicationName("SJ")
+//                .build();
+//
+//        return null;
+//    }
+//
+//    @Override
+//    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+//        return null;
+//    }
+
+//    @Override
+//    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
+//        ((SJApplication) SJApplication.appContext).getAppComponent().inject(this);
+//
+//        HttpTransport transport = AndroidHttp.newCompatibleTransport();
+//        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+//        driveService = new Drive.Builder(
+//                transport, jsonFactory, credential)
+//                .setApplicationName("SJ")
+//                .build();
+//
+//        return new BaseActionEvent();
+//    }
 
     //region Folder Helper----------------------
     protected List<File> executeQueryList(String search) throws IOException {
@@ -254,9 +299,9 @@ public class BaseAction implements Action {
 
     }
 
-    protected List<File> getFileByName(String fileName, String baseFolderId) {
+    protected List<File> getFileByName(String fileName, String parentId) {
         String search = "title = '" + fileName + "'"
-                + " and " + "'" + baseFolderId + "'" + " in parents";
+                + " and " + "'" + parentId + "'" + " in parents";
 
         List<File> dataFromApi = new ArrayList<>();
         try {
@@ -479,6 +524,7 @@ public class BaseAction implements Action {
 
         return false;
     }
+
 
 //endregion
 

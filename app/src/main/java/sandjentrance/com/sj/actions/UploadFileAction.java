@@ -1,14 +1,18 @@
 package sandjentrance.com.sj.actions;
 
+import android.content.Context;
 import android.os.Bundle;
 
-import com.edisonwang.ps.annotations.EventClass;
+import com.edisonwang.ps.annotations.Action;
+import com.edisonwang.ps.annotations.ActionHelper;
+import com.edisonwang.ps.annotations.Event;
+
 import com.edisonwang.ps.annotations.EventProducer;
-import com.edisonwang.ps.annotations.RequestAction;
-import com.edisonwang.ps.annotations.RequestActionHelper;
+
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.EventServiceImpl;
+import com.edisonwang.ps.lib.RequestEnv;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
@@ -22,25 +26,23 @@ import sandjentrance.com.sj.utils.UtilNetwork;
 /**
  * Created by toidiu on 3/28/16.
  */
-@RequestAction
-@RequestActionHelper()
+@Action
+@ActionHelper()
 @EventProducer(generated = {
-        @EventClass(classPostFix = "Success"),
-        @EventClass(classPostFix = "Failure")
+        @Event(postFix = "Success"),
+        @Event(postFix = "Failure")
 })
 
 public class UploadFileAction extends BaseAction {
 
-    //~=~=~=~=~=~=~=~=~=~=~=~=Field
-
     @Override
-    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
-        super.processRequest(service, actionRequest, bundle);
-//        UploadFileActionHelper helper = PsUploadFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
+        //        UploadFileActionHelper helper = PsUploadFileAction.helper(request.getArguments(getClass().getClassLoader()));
 //        FileUploadObj fileUploadObj = helper.fileUploadObj();
 
         if (credential.getSelectedAccountName() == null) {
-            return new SetupDriveActionEventFailure();
+            //// FIXME: 4/25/16
+//            return new SetupDriveFailure();
         }
         if (!UtilNetwork.isDeviceOnline(context)) {
             return null;
@@ -68,5 +70,8 @@ public class UploadFileAction extends BaseAction {
         return null;
     }
 
-
+    @Override
+    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        return null;
+    }
 }

@@ -1,18 +1,18 @@
 package sandjentrance.com.sj.actions;
 
-import android.os.Bundle;
+import android.content.Context;
 
-import com.edisonwang.ps.annotations.ClassField;
-import com.edisonwang.ps.annotations.EventClass;
+import com.edisonwang.ps.annotations.Action;
+import com.edisonwang.ps.annotations.ActionHelper;
+import com.edisonwang.ps.annotations.Event;
 import com.edisonwang.ps.annotations.EventProducer;
+import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-import com.edisonwang.ps.annotations.ParcelableClassField;
-import com.edisonwang.ps.annotations.RequestAction;
-import com.edisonwang.ps.annotations.RequestActionHelper;
+import com.edisonwang.ps.annotations.ParcelableField;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
-import com.edisonwang.ps.lib.EventServiceImpl;
 import com.edisonwang.ps.lib.PennStation;
+import com.edisonwang.ps.lib.RequestEnv;
 
 import org.apache.commons.io.FileUtils;
 
@@ -21,6 +21,10 @@ import java.io.IOException;
 
 import sandjentrance.com.sj.actions.DbAddUploadFileAction_.PsDbAddUploadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
+import sandjentrance.com.sj.actions.DwgConversionAction_.PsDwgConversionAction;
+import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
+import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
+import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.models.LocalFileObj;
@@ -30,31 +34,31 @@ import sandjentrance.com.sj.utils.UtilFile;
 /**
  * Created by toidiu on 3/28/16.
  */
-@RequestAction
-@RequestActionHelper(variables = {
-        @ClassField(name = "fileDl", kind = @Kind(clazz = FileDownloadObj.class), required = true),
-        @ClassField(name = "ActionEnum", kind = @Kind(clazz = String.class), required = true),
+@Action
+@ActionHelper(args = {
+        @Field(name = "fileDl", kind = @Kind(clazz = FileDownloadObj.class), required = true),
+        @Field(name = "ActionEnum", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
-        @EventClass(classPostFix = "Success", fields = {
-                @ParcelableClassField(name = "localFileObj", kind = @Kind(clazz = LocalFileObj.class)),
-                @ParcelableClassField(name = "ActionEnum", kind = @Kind(clazz = String.class)),
+        @Event(postFix = "Success", fields = {
+                @ParcelableField(name = "localFileObj", kind = @Kind(clazz = LocalFileObj.class)),
+                @ParcelableField(name = "ActionEnum", kind = @Kind(clazz = String.class)),
         }),
-        @EventClass(classPostFix = "Failure"),
-        @EventClass(classPostFix = "DwgConversion")
+        @Event(postFix = "Failure"),
+        @Event(postFix = "DwgConversion")
 })
 
 public class DownloadFileAction extends BaseAction {
 
     @Override
-    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
-        super.processRequest(service, actionRequest, bundle);
-        DownloadFileActionHelper helper = PsDownloadFileAction.helper(actionRequest.getArguments(getClass().getClassLoader()));
+    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
+        DownloadFileActionHelper helper = PsDownloadFileAction.helper(request.getArguments(getClass().getClassLoader()));
         FileDownloadObj fileDlObj = helper.fileDl();
         String actionEnum = helper.ActionEnum();
 
         if (credential.getSelectedAccountName() == null) {
-            return new SetupDriveActionEventFailure();
+            //// FIXME: 4/25/16
+//            return new SetupDriveActionFailure();
         }
 
         File localFile = null;
@@ -81,17 +85,21 @@ public class DownloadFileAction extends BaseAction {
             LocalFileObj localFileObj = new LocalFileObj(localFile.getName(), fileDlObj.mime, localFile.getAbsolutePath());
 
             if (fileDlObj.mime.equals(BaseAction.MIME_DWG1) && actionEnum.equals(ActionEnum.EDIT.name())) {
-                //fixme zamzar conversion
-                //do the zamzar conversion and don upload because we dont need to reupload the file
-
-                return new DownloadFileActionEventDwgConversion();
+                //do the zamzar conversion and dont upload because we dont need to reupload the DWG file
+                PennStation.requestAction(PsDwgConversionAction.helper(fileDlObj, localFileObj));
+                return new DownloadFileActionDwgConversion();
             } else if (actionEnum.equals(ActionEnum.EDIT.name())) {
                 PennStation.requestAction(PsDbAddUploadFileAction.helper(new FileUploadObj(fileDlObj.parentId, fileDlObj.fileId, fileDlObj.fileName, localFile.getAbsolutePath(), fileDlObj.mime)));
             }
-            return new DownloadFileActionEventSuccess(localFileObj, actionEnum);
+            return new DownloadFileActionSuccess(localFileObj, actionEnum);
         } else {
-            return new DownloadFileActionEventFailure();
+            return new DownloadFileActionFailure();
         }
+    }
+
+    @Override
+    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        return null;
     }
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field

@@ -32,23 +32,23 @@ public class AddFileViewHolder extends RecyclerView.ViewHolder {
         switch (item) {
             case BaseAction.PURCHASE_FOLDER_NAME:
                 textView.setText(BaseAction.PURCHASE_FOLDER_NAME);
-                Picasso.with(SJApplication.appContext).load(R.drawable.purchase_order).into(imageView);
+                Picasso.with(SJApplication.appContext).load(R.drawable.ic_purchase_order).into(imageView);
                 break;
             case BaseAction.FAB_FOLDER_NAME:
                 textView.setText(BaseAction.FAB_FOLDER_NAME);
-                Picasso.with(SJApplication.appContext).load(R.drawable.fab_sheet).into(imageView);
+                Picasso.with(SJApplication.appContext).load(R.drawable.ic_fab_sheets).into(imageView);
                 break;
             case BaseAction.LABOUR_FOLDER_NAME:
                 textView.setText(BaseAction.LABOUR_FOLDER_NAME);
-                Picasso.with(SJApplication.appContext).load(R.drawable.project_labor_request).into(imageView);
+                Picasso.with(SJApplication.appContext).load(R.drawable.ic_project_labor_request).into(imageView);
                 break;
             case BaseAction.PHOTOS_FOLDER_NAME:
                 textView.setText(BaseAction.PHOTOS_FOLDER_NAME);
-                Picasso.with(SJApplication.appContext).load(R.drawable.camera).into(imageView);
+                Picasso.with(SJApplication.appContext).load(R.drawable.ic_photos).into(imageView);
                 break;
             case BaseAction.NOTES_FOLDER_NAME:
                 textView.setText(BaseAction.NOTES_FOLDER_NAME);
-                Picasso.with(SJApplication.appContext).load(R.drawable.note).into(imageView);
+                Picasso.with(SJApplication.appContext).load(R.drawable.ic_notes).into(imageView);
                 break;
             default:
                 break;

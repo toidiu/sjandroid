@@ -51,6 +51,7 @@ import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.GenericListAdapter;
+import sandjentrance.com.sj.ui.extras.ShareInterface;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -60,7 +61,7 @@ import sandjentrance.com.sj.ui.extras.GenericListAdapter;
         DownloadFileAction.class,
         DwgConversionAction.class
 })
-public class GenericFileListActivity extends BaseActivity implements FileClickInterface {
+public class GenericFileListActivity extends BaseActivity implements FileClickInterface, ShareInterface {
 
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
@@ -307,9 +308,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void shareClicked(FileObj fileObj) {
-        progress.setVisibility(View.VISIBLE);
-        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.SHARE.name()));
+        DialogDailyLogs.getInstance(fileObj).show(getSupportFragmentManager(), null);
     }
 
     @Override
@@ -324,6 +323,13 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.EDIT.name()));
+    }
+
+    @Override
+    public void dialogShareClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.SHARE.name()));
     }
     //endregion
 

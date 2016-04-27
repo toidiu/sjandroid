@@ -26,6 +26,8 @@ import com.google.api.services.drive.model.ParentReference;
 import com.google.api.services.drive.model.Property;
 import com.j256.ormlite.dao.Dao;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -357,21 +359,19 @@ public class BaseAction extends FullAction {
             //download it
             FileOutputStream fileOutputStream = null;
             try {
-                fileOutputStream = new FileOutputStream(localFile);
+                java.io.File temp = UtilFile.getTempLocalFile(fileDownloadObj.mime);
+                fileOutputStream = new FileOutputStream(temp);
                 driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
+                fileOutputStream.close();
 
+                if (temp.exists()){
+                    FileUtils.copyFile(temp, localFile);
+                    temp.delete();
+                }
                 return localFile;
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
-            } finally {
-                if (fileOutputStream != null) {
-                    try {
-                        fileOutputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
     }
@@ -403,7 +403,9 @@ public class BaseAction extends FullAction {
         //Local file
         java.io.File file = new java.io.File(fileUploadObj.localFilePath);
         if (!file.exists()) {
-            //fixme well this is not recoverable...
+            Log.e("-------no file exists", "file : "+fileUploadObj.localFilePath);
+
+            //Markme We should never be here and precautions should have been taken to prevent this
             return null;
         }
         FileContent mediaContent = new FileContent(fileUploadObj.mime, file);

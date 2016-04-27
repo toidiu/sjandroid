@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
@@ -11,6 +12,7 @@ import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.RequestEnv;
 import com.j256.ormlite.dao.Dao;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +50,19 @@ public class UploadFileAction extends BaseAction {
         }
 
         for (FileUploadObj obj : fileUploadObjs) {
-            boolean uploaded = uploadFile(fileUploadDao, obj);
-            if (uploaded){
-                try {
-                    fileUploadDao.deleteById(obj.dbId);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            if (!new File(obj.localFilePath).exists()) {
+                //Markme the file no longer exists so delete it
+                //// FIXME: 4/27/16 log crash
+                Crashlytics.getInstance().core.logException(new Exception("A file to be uploaded was deleted."));
+                fileUploadDao.deleteById(obj.dbId);
+            } else {
+                boolean uploaded = uploadFile(fileUploadDao, obj);
+                if (uploaded) {
+                    try {
+                        fileUploadDao.deleteById(obj.dbId);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

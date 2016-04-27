@@ -3,9 +3,11 @@ package sandjentrance.com.sj;
 import android.app.Application;
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.lib.EventService;
 import com.edisonwang.ps.lib.PennStation;
 
+import io.fabric.sdk.android.Fabric;
 import sandjentrance.com.sj.dagger.ApiModules;
 import sandjentrance.com.sj.dagger.AppModule;
 import sandjentrance.com.sj.dagger.ApplicationComponent;
@@ -23,6 +25,7 @@ public class SJApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         appContext = this.getApplicationContext();
 
         PennStation.init(this, new PennStation.PennStationOptions(EventService.class)); //or extended class.

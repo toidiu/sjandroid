@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
@@ -239,6 +238,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                     openLocalFile(localFileObj, progress);
                 } else if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.SHARE.name())) {
                     shareIntentFile(localFileObj);
+                } else if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.PRINT.name())) {
+                    printIntentFile(localFileObj);
                 }
             }
         }
@@ -386,7 +387,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         recyclerView.setAdapter(adapter);
 
         PennStation.requestAction(PsGetUserImgAction.helper(fileObj.claimUser));
-        Picasso.with(this).load(UtilImage.getAvatarFile(this, fileObj.claimUser)).placeholder(R.drawable.profile_image).into(profileImg);
+        Picasso.with(this).load(UtilImage.getAvatarFile(this, fileObj.claimUser)).placeholder(R.drawable.ic_profile_image).into(profileImg);
         profileImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -430,7 +431,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     private void invalidateAndSetUserImage() {
         Picasso.with(this).invalidate(UtilImage.getAvatarFile(this, fileObj.claimUser));
         Picasso.with(this).load(UtilImage.getAvatarFile(this, fileObj.claimUser))
-                .placeholder(R.drawable.profile_image)
+                .placeholder(R.drawable.ic_profile_image)
                 .networkPolicy(NetworkPolicy.NO_CACHE)
                 .memoryPolicy(MemoryPolicy.NO_CACHE).into(profileImg);
     }
@@ -497,10 +498,9 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
 
     @Override
     public void printClicked(FileObj fileObj) {
-        Toast.makeText(this, "TODO", Toast.LENGTH_SHORT).show();
-//        progress.setVisibility(View.VISIBLE);
-//        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
-//        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.PRINT.name()));
     }
 
     @Override

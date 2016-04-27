@@ -23,6 +23,7 @@ import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.ArchiveFileAction;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
+import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction.ActionEnum;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
@@ -151,7 +152,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         @Override
         public void onEventMainThread(DwgConversionActionSuccess event) {
             Snackbar.make(progress, R.string.zamzar_success, Snackbar.LENGTH_SHORT).show();
-            if (event.parentId.equals(fileObj.id)){
+            if (event.parentId.equals(fileObj.id)) {
                 refreshFileList();
             }
         }
@@ -308,7 +309,11 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void shareClicked(FileObj fileObj) {
-        DialogDailyLogs.getInstance(fileObj).show(getSupportFragmentManager(), null);
+        if (this.fileObj.title.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
+            DialogDailyLogs.getInstance(fileObj).show(getSupportFragmentManager(), null);
+        } else {
+            dialogShareClicked(fileObj);
+        }
     }
 
     @Override

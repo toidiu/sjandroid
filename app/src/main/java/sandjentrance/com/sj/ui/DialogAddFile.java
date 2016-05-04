@@ -108,13 +108,13 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         recyclerView.setLayoutManager(layoutManager);
 
         AddFileAdapter adapter = new AddFileAdapter(this);
-        List<String> test = new ArrayList<>();
-        test.add(BaseAction.PURCHASE_FOLDER_NAME);
-        test.add(BaseAction.FAB_FOLDER_NAME);
-        test.add(BaseAction.LABOUR_FOLDER_NAME);
-        test.add(BaseAction.PHOTOS_FOLDER_NAME);
-        test.add(BaseAction.NOTES_FOLDER_NAME);
-        adapter.refreshView(test);
+        List<String> addList = new ArrayList<>();
+        addList.add(BaseAction.PURCHASE_FOLDER_NAME);
+        addList.add(BaseAction.FAB_FOLDER_NAME);
+        addList.add(BaseAction.PROJ_REQUEST_NAME);
+        addList.add(BaseAction.PHOTOS_FOLDER_NAME);
+        addList.add(BaseAction.NOTES_FOLDER_NAME);
+        adapter.refreshView(addList);
         recyclerView.setAdapter(adapter);
 
         fileNameContainer.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +139,9 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             createNewFile(type, name);
             return;
         }
+//        else if (type.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
+//            createNewFile(type, "Purchase Order" + System.currentTimeMillis() + ".pdf");
+//        }
 
         fileNameContainer.setVisibility(View.VISIBLE);
         UtilKeyboard.toggleKeyboard(getActivity());
@@ -149,9 +152,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             public void onClick(View v) {
                 String fileName = fileNameEdit.getText().toString().trim();
                 if (!fileName.isEmpty()) {
-                    if (type.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
-                        fileName = fileName + ".jpg";
-                    } else if (!fileName.endsWith(".pdf")) {
+                    if (!fileName.endsWith(".pdf")) {
                         fileName = fileName + ".pdf";
                     }
                     createNewFile(type, fileName);
@@ -171,11 +172,11 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             case BaseAction.FAB_FOLDER_NAME:
                 newFileObj = new NewFileObj(BaseAction.FAB_FOLDER_NAME, BaseAction.FAB_SHEET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
-            case BaseAction.LABOUR_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.LABOUR_FOLDER_NAME, BaseAction.PROJECT_LABOR_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
+            case BaseAction.PROJ_REQUEST_NAME:
+                newFileObj = new NewFileObj(BaseAction.PROJ_REQUEST_NAME, BaseAction.PROJECT_LABOR_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.PHOTOS_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.PHOTOS_FOLDER_NAME, null, BaseAction.MIME_JPEG, fileName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.PHOTOS_FOLDER_NAME, fileName, BaseAction.MIME_JPEG, fileName, projFolder.id, null);
                 break;
             case BaseAction.NOTES_FOLDER_NAME:
                 newFileObj = new NewFileObj(BaseAction.NOTES_FOLDER_NAME, BaseAction.NOTES_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
@@ -185,6 +186,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         }
 
         if (newFileObj != null) {
+            newFileObj.projTitle = projFolder.title;
             addFileInterface.addItemClicked(newFileObj);
         }
 

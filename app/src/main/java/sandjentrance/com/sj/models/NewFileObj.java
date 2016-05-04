@@ -30,6 +30,10 @@ public class NewFileObj implements Parcelable {
     public String assetFileName;
     @DatabaseField
     public String localFilePath;
+
+    @DatabaseField
+    @Nullable
+    public String projTitle;
     //endregion
 
     public static final Creator<NewFileObj> CREATOR = new Creator<NewFileObj>() {

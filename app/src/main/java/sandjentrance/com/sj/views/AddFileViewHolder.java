@@ -38,8 +38,8 @@ public class AddFileViewHolder extends RecyclerView.ViewHolder {
                 textView.setText(BaseAction.FAB_FOLDER_NAME);
                 Picasso.with(SJApplication.appContext).load(R.drawable.ic_fab_sheets).into(imageView);
                 break;
-            case BaseAction.LABOUR_FOLDER_NAME:
-                textView.setText(BaseAction.LABOUR_FOLDER_NAME);
+            case BaseAction.PROJ_REQUEST_NAME:
+                textView.setText("Project Labour\nRequest");
                 Picasso.with(SJApplication.appContext).load(R.drawable.ic_project_labor_request).into(imageView);
                 break;
             case BaseAction.PHOTOS_FOLDER_NAME:

@@ -63,8 +63,7 @@ public class BaseAction extends FullAction {
     public static final String PHOTOS_FOLDER_SETUP = "Photos";
 
     public static final String PURCHASE_FOLDER_NAME = "Purchase Orders";
-    //// FIXME: 4/19/16 get actual folder name
-    public static final String LABOUR_FOLDER_NAME = "Proposals";
+    public static final String PROJ_REQUEST_NAME = "Project Labour Request";
     public static final String FAB_FOLDER_NAME = "Fab Sheets";
     public static final String NOTES_FOLDER_NAME = "Notes";
     public static final String PHOTOS_FOLDER_NAME = "Photos";

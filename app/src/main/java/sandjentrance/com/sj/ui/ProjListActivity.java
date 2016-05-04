@@ -17,10 +17,11 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.Bind;
@@ -180,9 +181,17 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQ_CODE_NEW_IMG) {
-                String uriString = UtilImage.getImageUriFromIntent(data, imagePickerUri);
+                String uriString = null;
 
-                if (uriString.startsWith("content")) {
+                File file = new File(imagePickerUri.getPath());
+                if (data == null && !file.exists()) {
+                    Snackbar.make(progress, "Sorry, there was an error while retrieving the image.", Snackbar.LENGTH_SHORT).show();
+                    return;
+                } else if (data != null) {
+                    uriString = UtilImage.getImageUriFromIntent(data, imagePickerUri);
+                }
+
+                if (uriString != null && uriString.startsWith("content")) {
                     //save content media to external storage
                     try {
                         InputStream source = getContentResolver().openInputStream(Uri.parse(uriString));
@@ -307,8 +316,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         this.newFileObj = newFileObj;
         if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
             //get photo
-            String fileNAme = newFileObj.title + System.currentTimeMillis();
-            File localFile = UtilFile.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
+            File localFile = UtilFile.getLocalFileWithExtension(FilenameUtils.removeExtension(newFileObj.title), BaseAction.MIME_JPEG);
             choosePicture(REQ_CODE_NEW_IMG, localFile);
         } else {
             progress.setVisibility(View.VISIBLE);

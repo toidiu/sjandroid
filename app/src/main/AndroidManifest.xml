@@ -14,7 +14,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 
-
     <application
         android:name=".SJApplication"
         android:allowBackup="true"
@@ -28,19 +27,35 @@
 
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@style/SplashTheme"
+        android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ProjListActivity" />
-        <activity android:name=".ui.FindBaseProjActivity" />
-        <activity android:name=".ui.ProjDetailActivity" />
-        <activity android:name=".ui.GenericFileListActivity" />
-        <activity android:name=".ui.ArchiveFileListActivity" />
-        <activity android:name=".ui.UserImageCropActivity" />
-        <activity android:name=".ui.PrintDialogActivity" />
+        <activity
+            android:name=".ui.ProjListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.FindBaseProjActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.ProjDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.GenericFileListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.ArchiveFileListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.UserImageCropActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.PrintDialogActivity"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.gms.version"

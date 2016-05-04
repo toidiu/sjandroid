@@ -332,9 +332,17 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                 invalidateAndSetUserImage();
             } else if (requestCode == REQ_CODE_NEW_IMG) {
                 //----------------
-                String uriString = UtilImage.getImageUriFromIntent(data, imagePickerUri);
 
-                if (uriString.startsWith("content")) {
+                String uriString = null;
+                File file = new File(imagePickerUri.getPath());
+                if (data == null && !file.exists()) {
+                    Snackbar.make(progress, "Sorry, there was an error while retrieving the image.", Snackbar.LENGTH_SHORT).show();
+                    return;
+                } else if (data != null) {
+                    uriString = UtilImage.getImageUriFromIntent(data, imagePickerUri);
+                }
+
+                if (uriString != null && uriString.startsWith("content")) {
                     //save content media to external storage
                     try {
                         InputStream source = getContentResolver().openInputStream(Uri.parse(uriString));
@@ -509,7 +517,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
             //get photo
             String fileNAme = newFileObj.title + System.currentTimeMillis();
-            File localFile = UtilFile.getLocalFile(fileNAme, BaseAction.MIME_JPEG);
+            File localFile = UtilFile.getLocalFileWithExtension(fileNAme, BaseAction.MIME_JPEG);
             choosePicture(REQ_CODE_NEW_IMG, localFile);
         } else {
             progress.setVisibility(View.VISIBLE);

@@ -63,11 +63,11 @@ public class DownloadFileAction extends BaseAction {
 
         File localFile = null;
         if (actionEnum.equals(ActionEnum.EDIT.name())) {
-            File fileLocation = UtilFile.getLocalFile(fileDlObj.fileId, fileDlObj.mime);
+            File fileLocation = UtilFile.getLocalFileWithExtension(fileDlObj.fileId, fileDlObj.mime);
             localFile = downloadFile(fileDlObj, fileLocation);
         } else {
             //if we print or share.. see if local file exists and copy it over to cache
-            File tempFile = UtilFile.getLocalFile(fileDlObj.fileId, fileDlObj.mime);
+            File tempFile = UtilFile.getLocalFileWithExtension(fileDlObj.fileId, fileDlObj.mime);
             //make a file in the cache folder
             File fileLocation = UtilFile.getCachedFile(fileDlObj.fileName, fileDlObj.mime);
 

@@ -242,7 +242,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
     //region Init----------------------
     private void initView() {
         Picasso.with(this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
-        initBg();
+//        initBg();
 
         signinView.setOnClickListener(new View.OnClickListener() {
             @Override

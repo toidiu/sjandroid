@@ -29,7 +29,7 @@ public class UtilFile {
     }
 
     public static File copyAssetsFile(AssetManager assetManager, String assetFileName, String newName, String mime) {
-        File localFile = getLocalFile(newName, mime);
+        File localFile = getLocalFileWithExtension(newName, mime);
 
         try {
             InputStream in = assetManager.open(assetFileName);
@@ -77,7 +77,7 @@ public class UtilFile {
 
     //region Get Files----------------------
     @Nullable
-    public static File getLocalFile(String idOrName, String mime) {
+    public static File getLocalFileWithExtension(String idOrName, String mime) {
         String name = null;
         if (mime.equals(BaseAction.MIME_PDF)) {
             name = idOrName + ".pdf";

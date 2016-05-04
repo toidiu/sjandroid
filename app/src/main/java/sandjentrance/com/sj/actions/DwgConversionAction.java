@@ -100,7 +100,7 @@ public class DwgConversionAction extends BaseAction {
                 try {
                     Log.d("-----zamzar wait", "6");
                     //make local file and download zamzar file
-                    File localPdfFile = UtilFile.getLocalFile(fileDownloadObj.fileId, MIME_PDF);
+                    File localPdfFile = UtilFile.getLocalFileWithExtension(fileDownloadObj.fileId, MIME_PDF);
                     UtilZamzar.download(askResp.target_files[0].id, localPdfFile);
 
                     if (localPdfFile != null && localPdfFile.exists()) {

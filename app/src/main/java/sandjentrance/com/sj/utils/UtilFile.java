@@ -28,8 +28,7 @@ public class UtilFile {
         }
     }
 
-    public static File copyAssetsFile(AssetManager assetManager, String assetFileName, String newName, String mime) {
-        File localFile = getLocalFileWithExtension(newName, mime);
+    public static File copyAssetsFile(AssetManager assetManager, String assetFileName, File localFile) {
 
         try {
             InputStream in = assetManager.open(assetFileName);
@@ -76,6 +75,7 @@ public class UtilFile {
     //endregion
 
     //region Get Files----------------------
+    //file in external dir so its accessible by all
     @Nullable
     public static File getLocalFileWithExtension(String idOrName, String mime) {
         String name = null;
@@ -95,6 +95,28 @@ public class UtilFile {
         }
     }
 
+    public static File getLocalMergeFile() {
+        String name = "merge.pdf";
+        File sj = getExternalAppFolder();
+        File file = new File(sj, name);
+
+        //clean up and return fresh file
+        deleteLocalFile(file);
+        return file;
+    }
+
+
+    public static File getLocalMergeDestinationFile() {
+        String name = "mergeDestination.pdf";
+        File sj = getExternalAppFolder();
+        File file = new File(sj, name);
+
+        //clean up and return fresh file
+        deleteLocalFile(file);
+        return file;
+    }
+
+    //random tamp file
     public static File getTempLocalFile(String mime) {
         String name = System.currentTimeMillis() + "";
         if (mime.equals(BaseAction.MIME_PDF)) {
@@ -110,6 +132,7 @@ public class UtilFile {
         return new File(sj, name);
     }
 
+    //for print and stuff. live in cache folder so it can be cleaned up by OS
     public static File getCachedFile(String idOrName, String mime) {
         String name = null;
         if (mime.equals(BaseAction.MIME_PDF) && !idOrName.endsWith(".pdf")) {
@@ -127,6 +150,7 @@ public class UtilFile {
         }
         return file;
     }
+
     //endregion
 
 }

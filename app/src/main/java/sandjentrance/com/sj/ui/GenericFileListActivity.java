@@ -30,6 +30,8 @@ import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.DwgConversionAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.MergePdfAction;
+import sandjentrance.com.sj.actions.MergePdfAction_.PsMergePdfAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
@@ -42,6 +44,8 @@ import sandjentrance.com.sj.actions.events.DwgConversionActionFailure;
 import sandjentrance.com.sj.actions.events.DwgConversionActionSuccess;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
+import sandjentrance.com.sj.actions.events.MergePdfActionFailure;
+import sandjentrance.com.sj.actions.events.MergePdfActionSuccess;
 import sandjentrance.com.sj.actions.events.MoveFileActionFailure;
 import sandjentrance.com.sj.actions.events.MoveFileActionPrime;
 import sandjentrance.com.sj.actions.events.MoveFileActionSuccess;
@@ -60,7 +64,8 @@ import sandjentrance.com.sj.ui.extras.ShareInterface;
         RenameFileAction.class,
         ArchiveFileAction.class,
         DownloadFileAction.class,
-        DwgConversionAction.class
+        DwgConversionAction.class,
+        MergePdfAction.class
 })
 public class GenericFileListActivity extends BaseActivity implements FileClickInterface, ShareInterface {
 
@@ -77,6 +82,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private GenericListAdapter adapter;
+    private Snackbar mergeSnackbar;
     private Menu menu;
     private String actionIdDownload;
     private String actionIdFileList;
@@ -173,6 +179,17 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         public void onEventMainThread(MoveFileActionPrime event) {
             refreshMenu();
         }
+
+        @Override
+        public void onEventMainThread(MergePdfActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            openLocalFile(event.localFileObj, progress);
+        }
+
+        @Override
+        public void onEventMainThread(MergePdfActionFailure event) {
+            progress.setVisibility(View.GONE);
+        }
     };
 
     //endregion
@@ -212,6 +229,17 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
             moveFolderHelper.resetState();
         }
 
+        if (mergePfdHelper.isMerging) {
+            mergeSnackbar = Snackbar.make(progress, "Choose PDF to merge into.", Snackbar.LENGTH_INDEFINITE).setAction("Cancel", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mergePfdHelper.isMerging = false;
+                    mergeSnackbar.dismiss();
+                    mergeSnackbar = null;
+                }
+            });
+            mergeSnackbar.show();
+        }
         refreshMenu();
     }
 
@@ -328,6 +356,14 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.EDIT.name()));
+    }
+
+    @Override
+    public void doMerge() {
+        progress.setVisibility(View.VISIBLE);
+        PennStation.requestAction(PsMergePdfAction.helper(), longTaskQueue);
+        mergePfdHelper.isMerging = false;
+        mergeSnackbar.dismiss();
     }
 
     @Override

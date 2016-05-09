@@ -20,6 +20,7 @@ import dagger.Module;
 import dagger.Provides;
 import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.utils.ArchiveFileHelper;
+import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
@@ -85,6 +86,12 @@ public class AppModule {
     @Singleton
     ArchiveFileHelper providesArchiveHelper() {
         return new ArchiveFileHelper();
+    }
+
+    @Provides
+    @Singleton
+    MergePfdHelper providesMergePdfHelper() {
+        return new MergePfdHelper();
     }
 
     @Provides

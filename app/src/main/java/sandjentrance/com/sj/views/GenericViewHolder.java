@@ -8,12 +8,15 @@ import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
 
+import javax.inject.Inject;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
+import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.UtilsDate;
 import sandjentrance.com.sj.utils.UtilsView;
 
@@ -27,9 +30,12 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
     public final TextView modifiedView;
     public final CircleImageView fileIconView;
     private final View overflowView;
+    @Inject
+    MergePfdHelper mergePfdHelper;
 
     public GenericViewHolder(View itemView) {
         super(itemView);
+        ((SJApplication) SJApplication.appContext).getAppComponent().inject(this);
 
         containerView = itemView.findViewById(R.id.container);
         titleView = (TextView) itemView.findViewById(R.id.title);
@@ -46,7 +52,7 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
         if (FileObj.isFolder(item.mime)) {
             Picasso.with(SJApplication.appContext).load(R.drawable.ic_content_folder).into(fileIconView);
             overflowView.setVisibility(View.GONE);
-        } else if (item.mime.equals(BaseAction.MIME_DWG1) ) {
+        } else if (item.mime.equals(BaseAction.MIME_DWG1)) {
             overflowView.setVisibility(View.GONE);
         } else {
             Picasso.with(SJApplication.appContext).load(R.drawable.ic_document).into(fileIconView);
@@ -58,7 +64,12 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
                 if (item.mime.equals(BaseAction.FOLDER_MIME)) {
                     fileClickInterface.folderClicked(item);
                 } else {
-                    fileClickInterface.editClicked(item);
+                    if (mergePfdHelper.isMerging) {
+                        mergePfdHelper.origPdf = item;
+                        fileClickInterface.doMerge();
+                    } else {
+                        fileClickInterface.editClicked(item);
+                    }
                 }
             }
         });
@@ -66,15 +77,19 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
         overflowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UtilsView.fileClickPopup(overflowView, item, fileClickInterface);
+                if (!mergePfdHelper.isMerging) {
+                    UtilsView.fileClickPopup(overflowView, item, fileClickInterface);
+                }
             }
         });
 
         this.containerView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!item.mime.equals(BaseAction.FOLDER_MIME)) {
-                    UtilsView.fileLongClickPopup(containerView, item, fileClickInterface);
+                if (!mergePfdHelper.isMerging) {
+                    if (!item.mime.equals(BaseAction.FOLDER_MIME)) {
+                        UtilsView.fileLongClickPopup(containerView, item, fileClickInterface);
+                    }
                 }
                 return true;
             }

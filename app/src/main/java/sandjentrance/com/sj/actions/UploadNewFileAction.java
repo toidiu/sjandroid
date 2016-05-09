@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sandjentrance.com.sj.actions.events.UploadNewFileActionFailure;
+import sandjentrance.com.sj.actions.events.UploadNewFileActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.models.NewFileObj;
@@ -97,7 +99,7 @@ public class UploadNewFileAction extends BaseAction {
             }
         }
 
-        return null;
+        return new UploadNewFileActionSuccess();
     }
 
     private String getNextPurchaseOrderName(NewFileObj newFileObj, String parentId) throws IOException {
@@ -134,6 +136,6 @@ public class UploadNewFileAction extends BaseAction {
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new UploadNewFileActionFailure();
     }
 }

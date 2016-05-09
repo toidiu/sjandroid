@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -47,10 +48,10 @@ import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
 import sandjentrance.com.sj.actions.GetUserImgAction;
 import sandjentrance.com.sj.actions.GetUserImgAction_.PsGetUserImgAction;
+import sandjentrance.com.sj.actions.MergePdfAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
-import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
 import sandjentrance.com.sj.actions.events.ArchiveFileActionFailure;
 import sandjentrance.com.sj.actions.events.ArchiveFileActionSuccess;
 import sandjentrance.com.sj.actions.events.ClaimProjActionFailure;
@@ -65,6 +66,8 @@ import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
 import sandjentrance.com.sj.actions.events.GetUserImgActionFailure;
 import sandjentrance.com.sj.actions.events.GetUserImgActionNoFile;
 import sandjentrance.com.sj.actions.events.GetUserImgActionSuccess;
+import sandjentrance.com.sj.actions.events.MergePdfActionFailure;
+import sandjentrance.com.sj.actions.events.MergePdfActionSuccess;
 import sandjentrance.com.sj.actions.events.MoveFileActionFailure;
 import sandjentrance.com.sj.actions.events.MoveFileActionPrime;
 import sandjentrance.com.sj.actions.events.MoveFileActionSuccess;
@@ -80,6 +83,7 @@ import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjDetailAdapter;
 import sandjentrance.com.sj.utils.UtilFile;
 import sandjentrance.com.sj.utils.UtilImage;
+import sandjentrance.com.sj.utils.UtilKeyboard;
 import sandjentrance.com.sj.views.SpaceItemDecoration;
 
 @EventListener(producers = {
@@ -90,7 +94,8 @@ import sandjentrance.com.sj.views.SpaceItemDecoration;
         ArchiveFileAction.class,
         GetUserImgAction.class,
         DbAddNewFileAction.class,
-        DownloadFileAction.class
+        DownloadFileAction.class,
+        MergePdfAction.class
 })
 public class ProjDetailActivity extends BaseActivity implements FileClickInterface, FabAddFileInterface, ArchiveInterface {
 
@@ -205,6 +210,9 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
                 adapter.refreshView(Arrays.asList(event.results));
             }
+            if (mergePfdHelper.isMerging) {
+                navigateToFabFolder();
+            }
         }
 
         @Override
@@ -250,7 +258,18 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             Snackbar.make(progress, R.string.zamzar_started, Snackbar.LENGTH_SHORT).show();
         }
 
+        @Override
+        public void onEventMainThread(MergePdfActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            openLocalFile(event.localFileObj, progress);
+        }
+
+        @Override
+        public void onEventMainThread(MergePdfActionFailure event) {
+            progress.setVisibility(View.GONE);
+        }
     };
+
     //endregion
     //endregion
 
@@ -283,8 +302,10 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             moveFolderHelper.resetState();
         }
 
-        PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
         refreshMenu();
+        if (mergePfdHelper.isMerging) {
+            navigateToFabFolder();
+        }
     }
 
     @Override
@@ -451,6 +472,19 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         progress.setVisibility(View.VISIBLE);
     }
 
+    private void navigateToFabFolder() {
+        if (adapter != null) {
+            List<FileObj> list = adapter.getList();
+            for (FileObj file : list) {
+                if (file.title.matches("(?i)fab sheet.*")) {
+                    startActivity(GenericFileListActivity.getInstance(this, file));
+                    break;
+                }
+                Snackbar.make(progress, "No Fab Sheet folder found. Cancelling merge action.", Snackbar.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     public void choosePicture(int requestCode, File externalFile) {
         Intent pickIntent = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -498,6 +532,11 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
+    public void doMerge() {
+        //this should only happend in the GenericFileListActivity
+    }
+
+    @Override
     public void shareClicked(FileObj fileObj) {
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
@@ -523,6 +562,12 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             progress.setVisibility(View.VISIBLE);
             PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
         }
+    }
+
+    @Override
+    public void mergePdfClicked() {
+        UtilKeyboard.hideKeyboard(this, progress, null);
+        navigateToFabFolder();
     }
 
     @Override

@@ -56,15 +56,10 @@ public class DownloadFileAction extends BaseAction {
         FileDownloadObj fileDlObj = helper.fileDl();
         String actionEnum = helper.ActionEnum();
 
-        if (credential.getSelectedAccountName() == null) {
-            //// FIXME: 4/25/16
-//            return new SetupDriveActionFailure();
-        }
-
         File localFile = null;
         if (actionEnum.equals(ActionEnum.EDIT.name())) {
             File fileLocation = UtilFile.getLocalFileWithExtension(fileDlObj.fileId, fileDlObj.mime);
-            localFile = downloadFile(fileDlObj, fileLocation);
+            localFile = downloadOrReturnExistingFile(fileDlObj, fileLocation);
         } else {
             //if we print or share.. see if local file exists and copy it over to cache
             File tempFile = UtilFile.getLocalFileWithExtension(fileDlObj.fileId, fileDlObj.mime);
@@ -78,7 +73,7 @@ public class DownloadFileAction extends BaseAction {
                     e.printStackTrace();
                 }
             }
-            localFile = downloadFile(fileDlObj, fileLocation);
+            localFile = downloadOrReturnExistingFile(fileDlObj, fileLocation);
         }
 
         if (localFile != null && localFile.exists()) {

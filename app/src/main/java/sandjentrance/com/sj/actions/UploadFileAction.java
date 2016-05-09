@@ -17,6 +17,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
+import sandjentrance.com.sj.actions.events.UploadFileActionSuccess;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.utils.UtilNetwork;
 
@@ -67,11 +69,11 @@ public class UploadFileAction extends BaseAction {
             }
         }
 
-        return null;
+        return new UploadFileActionSuccess();
     }
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new UploadFileActionFailure();
     }
 }

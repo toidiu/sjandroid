@@ -28,6 +28,7 @@ import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.utils.ArchiveFileHelper;
 import sandjentrance.com.sj.utils.BgImageLoader;
+import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
@@ -50,6 +51,8 @@ public class BaseActivity extends AppCompatActivity {
     Context context;
     @Inject
     LimitedQueueInfo longTaskQueue;
+    @Inject
+    MergePfdHelper mergePfdHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

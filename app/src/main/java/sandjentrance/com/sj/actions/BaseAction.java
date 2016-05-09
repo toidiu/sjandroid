@@ -40,6 +40,7 @@ import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
+import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
@@ -68,10 +69,10 @@ public class BaseAction extends FullAction {
     public static final String NOTES_FOLDER_NAME = "Notes";
     public static final String PHOTOS_FOLDER_NAME = "Photos";
 
-    public static final String PURCHASE_ORDER_PDF = "PurchaseOrder.pdf";
-    public static final String FAB_SHEET_PDF = "FabSheet.pdf";
-    public static final String PROJECT_LABOR_PDF = "ProjectLaborRequest.pdf";
-    public static final String NOTES_PDF = "Notes.pdf";
+    public static final String PURCHASE_ORDER_ASSET_PDF = "PurchaseOrder.pdf";
+    public static final String FAB_SHEET_ASSET_PDF = "FabSheet.pdf";
+    public static final String PROJECT_LABOR_ASSET_PDF = "ProjectLaborRequest.pdf";
+    public static final String NOTES_ASSET_PDF = "Notes.pdf";
 
     public static final String FOLDER_MIME = "application/vnd.google-apps.folder";
 
@@ -99,6 +100,8 @@ public class BaseAction extends FullAction {
     DatabaseHelper databaseHelper;
     @Inject
     LimitedQueueInfo longTaskQueue;
+    @Inject
+    MergePfdHelper mergePfdHelper;
 
     @Override
     protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
@@ -349,7 +352,7 @@ public class BaseAction extends FullAction {
     }
 
     @Nullable
-    protected java.io.File downloadFile(FileDownloadObj fileDownloadObj, java.io.File localFile) {
+    protected java.io.File downloadOrReturnExistingFile(FileDownloadObj fileDownloadObj, java.io.File localFile) {
         if (localFile == null) {
             return null;
         } else if (localFile.exists()) {

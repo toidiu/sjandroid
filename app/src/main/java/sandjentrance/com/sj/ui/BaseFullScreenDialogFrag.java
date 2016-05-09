@@ -26,6 +26,7 @@ import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.LocalFileObj;
+import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 
@@ -40,6 +41,8 @@ public class BaseFullScreenDialogFrag extends DialogFragment {
     protected Prefs prefs;
     @Inject
     MoveFolderHelper moveFolderHelper;
+    @Inject
+    MergePfdHelper mergePfdHelper;
     @Inject
     Context context;
 

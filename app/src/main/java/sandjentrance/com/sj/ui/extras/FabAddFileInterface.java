@@ -7,4 +7,6 @@ import sandjentrance.com.sj.models.NewFileObj;
  */
 public interface FabAddFileInterface {
     void addItemClicked(NewFileObj newFileObj);
+
+    void mergePdfClicked();
 }

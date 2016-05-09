@@ -20,6 +20,7 @@ import sandjentrance.com.sj.views.ProjDetailViewHolder;
 public class ProjDetailAdapter extends RecyclerView.Adapter {
 
     private final FileClickInterface fileClickInterface;
+
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private List<FileObj> list = new ArrayList<>();
 
@@ -48,6 +49,10 @@ public class ProjDetailAdapter extends RecyclerView.Adapter {
     public void refreshView(@NonNull List<FileObj> data) {
         list = data;
         notifyDataSetChanged();
+    }
+
+    public List<FileObj> getList() {
+        return list;
     }
 
 }

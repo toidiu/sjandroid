@@ -24,6 +24,7 @@ import sandjentrance.com.sj.ui.extras.AddFileAdapter;
 import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.FileAddInterface;
 import sandjentrance.com.sj.utils.UtilKeyboard;
+import sandjentrance.com.sj.utils.UtilNetwork;
 
 /**
  * Created by toidiu on 4/4/16.
@@ -45,6 +46,10 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     View fileNameContainer;
     @Bind(R.id.create)
     View createBtn;
+    @Bind(R.id.or_text)
+    View orText;
+    @Bind(R.id.merge)
+    View mergeBtn;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private FileObj projFolder;
     private FabAddFileInterface addFileInterface;
@@ -124,6 +129,11 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
                 UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
             }
         });
+
+
+//        PDFMergerUtility mergerUtility = new PDFMergerUtility();
+//        mergerUtility.mergeDocuments();
+
     }
 
     private void initData() {
@@ -139,13 +149,33 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             createNewFile(type, name);
             return;
         }
-//        else if (type.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
-//            createNewFile(type, "Purchase Order" + System.currentTimeMillis() + ".pdf");
-//        }
+
+        if (type.equals(BaseAction.FAB_FOLDER_NAME)) {
+            orText.setVisibility(View.VISIBLE);
+            mergeBtn.setVisibility(View.VISIBLE);
+        } else {
+            orText.setVisibility(View.GONE);
+            mergeBtn.setVisibility(View.GONE);
+        }
 
         fileNameContainer.setVisibility(View.VISIBLE);
         UtilKeyboard.toggleKeyboard(getActivity());
         fileNameEdit.requestFocus();
+
+        mergeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (UtilNetwork.isDeviceOnline(getContext())) {
+                    mergePfdHelper.isMerging = true;
+                    mergePfdHelper.projFolder = projFolder;
+                    addFileInterface.mergePdfClicked();
+                    UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+                    dismiss();
+                } else {
+                    Snackbar.make(mergeBtn, getString(R.string.no_network_merge), Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,19 +197,19 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         NewFileObj newFileObj = null;
         switch (type) {
             case BaseAction.PURCHASE_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.FAB_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.FAB_FOLDER_NAME, BaseAction.FAB_SHEET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.FAB_FOLDER_NAME, BaseAction.FAB_SHEET_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.PROJ_REQUEST_NAME:
-                newFileObj = new NewFileObj(BaseAction.PROJ_REQUEST_NAME, BaseAction.PROJECT_LABOR_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.PROJ_REQUEST_NAME, BaseAction.PROJECT_LABOR_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.PHOTOS_FOLDER_NAME:
                 newFileObj = new NewFileObj(BaseAction.PHOTOS_FOLDER_NAME, fileName, BaseAction.MIME_JPEG, fileName, projFolder.id, null);
                 break;
             case BaseAction.NOTES_FOLDER_NAME:
-                newFileObj = new NewFileObj(BaseAction.NOTES_FOLDER_NAME, BaseAction.NOTES_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
+                newFileObj = new NewFileObj(BaseAction.NOTES_FOLDER_NAME, BaseAction.NOTES_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             default:
                 break;

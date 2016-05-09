@@ -50,7 +50,8 @@ public class DbAddNewFileAction extends BaseAction {
             if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
                 //photo file should already have path
             } else {
-                File localFile = UtilFile.copyAssetsFile(context.getAssets(), newFileObj.assetFileName, localFileName, newFileObj.mime);
+                File localFile = UtilFile.getLocalFileWithExtension(localFileName, newFileObj.mime);
+                localFile = UtilFile.copyAssetsFile(context.getAssets(), newFileObj.assetFileName, localFile);
                 newFileObj.localFilePath = localFile.getAbsolutePath();
             }
         }

@@ -33,6 +33,7 @@
         android:background="@color/black_95"
         android:clickable="true"
         android:visibility="gone"
+        tools:alpha=".2"
         tools:visibility="visible">
 
         <EditText
@@ -40,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="50dp"
             android:background="@color/white_15"
             android:hint="Enter file name"
             android:minWidth="200dp"
@@ -58,6 +59,25 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
             android:text="Create" />
+
+        <TextView
+            android:id="@+id/or_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/create"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="or"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/merge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/or_text"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="Merge" />
     </RelativeLayout>
 
 </RelativeLayout>

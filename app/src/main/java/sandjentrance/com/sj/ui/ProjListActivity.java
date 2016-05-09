@@ -29,6 +29,8 @@ import butterknife.ButterKnife;
 import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
+import sandjentrance.com.sj.actions.CheckUploadStatusAction;
+import sandjentrance.com.sj.actions.CheckUploadStatusAction_.PsCheckUploadStatusAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction;
@@ -37,8 +39,12 @@ import sandjentrance.com.sj.actions.FindClaimedProjAction;
 import sandjentrance.com.sj.actions.FindClaimedProjAction_.PsFindClaimedProjAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
+import sandjentrance.com.sj.actions.UploadFileAction;
 import sandjentrance.com.sj.actions.UploadFileAction_.PsUploadFileAction;
+import sandjentrance.com.sj.actions.UploadNewFileAction;
 import sandjentrance.com.sj.actions.UploadNewFileAction_.PsUploadNewFileAction;
+import sandjentrance.com.sj.actions.events.CheckUploadStatusActionFailure;
+import sandjentrance.com.sj.actions.events.CheckUploadStatusActionSuccess;
 import sandjentrance.com.sj.actions.events.DbAddNewFileActionFailure;
 import sandjentrance.com.sj.actions.events.DbAddNewFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DbFindClaimedProjListActionFailure;
@@ -47,6 +53,10 @@ import sandjentrance.com.sj.actions.events.FindClaimedProjActionFailure;
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionSuccess;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
+import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
+import sandjentrance.com.sj.actions.events.UploadFileActionSuccess;
+import sandjentrance.com.sj.actions.events.UploadNewFileActionFailure;
+import sandjentrance.com.sj.actions.events.UploadNewFileActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
@@ -56,12 +66,17 @@ import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjListAdapter;
 import sandjentrance.com.sj.utils.UtilFile;
 import sandjentrance.com.sj.utils.UtilImage;
+import sandjentrance.com.sj.utils.UtilKeyboard;
+import sandjentrance.com.sj.utils.UtilsView;
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
         DbFindClaimedProjListAction.class,
         FindClaimedProjAction.class,
-        DbAddNewFileAction.class
+        DbAddNewFileAction.class,
+        CheckUploadStatusAction.class,
+        UploadNewFileAction.class,
+        UploadFileAction.class
 })
 public class ProjListActivity extends BaseActivity implements ProjClickInterface, FabAddFileInterface {
 
@@ -75,6 +90,10 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     ProgressBar progress;
     @Bind(R.id.search)
     EditText searchView;
+    @Bind(R.id.sync_bg)
+    View syncBg;
+    @Bind(R.id.sync_fab)
+    View syncFab;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private ProjListAdapter adapter;
     //endregion
@@ -98,6 +117,26 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         }
 
         @Override
+        public void onEventMainThread(UploadNewFileActionFailure event) {
+            checkSyncStatus();
+        }
+
+        @Override
+        public void onEventMainThread(UploadNewFileActionSuccess event) {
+            checkSyncStatus();
+        }
+
+        @Override
+        public void onEventMainThread(UploadFileActionSuccess event) {
+            checkSyncStatus();
+        }
+
+        @Override
+        public void onEventMainThread(UploadFileActionFailure event) {
+            checkSyncStatus();
+        }
+
+        @Override
         public void onEventMainThread(DbAddNewFileActionSuccess event) {
             progress.setVisibility(View.GONE);
             NewFileObj newFileObj = event.newFileObj;
@@ -109,6 +148,27 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
         @Override
         public void onEventMainThread(DbAddNewFileActionFailure event) {
+            progress.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onEventMainThread(CheckUploadStatusActionSuccess event) {
+            progress.setVisibility(View.GONE);
+
+            if (event.isSynced) {
+                int px = UtilsView.dpToPx(getResources(), 16);
+                UtilsView.setMargins(recyclerView, 0, 0, 0, px);
+                syncFab.setVisibility(View.GONE);
+                syncBg.setVisibility(View.GONE);
+            } else {
+                UtilsView.setMargins(recyclerView, 0, 0, 0, (int) getResources().getDimension(R.dimen.sync_bg_plus10));
+                syncFab.setVisibility(View.VISIBLE);
+                syncBg.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onEventMainThread(CheckUploadStatusActionFailure event) {
             progress.setVisibility(View.GONE);
         }
 
@@ -167,8 +227,10 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
             refreshFileListFromText();
         }
 
-        PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
-        PennStation.requestAction(PsUploadFileAction.helper(), longTaskQueue);
+        checkSyncStatus();
+        if (mergePfdHelper.isMerging) {
+            startActivity(ProjDetailActivity.getInstance(this, mergePfdHelper.projFolder));
+        }
     }
 
     @Override
@@ -215,9 +277,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         PennStation.requestAction(PsFindClaimedProjAction.helper());
 
-
-        PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
-        PennStation.requestAction(PsUploadFileAction.helper(), longTaskQueue);
+        checkSyncStatus();
     }
 
     private void initView() {
@@ -241,7 +301,15 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         };
         DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 500);
 
+        syncFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attemptSync();
+            }
+        });
     }
+
+
     //endregion
 
     //region View----------------------
@@ -268,6 +336,16 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     //endregion
 
     //region Helper----------------------
+    private void attemptSync() {
+        progress.setVisibility(View.VISIBLE);
+        PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
+        PennStation.requestAction(PsUploadFileAction.helper(), longTaskQueue);
+    }
+
+    private void checkSyncStatus() {
+        PennStation.requestAction(PsCheckUploadStatusAction.helper(), longTaskQueue);
+    }
+
     public void choosePicture(int requestCode, File externalFile) {
         Intent pickIntent = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -322,6 +400,12 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
             progress.setVisibility(View.VISIBLE);
             PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
         }
+    }
+
+    @Override
+    public void mergePdfClicked() {
+        UtilKeyboard.hideKeyboard(this, searchView, searchView);
+        startActivity(ProjDetailActivity.getInstance(this, mergePfdHelper.projFolder));
     }
     //endregion
 

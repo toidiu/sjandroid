@@ -20,6 +20,7 @@ import java.util.List;
 
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionFailure;
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionSuccess;
+import sandjentrance.com.sj.database.TransactionRunnable;
 import sandjentrance.com.sj.models.FileObj;
 
 
@@ -50,7 +51,7 @@ public class FindClaimedProjAction extends BaseAction {
             final FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
             Arrays.sort(array, FileObj.getComparator());
 
-            databaseHelper.runInTransaction(new Runnable() {
+            databaseHelper.runInTransaction(new TransactionRunnable() {
                 @Override
                 public void run() {
                     try {

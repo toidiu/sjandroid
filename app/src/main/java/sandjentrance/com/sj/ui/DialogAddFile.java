@@ -16,6 +16,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.fabric.sdk.android.services.network.NetworkUtils;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.FileObj;
@@ -197,6 +198,12 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         NewFileObj newFileObj = null;
         switch (type) {
             case BaseAction.PURCHASE_FOLDER_NAME:
+                //FIxme
+                // make sure we are online
+
+                // check and get the next number for the PO
+
+
                 newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
             case BaseAction.FAB_FOLDER_NAME:

@@ -40,6 +40,7 @@ import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.FileUploadObj;
+import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
@@ -512,6 +513,47 @@ public class BaseAction extends FullAction {
 
 
 //endregion
+
+
+    //region Purchase Order Helper----------------------
+    protected String getNextPurchaseOrderName(NewFileObj newFileObj, String parentId) throws IOException {
+        int biggest = getNextPurchaseOrderNumber(parentId);
+
+        assert newFileObj.projTitle != null;
+        String projNum = newFileObj.projTitle.substring(1, newFileObj.projTitle.indexOf(" -"));
+
+        return projNum + "-" + biggest + "-" + newFileObj.title;
+    }
+
+    protected int getNextPurchaseOrderNumber(String parentId) throws IOException {
+        String search =
+                "'" + parentId + "'" + " in parents"
+                        + " and " + "title != '.DS_Store'"
+                        + " and " + "mimeType != '" + FOLDER_MIME + "'";
+
+        List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
+        int biggest = 0;
+        for (FileObj f : dataFromApi) {
+            if (f.title.indexOf("-") < 0) continue;
+
+            String substring = f.title.substring(f.title.indexOf("-") + 1);
+
+            if (substring.indexOf("-") < 0) continue;
+            String substring1 = substring.substring(0, substring.indexOf("-"));
+            try {
+                Integer integer = Integer.valueOf(substring1);
+                if (biggest < integer) {
+                    biggest = integer;
+                }
+            } catch (RuntimeException e) {
+                Log.d("---exp", e.toString());
+            }
+        }
+        biggest++;
+
+        return biggest;
+    }
+    //endregion
 
 
 }

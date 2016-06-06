@@ -14,11 +14,11 @@ import com.j256.ormlite.dao.Dao;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
 import sandjentrance.com.sj.actions.events.UploadFileActionSuccess;
+import sandjentrance.com.sj.database.TransactionRunnable;
 import sandjentrance.com.sj.models.FileUploadObj;
 import sandjentrance.com.sj.utils.UtilNetwork;
 
@@ -42,38 +42,43 @@ public class UploadFileAction extends BaseAction {
             return null;
         }
 
-        List<FileUploadObj> fileUploadObjs = new ArrayList<>();
-        Dao<FileUploadObj, Integer> fileUploadDao = null;
-        try {
-            fileUploadDao = databaseHelper.getFileUploadDao();
-            fileUploadObjs = fileUploadDao.queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        databaseHelper.runInTransaction(new TransactionRunnable() {
+            @Override
+            public void run() throws Exception {
 
-        for (FileUploadObj obj : fileUploadObjs) {
-            if (!new File(obj.localFilePath).exists()) {
-                //Markme the file no longer exists so delete it
-                //// FIXME: 4/27/16 log crash
-                Crashlytics.getInstance().core.logException(new Exception("A file to be uploaded was deleted."));
-                fileUploadDao.deleteById(obj.dbId);
-            } else {
-                boolean uploaded = uploadFile(fileUploadDao, obj);
-                if (uploaded) {
-                    try {
+
+                Dao<FileUploadObj, Integer> fileUploadDao = null;
+                fileUploadDao = databaseHelper.getFileUploadDao();
+                List<FileUploadObj> fileUploadObjs = fileUploadDao.queryForAll();
+
+                for (FileUploadObj obj : fileUploadObjs) {
+                    if (!new File(obj.localFilePath).exists()) {
+                        //Markme the file no longer exists so delete it
+                        //// FIXME: 4/27/16 log crash
+                        Crashlytics.getInstance().core.logException(new Exception("A file to be uploaded was deleted."));
                         fileUploadDao.deleteById(obj.dbId);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    } else {
+                        boolean uploaded = uploadFile(fileUploadDao, obj);
+                        if (uploaded) {
+                            try {
+                                fileUploadDao.deleteById(obj.dbId);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }
+
+
             }
-        }
+        });
 
         return new UploadFileActionSuccess();
     }
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        Crashlytics.getInstance().core.logException(e);
         return new UploadFileActionFailure();
     }
 }

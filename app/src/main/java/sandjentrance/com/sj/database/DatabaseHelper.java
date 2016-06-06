@@ -64,7 +64,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         onCreate(database, connectionSource);
     }
 
-    public void runInTransaction(Runnable r) throws SQLException {
+    public void runInTransaction(TransactionRunnable r) throws Exception {
         SQLiteDatabase writableDatabase = getWritableDatabase();
         writableDatabase.beginTransaction();
         try {

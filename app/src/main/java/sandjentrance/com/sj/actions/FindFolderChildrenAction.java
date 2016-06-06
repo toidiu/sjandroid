@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
 import com.edisonwang.ps.annotations.EventProducer;
@@ -65,6 +66,7 @@ public class FindFolderChildrenAction extends BaseAction {
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
+        Crashlytics.getInstance().core.logException(e);
         return new FindFolderChildrenActionFailure();
     }
 }

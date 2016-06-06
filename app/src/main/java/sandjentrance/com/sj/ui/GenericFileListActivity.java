@@ -337,11 +337,11 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void shareClicked(FileObj fileObj) {
-        if (this.fileObj.title.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
-            DialogDailyLogs.getInstance(fileObj).show(getSupportFragmentManager(), null);
-        } else {
+//        if (this.fileObj.title.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
+//            DialogDailyLogs.getInstance(fileObj).show(getSupportFragmentManager(), null);
+//        } else {
             dialogShareClicked(fileObj);
-        }
+//        }
     }
 
     @Override

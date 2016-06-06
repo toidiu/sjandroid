@@ -3,12 +3,11 @@
 
     <item android:drawable="@color/colorPrimary" />
 
-    <!--<item android:drawable="@color/dark_gray" />-->
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/app_bg" />
-    </item>
+    <!--<item>-->
+        <!--<bitmap-->
+            <!--android:gravity="center"-->
+            <!--android:src="@drawable/app_bg" />-->
+    <!--</item>-->
 
 
 </layer-list>

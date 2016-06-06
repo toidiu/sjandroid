@@ -1,5 +1,7 @@
 package sandjentrance.com.sj.ui.extras;
 
+import sandjentrance.com.sj.models.FileObj;
+import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
 
 /**
@@ -9,4 +11,6 @@ public interface FabAddFileInterface {
     void addItemClicked(NewFileObj newFileObj);
 
     void mergePdfClicked();
+
+    void openPoPdfClicked(FileObj fileObj);
 }

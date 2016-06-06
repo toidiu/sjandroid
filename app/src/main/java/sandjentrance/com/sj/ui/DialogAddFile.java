@@ -1,7 +1,12 @@
 package sandjentrance.com.sj.ui;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,15 +15,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.edisonwang.ps.annotations.EventListener;
+import com.edisonwang.ps.lib.PennStation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import io.fabric.sdk.android.services.network.NetworkUtils;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.BaseAction;
+import sandjentrance.com.sj.actions.GetNextPONumberAction;
+import sandjentrance.com.sj.actions.GetNextPONumberActionHelper;
+import sandjentrance.com.sj.actions.events.GetNextPONumberActionFailure;
+import sandjentrance.com.sj.actions.events.GetNextPONumberActionSuccess;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.NewFileObj;
 import sandjentrance.com.sj.ui.extras.AddFileAdapter;
@@ -30,6 +44,10 @@ import sandjentrance.com.sj.utils.UtilNetwork;
 /**
  * Created by toidiu on 4/4/16.
  */
+
+@EventListener(producers = {
+        GetNextPONumberAction.class
+})
 public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddInterface {
 
     //region Fields----------------------
@@ -43,6 +61,10 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     RecyclerView recyclerView;
     @Bind(R.id.file_name)
     EditText fileNameEdit;
+    @Bind(R.id.po_number)
+    TextView poNumberText;
+    @Bind(R.id.po_number_container)
+    View poNumberContainer;
     @Bind(R.id.file_name_container)
     View fileNameContainer;
     @Bind(R.id.create)
@@ -51,9 +73,98 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     View orText;
     @Bind(R.id.merge)
     View mergeBtn;
+    @Bind(R.id.open_file)
+    View openFileBtn;
+    @Bind(R.id.progress)
+    ProgressBar progress;
+//    @Bind(R.id.cancel)
+//    View cancelPoCreate;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private FileObj projFolder;
     private FabAddFileInterface addFileInterface;
+
+
+    //region PennStation----------------------
+    DialogAddFileEventListener eventListener = new DialogAddFileEventListener() {
+        @Override
+        public void onEventMainThread(GetNextPONumberActionFailure event) {
+            progress.setVisibility(View.GONE);
+            Toast.makeText(context, "Unable to add a Purchase Order. Please check your connection.", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onEventMainThread(final GetNextPONumberActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+
+            poNumberText.setText(String.valueOf(event.nextNumber));
+
+            //show the PO number interface and hide fileName interface
+            fileNameContainer.setVisibility(View.GONE);
+            poNumberContainer.setVisibility(View.VISIBLE);
+
+            //open pdf file
+            openFileBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addFileInterface.openPoPdfClicked(event.fileObj);
+
+                    UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+                    dismiss();
+                }
+            });
+
+            //cancel
+//            cancelPoCreate.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    poNumberContainer.setVisibility(View.GONE);
+//
+//                    reset the view to grayish
+//                    poNumberText.setBackgroundColor(getResources().getColor(R.color.white_15));
+//                }
+//            });
+
+            //Copy number
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            Runnable myRunnable = new Runnable() {
+                @Override
+                public void run() {
+
+                    ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("PO number", poNumberText.getText().toString());
+                    clipboard.setPrimaryClip(clip);
+
+                    poNumberText.setBackgroundColor(getResources().getColor(R.color.folder_blue));
+
+                    Toast.makeText(context, "Order # copied.", Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            mainHandler.postDelayed(myRunnable, 1000);
+
+
+//            copyPoNumberBtn.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                }
+//            });
+
+//            int sdk = android.os.Build.VERSION.SDK_INT;
+//            if(sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
+//                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+//                clipboard.setText("text to clip");
+//            } else {
+//                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+//                android.content.ClipData clip = android.content.ClipData.newPlainText("text label","text to clip");
+//                clipboard.setPrimaryClip(clip);
+//            }
+
+
+        }
+    };
+
+    //endregion
     //endregion
 
     //region Lifecycle----------------------
@@ -71,6 +182,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add_file, null);
         ButterKnife.bind(this, view);
+
         return view;
     }
 
@@ -86,10 +198,12 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
 
         initData();
         initView();
+        PennStation.registerListener(eventListener);
     }
 
     @Override
     public void onDestroy() {
+        PennStation.unRegisterListener(eventListener);
         super.onDestroy();
     }
     //endregion
@@ -130,10 +244,6 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
                 UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
             }
         });
-
-
-//        PDFMergerUtility mergerUtility = new PDFMergerUtility();
-//        mergerUtility.mergeDocuments();
 
     }
 
@@ -196,16 +306,15 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
 
     private void createNewFile(String type, String fileName) {
         NewFileObj newFileObj = null;
+
+        if (type.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
+            newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
+            progress.setVisibility(View.VISIBLE);
+            PennStation.requestAction(new GetNextPONumberActionHelper(newFileObj));
+            return;
+        }
+
         switch (type) {
-            case BaseAction.PURCHASE_FOLDER_NAME:
-                //FIxme
-                // make sure we are online
-
-                // check and get the next number for the PO
-
-
-                newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
-                break;
             case BaseAction.FAB_FOLDER_NAME:
                 newFileObj = new NewFileObj(BaseAction.FAB_FOLDER_NAME, BaseAction.FAB_SHEET_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
                 break;
@@ -222,6 +331,14 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
                 break;
         }
 
+        dismissDialogAndEdit(newFileObj);
+    }
+
+
+    //endregion
+
+    //region Helper----------------------
+    private void dismissDialogAndEdit(NewFileObj newFileObj) {
         if (newFileObj != null) {
             newFileObj.projTitle = projFolder.title;
             addFileInterface.addItemClicked(newFileObj);
@@ -231,5 +348,4 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         dismiss();
     }
     //endregion
-
 }

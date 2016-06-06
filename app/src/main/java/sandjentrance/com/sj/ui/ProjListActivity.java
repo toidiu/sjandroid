@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
@@ -36,6 +35,8 @@ import sandjentrance.com.sj.actions.DbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction;
 import sandjentrance.com.sj.actions.DbFindClaimedProjListAction_.PsDbFindClaimedProjListAction;
+import sandjentrance.com.sj.actions.DownloadFileAction;
+import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.FindClaimedProjAction;
 import sandjentrance.com.sj.actions.FindClaimedProjAction_.PsFindClaimedProjAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
@@ -50,14 +51,20 @@ import sandjentrance.com.sj.actions.events.DbAddNewFileActionFailure;
 import sandjentrance.com.sj.actions.events.DbAddNewFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DbFindClaimedProjListActionFailure;
 import sandjentrance.com.sj.actions.events.DbFindClaimedProjListActionSuccess;
+import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
+import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
+import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionFailure;
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionSuccess;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
+import sandjentrance.com.sj.actions.events.MergePdfActionFailure;
+import sandjentrance.com.sj.actions.events.MergePdfActionSuccess;
 import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
 import sandjentrance.com.sj.actions.events.UploadFileActionSuccess;
 import sandjentrance.com.sj.actions.events.UploadNewFileActionFailure;
 import sandjentrance.com.sj.actions.events.UploadNewFileActionSuccess;
+import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
@@ -77,6 +84,7 @@ import sandjentrance.com.sj.utils.UtilsView;
         DbAddNewFileAction.class,
         CheckUploadStatusAction.class,
         UploadNewFileAction.class,
+        DownloadFileAction.class,
         UploadFileAction.class
 })
 public class ProjListActivity extends BaseActivity implements ProjClickInterface, FabAddFileInterface {
@@ -96,6 +104,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     @Bind(R.id.sync_fab)
     View syncFab;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
+    private String actionIdDownload;
     private ProjListAdapter adapter;
     //endregion
     private Snackbar snackbar;
@@ -105,6 +114,33 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     private String actionIdClaimedList;
     //region PennStation----------------------
     ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
+
+        @Override
+        public void onEventMainThread(DownloadFileActionFailure event) {
+            progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onEventMainThread(DownloadFileActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
+                LocalFileObj localFileObj = event.localFileObj;
+                if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.EDIT.name())) {
+                    openLocalFile(localFileObj, progress);
+                } else if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.SHARE.name())) {
+                    shareIntentFile(localFileObj);
+                } else if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.PRINT.name())) {
+                    printIntentFile(localFileObj);
+                }
+            }
+        }
+
+        @Override
+        public void onEventMainThread(DownloadFileActionDwgConversion event) {
+            progress.setVisibility(View.GONE);
+        }
+
         @Override
         public void onEventMainThread(FindClaimedProjActionFailure event) {
             progress.setVisibility(View.GONE);
@@ -407,6 +443,13 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     public void mergePdfClicked() {
         UtilKeyboard.hideKeyboard(this, searchView, searchView);
         startActivity(ProjDetailActivity.getInstance(this, mergePfdHelper.projFolder));
+    }
+
+    @Override
+    public void openPoPdfClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.EDIT.name()));
     }
     //endregion
 

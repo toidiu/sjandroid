@@ -61,25 +61,23 @@ public class UploadNewFileAction extends BaseAction {
                 //find parent folder, upload file, delete from db
                 for (NewFileObj obj : newFileObjs) {
                     //find proper folder else put in base of project folder
-                    boolean foundBaseFolder = false;
                     String parentId;
                     List<FileObj> foldersByNameFuzzy = getFoldersByNameFuzzy(obj.parentName, obj.projId);
                     if (foldersByNameFuzzy != null && foldersByNameFuzzy.size() > 0) {
-                        foundBaseFolder = true;
                         parentId = foldersByNameFuzzy.get(0).id;
                     } else {
                         parentId = obj.projId;
                     }
 
-                    //fixme remove this if we are handling the naming in GetNextPONumber
-                    if (obj.parentName.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
-                        //get name of obj.projId folder to prepend to new file
-
-                        //get name of latest purchase order pdf
-                        if (foundBaseFolder) {
-                            obj.title = getNextPurchaseOrderName(obj, parentId);
-                        }
-                    }
+//                    //fixme remove this if we are handling the naming in GetNextPONumber
+//                    if (obj.parentName.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
+//                        //get name of obj.projId folder to prepend to new file
+//
+//                        //get name of latest purchase order pdf
+//                        if (foundBaseFolder) {
+//                            obj.title = getNextPurchaseOrderName(obj, parentId);
+//                        }
+//                    }
 
 
                     //upload new file and then delete from db

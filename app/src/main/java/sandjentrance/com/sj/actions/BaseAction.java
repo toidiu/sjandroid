@@ -511,13 +511,38 @@ public class BaseAction extends FullAction {
         return false;
     }
 
+    protected File uploadAndReturnFile(@Nullable Dao<FileUploadObj, Integer> dao, FileUploadObj fileUploadObj) {
+        //id fileId null
+        File createdFile = null;
+        if (fileUploadObj.fileId == null) {
+            //yes
+            Log.d("d----------", "uploadFile: 3");
+            createdFile = createFile(fileUploadObj);
+        } else {
+            //no
+            //check if file exists on drive
+            FileObj fileById = getFileById(fileUploadObj.fileId);
+            if (fileById != null) {
+                //yes
+                Log.d("d----------", "uploadFile: 2");
+                createdFile = replaceFile(fileUploadObj);
+            } else {
+                //no
+                createdFile = createFile(fileUploadObj);
+                //fixme this might also return a not null value if it fails
+                Log.d("d----------", "uploadFile: 1");
+            }
+        }
+
+        return createdFile;
+    }
+
 
 //endregion
 
 
     //region Purchase Order Helper----------------------
-    protected String getNextPurchaseOrderName(NewFileObj newFileObj, String parentId) throws IOException {
-        int biggest = getNextPurchaseOrderNumber(parentId);
+    protected String getNextPurchaseOrderName(NewFileObj newFileObj, int biggest) throws IOException {
 
         assert newFileObj.projTitle != null;
         String projNum = newFileObj.projTitle.substring(1, newFileObj.projTitle.indexOf(" -"));

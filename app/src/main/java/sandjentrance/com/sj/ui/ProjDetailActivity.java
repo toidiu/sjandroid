@@ -571,6 +571,13 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
+    public void openPoPdfClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
+        FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
+        actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.EDIT.name()));
+    }
+
+    @Override
     public void archiveClicked() {
         PennStation.requestAction(PsArchiveFileAction.helper(fileObj.id));
         progress.setVisibility(View.VISIBLE);

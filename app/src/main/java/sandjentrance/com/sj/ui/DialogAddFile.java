@@ -97,7 +97,7 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
             progress.setVisibility(View.GONE);
             UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
 
-            poNumberText.setText(String.valueOf(event.nextNumber));
+            poNumberText.setText(event.nextNumber);
 
             //show the PO number interface and hide fileName interface
             fileNameContainer.setVisibility(View.GONE);

@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
@@ -48,13 +49,13 @@ public class DbAddUploadFileAction extends BaseAction {
             databaseHelper.getFileUploadDao().create(fileUploadObj);
             return new DbAddUploadFileActionSuccess();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return new DbAddUploadFileActionFailure();
         }
     }
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new DbAddUploadFileActionFailure();
     }
 }

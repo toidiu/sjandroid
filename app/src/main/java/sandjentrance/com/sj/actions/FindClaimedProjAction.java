@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
@@ -65,7 +66,7 @@ public class FindClaimedProjAction extends BaseAction {
                         }
 
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        Crashlytics.getInstance().core.logException(e);
                     }
                 }
             });
@@ -73,7 +74,7 @@ public class FindClaimedProjAction extends BaseAction {
 
             return new FindClaimedProjActionSuccess(array);
         } catch (Exception e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return new FindClaimedProjActionFailure();
         }
     }

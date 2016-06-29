@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
@@ -110,7 +111,7 @@ public class DwgConversionAction extends BaseAction {
                         return new DwgConversionActionSuccess(fileDownloadObj.parentId);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Crashlytics.getInstance().core.logException(e);
                 }
             }
 

@@ -50,7 +50,7 @@ public class ProjViewHolder extends RecyclerView.ViewHolder {
             }
         });
 
-        if (item.claimUser != null) {
+        if (item.claimUser != null && !item.claimUser.equals("")) {
             claimUserView.setText(item.claimUser);
             claimContainerView.setVisibility(View.VISIBLE);
         } else {

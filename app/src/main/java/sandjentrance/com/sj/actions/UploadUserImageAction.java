@@ -19,6 +19,8 @@ import java.util.List;
 import sandjentrance.com.sj.actions.UploadUserImageAction_.PsUploadUserImageAction;
 import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
 import sandjentrance.com.sj.actions.events.UploadFileActionSuccess;
+import sandjentrance.com.sj.actions.events.UploadUserImageActionFailure;
+import sandjentrance.com.sj.actions.events.UploadUserImageActionSuccess;
 import sandjentrance.com.sj.models.FileUploadObj;
 
 
@@ -55,15 +57,15 @@ public class UploadUserImageAction extends BaseAction {
 
 
         if (createdFile != null) {
-            return new UploadFileActionSuccess();
+            return new UploadUserImageActionSuccess();
         } else {
-            return new UploadFileActionFailure();
+            return new UploadUserImageActionFailure();
         }
     }
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
         Crashlytics.getInstance().core.logException(e);
-        return new UploadFileActionFailure();
+        return new UploadUserImageActionFailure();
     }
 }

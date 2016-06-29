@@ -55,6 +55,7 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
         } else if (item.mime.equals(BaseAction.MIME_DWG1)) {
             overflowView.setVisibility(View.GONE);
         } else {
+            overflowView.setVisibility(View.VISIBLE);
             Picasso.with(SJApplication.appContext).load(R.drawable.ic_document).into(fileIconView);
         }
 

@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
@@ -58,8 +59,6 @@ import sandjentrance.com.sj.actions.events.FindClaimedProjActionFailure;
 import sandjentrance.com.sj.actions.events.FindClaimedProjActionSuccess;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionSuccess;
-import sandjentrance.com.sj.actions.events.MergePdfActionFailure;
-import sandjentrance.com.sj.actions.events.MergePdfActionSuccess;
 import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
 import sandjentrance.com.sj.actions.events.UploadFileActionSuccess;
 import sandjentrance.com.sj.actions.events.UploadNewFileActionFailure;
@@ -155,6 +154,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
         @Override
         public void onEventMainThread(UploadNewFileActionFailure event) {
+            Snackbar.make(progress, event.errorMsg, Snackbar.LENGTH_SHORT).show();
             checkSyncStatus();
         }
 
@@ -170,6 +170,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
         @Override
         public void onEventMainThread(UploadFileActionFailure event) {
+            Snackbar.make(progress, event.errorMsg, Snackbar.LENGTH_SHORT).show();
             checkSyncStatus();
         }
 
@@ -296,7 +297,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
                         InputStream source = getContentResolver().openInputStream(Uri.parse(uriString));
                         org.apache.commons.io.FileUtils.copyInputStreamToFile(source, new File(imagePickerUri.getPath()));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Crashlytics.getInstance().core.logException(e);
                     }
                 }
 

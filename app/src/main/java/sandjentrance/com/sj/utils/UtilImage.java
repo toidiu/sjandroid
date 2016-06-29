@@ -12,6 +12,8 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -75,7 +77,7 @@ public class UtilImage {
             fOut.close();
             return avatarFile;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }

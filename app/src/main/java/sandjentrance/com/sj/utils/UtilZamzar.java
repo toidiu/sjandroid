@@ -2,6 +2,7 @@ package sandjentrance.com.sj.utils;
 
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 
 import org.apache.commons.io.FileUtils;
@@ -65,7 +66,7 @@ public class UtilZamzar {
             Log.d("info----------", string);
             return string;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }
@@ -94,7 +95,7 @@ public class UtilZamzar {
             ConvertResp convertResp = new Gson().fromJson(string, ConvertResp.class);
             return convertResp;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }
@@ -111,7 +112,7 @@ public class UtilZamzar {
             AskResp askResp = new Gson().fromJson(string, AskResp.class);
             return askResp;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }
@@ -149,7 +150,7 @@ public class UtilZamzar {
             bis.close();
             return localFile;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }

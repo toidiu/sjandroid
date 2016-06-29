@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 
+import com.crashlytics.android.Crashlytics;
 import com.edmodo.cropper.CropImageView;
 
 import java.io.File;
@@ -107,7 +108,7 @@ public class UserImageCropActivity extends BaseActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(path));
                 cropImageView.setImageBitmap(bitmap);
             } catch (IOException e) {
-                e.printStackTrace();
+                Crashlytics.getInstance().core.logException(e);
                 finish();
             }
         } else {

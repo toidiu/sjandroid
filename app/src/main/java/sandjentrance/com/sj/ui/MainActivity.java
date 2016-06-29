@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -282,7 +283,7 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
                 Log.d("log", "-----------5");
                 return getDataFromApi();
             } catch (Exception e) {
-                e.printStackTrace();
+                Crashlytics.getInstance().core.logException(e);
                 mLastError = e;
                 cancel(true);
                 return null;

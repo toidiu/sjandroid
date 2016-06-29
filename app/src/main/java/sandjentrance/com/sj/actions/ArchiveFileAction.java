@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
@@ -53,7 +54,7 @@ public class ArchiveFileAction extends BaseAction {
                 builder.where().eq("id", fileId);
                 builder.delete();
             } catch (SQLException e) {
-                e.printStackTrace();
+                Crashlytics.getInstance().core.logException(e);
             }
             return new ArchiveFileActionSuccess();
         } else {
@@ -64,6 +65,6 @@ public class ArchiveFileAction extends BaseAction {
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new ArchiveFileActionFailure();
     }
 }

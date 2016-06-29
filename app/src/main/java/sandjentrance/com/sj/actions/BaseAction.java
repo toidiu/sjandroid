@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
 import com.edisonwang.ps.annotations.EventProducer;
@@ -196,7 +197,7 @@ public class BaseAction extends FullAction {
         try {
             dataFromApi = toFileObjs(executeQueryList(search));
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
         }
         return dataFromApi;
     }
@@ -210,7 +211,7 @@ public class BaseAction extends FullAction {
         try {
             dataFromApi = toFileObjs(executeQueryList(search));
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
         }
         return dataFromApi;
     }
@@ -235,7 +236,30 @@ public class BaseAction extends FullAction {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
+        }
+        return false;
+    }
+
+    protected boolean unclaimProj(String fileId) {
+        File fileMetadata = new File();
+        List<Property> pp = new ArrayList<>();
+        Property property = new Property();
+        property.setKey(CLAIM_PROPERTY).setValue("");
+        pp.add(property);
+        fileMetadata.setProperties(pp);
+
+        try {
+            File file = driveService.files().update(fileId, fileMetadata)
+                    .execute();
+            Dao<FileObj, Integer> dao = databaseHelper.getClaimProjDao();
+
+            FileObj fileDb = dao.queryForEq("id", fileId).get(0);
+            dao.deleteById(fileDb.dbId);
+
+            return true;
+        } catch (Exception e) {
+            Crashlytics.getInstance().core.logException(e);
         }
         return false;
     }
@@ -256,7 +280,7 @@ public class BaseAction extends FullAction {
                 prefs.setArchiveFolderId(file.getId());
                 return true;
             } catch (IOException e) {
-                e.printStackTrace();
+                Crashlytics.getInstance().core.logException(e);
                 return false;
             }
         } else {
@@ -282,7 +306,7 @@ public class BaseAction extends FullAction {
                 prefs.setPhotosFolderId(file.getId());
                 return true;
             } catch (IOException e) {
-                e.printStackTrace();
+                Crashlytics.getInstance().core.logException(e);
                 return false;
             }
         } else {
@@ -301,7 +325,7 @@ public class BaseAction extends FullAction {
 
             return new FileObj(file);
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
 
@@ -315,7 +339,7 @@ public class BaseAction extends FullAction {
         try {
             dataFromApi = executeQueryList(search);
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
         }
         return dataFromApi;
     }
@@ -347,7 +371,7 @@ public class BaseAction extends FullAction {
 
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return false;
         }
     }
@@ -367,13 +391,13 @@ public class BaseAction extends FullAction {
                 driveService.files().get(fileDownloadObj.fileId).executeMediaAndDownloadTo(fileOutputStream);
                 fileOutputStream.close();
 
-                if (temp.exists()){
+                if (temp.exists()) {
                     FileUtils.copyFile(temp, localFile);
                     temp.delete();
                 }
                 return localFile;
             } catch (IOException e) {
-                e.printStackTrace();
+                Crashlytics.getInstance().core.logException(e);
                 return null;
             }
         }
@@ -388,14 +412,14 @@ public class BaseAction extends FullAction {
             driveService.files().get(fileId).executeMediaAndDownloadTo(fileOutputStream);
             return avatarFile;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         } finally {
             if (fileOutputStream != null) {
                 try {
                     fileOutputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Crashlytics.getInstance().core.logException(e);
                 }
             }
         }
@@ -406,7 +430,7 @@ public class BaseAction extends FullAction {
         //Local file
         java.io.File file = new java.io.File(fileUploadObj.localFilePath);
         if (!file.exists()) {
-            Log.e("-------no file exists", "file : "+fileUploadObj.localFilePath);
+            Log.e("-------no file exists", "file : " + fileUploadObj.localFilePath);
 
             //Markme We should never be here and precautions should have been taken to prevent this
             return null;
@@ -430,7 +454,7 @@ public class BaseAction extends FullAction {
             return driveService.files().insert(fileMetadata, mediaContent)
                     .execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }
@@ -452,7 +476,7 @@ public class BaseAction extends FullAction {
 
             return execute;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }
@@ -462,7 +486,7 @@ public class BaseAction extends FullAction {
             driveService.files().delete(fileId).execute();
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return false;
         }
     }
@@ -476,7 +500,7 @@ public class BaseAction extends FullAction {
             renameFileHelper.parentId = parent;
             return execute;
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return null;
         }
     }
@@ -511,7 +535,7 @@ public class BaseAction extends FullAction {
         return false;
     }
 
-    protected File uploadAndReturnFile(@Nullable Dao<FileUploadObj, Integer> dao, FileUploadObj fileUploadObj) {
+    protected File uploadAndReturnDriveFile(@Nullable Dao<FileUploadObj, Integer> dao, FileUploadObj fileUploadObj) {
         //id fileId null
         File createdFile = null;
         if (fileUploadObj.fileId == null) {
@@ -534,23 +558,34 @@ public class BaseAction extends FullAction {
             }
         }
 
+        if (createdFile != null) {
+            UtilFile.deleteLocalFile(new java.io.File(fileUploadObj.localFilePath));
+        }
+
         return createdFile;
     }
+
 
 
 //endregion
 
 
     //region Purchase Order Helper----------------------
-    protected String getNextPurchaseOrderName(NewFileObj newFileObj, int biggest) throws IOException {
+    protected String getNextPurchaseOrderName(NewFileObj newFileObj, String biggest) throws IOException {
 
         assert newFileObj.projTitle != null;
-        String projNum = newFileObj.projTitle.substring(1, newFileObj.projTitle.indexOf(" -"));
+        String projNum = getProjNumber(newFileObj);
 
         return projNum + "-" + biggest + "-" + newFileObj.title;
     }
 
-    protected int getNextPurchaseOrderNumber(String parentId) throws IOException {
+    @NonNull
+    protected String getProjNumber(NewFileObj newFileObj) {
+        assert newFileObj.projTitle != null;
+        return newFileObj.projTitle.substring(1, newFileObj.projTitle.indexOf(" -"));
+    }
+
+    protected String getNextPurchaseOrderNumber(String parentId) throws IOException {
         String search =
                 "'" + parentId + "'" + " in parents"
                         + " and " + "title != '.DS_Store'"
@@ -576,7 +611,7 @@ public class BaseAction extends FullAction {
         }
         biggest++;
 
-        return biggest;
+        return String.format("%02d", biggest);
     }
     //endregion
 

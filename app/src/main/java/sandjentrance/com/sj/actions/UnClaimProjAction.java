@@ -8,14 +8,13 @@ import com.edisonwang.ps.annotations.Event;
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-import com.edisonwang.ps.annotations.ParcelableField;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.RequestEnv;
 
-import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
-import sandjentrance.com.sj.actions.events.ClaimProjActionFailure;
-import sandjentrance.com.sj.actions.events.ClaimProjActionSuccess;
+import sandjentrance.com.sj.actions.UnClaimProjAction_.PsUnClaimProjAction;
+import sandjentrance.com.sj.actions.events.UnClaimProjActionFailure;
+import sandjentrance.com.sj.actions.events.UnClaimProjActionSuccess;
 
 
 /**
@@ -26,31 +25,29 @@ import sandjentrance.com.sj.actions.events.ClaimProjActionSuccess;
         @Field(name = "fileId", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
-        @Event(postFix = "Success", fields = {
-                @ParcelableField(name = "claimUser", kind = @Kind(clazz = String.class))
-        }),
+        @Event(postFix = "Success"),
         @Event(postFix = "Failure")
 })
 
-public class ClaimProjAction extends BaseAction {
+public class UnClaimProjAction extends BaseAction {
 
     @Override
     protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
-        ClaimProjActionHelper helper = PsClaimProjAction.helper(request.getArguments(getClass().getClassLoader()));
+        UnClaimProjActionHelper helper = PsUnClaimProjAction.helper(request.getArguments(getClass().getClassLoader()));
 
         if (credential.getSelectedAccountName() == null) {
-            return new ClaimProjActionFailure();
+            return new UnClaimProjActionFailure();
         }
 
-        if (claimProj(helper.fileId())) {
-            return new ClaimProjActionSuccess(credential.getSelectedAccountName());
+        if (unclaimProj(helper.fileId())) {
+            return new UnClaimProjActionSuccess();
         } else {
-            return new ClaimProjActionFailure();
+            return new UnClaimProjActionFailure();
         }
     }
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return new ClaimProjActionFailure();
+        return new UnClaimProjActionFailure();
     }
 }

@@ -58,7 +58,7 @@ public class FindFolderChildrenAction extends BaseAction {
             Arrays.sort(array, FileObj.getComparator());
             return new FindFolderChildrenActionSuccess(array);
         } catch (IOException e) {
-            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
             return new FindFolderChildrenActionFailure();
         }
 

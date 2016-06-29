@@ -2,6 +2,7 @@ package sandjentrance.com.sj.actions;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.Action;
 import com.edisonwang.ps.annotations.ActionHelper;
 import com.edisonwang.ps.annotations.Event;
@@ -70,7 +71,7 @@ public class DownloadFileAction extends BaseAction {
                 try {
                     FileUtils.copyFile(tempFile, fileLocation);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Crashlytics.getInstance().core.logException(e);
                 }
             }
             localFile = downloadOrReturnExistingFile(fileDlObj, fileLocation);
@@ -94,7 +95,7 @@ public class DownloadFileAction extends BaseAction {
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return null;
+        return new DownloadFileActionFailure();
     }
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Field

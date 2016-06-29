@@ -14,8 +14,11 @@ import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.RequestEnv;
 
 import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
+import sandjentrance.com.sj.actions.DeleteFileAction_.PsDeleteFileAction;
 import sandjentrance.com.sj.actions.events.ClaimProjActionFailure;
 import sandjentrance.com.sj.actions.events.ClaimProjActionSuccess;
+import sandjentrance.com.sj.actions.events.DeleteFileActionFailure;
+import sandjentrance.com.sj.actions.events.DeleteFileActionSuccess;
 
 
 /**
@@ -26,31 +29,29 @@ import sandjentrance.com.sj.actions.events.ClaimProjActionSuccess;
         @Field(name = "fileId", kind = @Kind(clazz = String.class), required = true),
 })
 @EventProducer(generated = {
-        @Event(postFix = "Success", fields = {
-                @ParcelableField(name = "claimUser", kind = @Kind(clazz = String.class))
-        }),
+        @Event(postFix = "Success"),
         @Event(postFix = "Failure")
 })
 
-public class ClaimProjAction extends BaseAction {
+public class DeleteFileAction extends BaseAction {
 
     @Override
     protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
-        ClaimProjActionHelper helper = PsClaimProjAction.helper(request.getArguments(getClass().getClassLoader()));
+        DeleteFileActionHelper helper = PsDeleteFileAction.helper(request.getArguments(getClass().getClassLoader()));
 
         if (credential.getSelectedAccountName() == null) {
             return new ClaimProjActionFailure();
         }
 
-        if (claimProj(helper.fileId())) {
-            return new ClaimProjActionSuccess(credential.getSelectedAccountName());
+        if (deleteFile(helper.fileId())) {
+            return new DeleteFileActionSuccess();
         } else {
-            return new ClaimProjActionFailure();
+            return new DeleteFileActionFailure();
         }
     }
 
     @Override
     protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-        return new ClaimProjActionFailure();
+        return new DeleteFileActionFailure();
     }
 }

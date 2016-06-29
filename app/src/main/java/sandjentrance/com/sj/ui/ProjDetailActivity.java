@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 import com.squareup.picasso.MemoryPolicy;
@@ -42,6 +43,8 @@ import sandjentrance.com.sj.actions.ClaimProjAction;
 import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction;
 import sandjentrance.com.sj.actions.DbAddNewFileAction_.PsDbAddNewFileAction;
+import sandjentrance.com.sj.actions.DbFindClaimedProjListAction;
+import sandjentrance.com.sj.actions.DbFindClaimedProjListAction_.PsDbFindClaimedProjListAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
@@ -52,12 +55,16 @@ import sandjentrance.com.sj.actions.MergePdfAction;
 import sandjentrance.com.sj.actions.MoveFileAction;
 import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
+import sandjentrance.com.sj.actions.UnClaimProjAction;
+import sandjentrance.com.sj.actions.UnClaimProjAction_.PsUnClaimProjAction;
 import sandjentrance.com.sj.actions.events.ArchiveFileActionFailure;
 import sandjentrance.com.sj.actions.events.ArchiveFileActionSuccess;
 import sandjentrance.com.sj.actions.events.ClaimProjActionFailure;
 import sandjentrance.com.sj.actions.events.ClaimProjActionSuccess;
 import sandjentrance.com.sj.actions.events.DbAddNewFileActionFailure;
 import sandjentrance.com.sj.actions.events.DbAddNewFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DbFindClaimedProjListActionFailure;
+import sandjentrance.com.sj.actions.events.DbFindClaimedProjListActionSuccess;
 import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
 import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
 import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
@@ -73,6 +80,8 @@ import sandjentrance.com.sj.actions.events.MoveFileActionPrime;
 import sandjentrance.com.sj.actions.events.MoveFileActionSuccess;
 import sandjentrance.com.sj.actions.events.RenameFileActionFailure;
 import sandjentrance.com.sj.actions.events.RenameFileActionSuccess;
+import sandjentrance.com.sj.actions.events.UnClaimProjActionFailure;
+import sandjentrance.com.sj.actions.events.UnClaimProjActionSuccess;
 import sandjentrance.com.sj.models.FileDownloadObj;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.models.LocalFileObj;
@@ -89,14 +98,17 @@ import sandjentrance.com.sj.views.SpaceItemDecoration;
 @EventListener(producers = {
         FindFolderChildrenAction.class,
         ClaimProjAction.class,
+        UnClaimProjAction.class,
         MoveFileAction.class,
         RenameFileAction.class,
         ArchiveFileAction.class,
         GetUserImgAction.class,
         DbAddNewFileAction.class,
         DownloadFileAction.class,
-        MergePdfAction.class
+        MergePdfAction.class,
+        DbFindClaimedProjListAction.class
 })
+
 public class ProjDetailActivity extends BaseActivity implements FileClickInterface, FabAddFileInterface, ArchiveInterface {
 
     //region Fields----------------------
@@ -122,6 +134,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     @Bind(R.id.profile_img)
     CircleImageView profileImg;
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
+    private String actionIdClaimedList;
+    private boolean projOwnedByMe = false;
     private String actionIdDownload;
     private FileObj fileObj;
     private ProjDetailAdapter adapter;
@@ -177,11 +191,45 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         }
 
         @Override
+        public void onEventMainThread(DbFindClaimedProjListActionFailure event) {
+        }
+
+        @Override
+        public void onEventMainThread(DbFindClaimedProjListActionSuccess event) {
+            if (event.getResponseInfo().mRequestId.equals(actionIdClaimedList)) {
+                for (FileObj f : event.results) {
+                    if (f.id.equals(fileObj.id)) {
+                        projOwnedByMe = true;
+                        refreshMenu();
+                        break;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onEventMainThread(UnClaimProjActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            claimBtn.setVisibility(View.VISIBLE);
+            fileObj.claimUser = null;
+            pmNameView.setText("");
+            projOwnedByMe = false;
+            refreshMenu();
+        }
+
+        @Override
+        public void onEventMainThread(UnClaimProjActionFailure event) {
+            progress.setVisibility(View.GONE);
+        }
+
+        @Override
         public void onEventMainThread(ClaimProjActionSuccess event) {
             progress.setVisibility(View.GONE);
             claimBtn.setVisibility(View.GONE);
             fileObj.claimUser = event.claimUser;
             pmNameView.setText(fileObj.claimUser);
+            projOwnedByMe = true;
+            refreshMenu();
         }
 
         @Override
@@ -331,8 +379,13 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                 return true;
             case R.id.menu_archive:
                 DialogConfirmArchive.getInstance().show(getSupportFragmentManager(), null);
+                return true;
             case R.id.menu_claim:
                 claimProject();
+                return true;
+            case R.id.menu_unclaim:
+                unclaimProject();
+                return true;
             default:
                 // If we got here, the user's ActionEnum was not recognized.
                 // Invoke the superclass to handle it.
@@ -369,7 +422,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
                         InputStream source = getContentResolver().openInputStream(Uri.parse(uriString));
                         org.apache.commons.io.FileUtils.copyInputStreamToFile(source, new File(imagePickerUri.getPath()));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Crashlytics.getInstance().core.logException(e);
                     }
                 }
 
@@ -384,6 +437,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
 
     //region Init----------------------
     private void initData() {
+        actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         refreshFileList();
     }
 
@@ -392,10 +446,9 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
-        if (fileObj.claimUser != null) {
+        if (fileObj.claimUser != null && !fileObj.claimUser.equals("")) {
             claimBtn.setVisibility(View.GONE);
             pmNameView.setText(fileObj.claimUser);
-
             refreshMenu();
         }
 
@@ -446,8 +499,14 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             }
             menu.findItem(R.id.menu_archive).setVisible(true);
 
-            if (fileObj.claimUser != null) {
+            if (fileObj.claimUser != null && !fileObj.claimUser.equals("")) {
                 menu.findItem(R.id.menu_claim).setVisible(true);
+            }
+
+            if (projOwnedByMe) {
+                menu.findItem(R.id.menu_unclaim).setVisible(true);
+            }else {
+                menu.findItem(R.id.menu_unclaim).setVisible(false);
             }
         }
     }
@@ -469,6 +528,11 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     //region Helper----------------------
     private void claimProject() {
         PennStation.requestAction(PsClaimProjAction.helper(fileObj.id));
+        progress.setVisibility(View.VISIBLE);
+    }
+
+    private void unclaimProject() {
+        PennStation.requestAction(PsUnClaimProjAction.helper(fileObj.id));
         progress.setVisibility(View.VISIBLE);
     }
 

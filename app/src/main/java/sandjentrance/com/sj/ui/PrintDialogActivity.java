@@ -10,6 +10,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -92,9 +94,9 @@ public class PrintDialogActivity extends Activity {
 
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
       } catch (FileNotFoundException e) {
-        e.printStackTrace();
+        Crashlytics.getInstance().core.logException(e);
       } catch (IOException e) {
-        e.printStackTrace();
+        Crashlytics.getInstance().core.logException(e);
       }
       return "";
     }

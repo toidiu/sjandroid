@@ -12,6 +12,8 @@ public interface FileClickInterface {
 
     void moveLongClicked(FileObj fileObj);
 
+    void deleteLongClicked(FileObj fileObj);
+
     void shareClicked(FileObj fileObj);
 
     void printClicked(FileObj fileObj);

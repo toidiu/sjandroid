@@ -24,6 +24,8 @@ import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.ArchiveFileAction;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
 import sandjentrance.com.sj.actions.BaseAction;
+import sandjentrance.com.sj.actions.DeleteFileAction;
+import sandjentrance.com.sj.actions.DeleteFileAction_.PsDeleteFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction.ActionEnum;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
@@ -37,6 +39,8 @@ import sandjentrance.com.sj.actions.MoveFileAction_.PsMoveFileAction;
 import sandjentrance.com.sj.actions.RenameFileAction;
 import sandjentrance.com.sj.actions.events.ArchiveFileActionFailure;
 import sandjentrance.com.sj.actions.events.ArchiveFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DeleteFileActionFailure;
+import sandjentrance.com.sj.actions.events.DeleteFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
 import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
 import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
@@ -65,7 +69,8 @@ import sandjentrance.com.sj.ui.extras.ShareInterface;
         ArchiveFileAction.class,
         DownloadFileAction.class,
         DwgConversionAction.class,
-        MergePdfAction.class
+        MergePdfAction.class,
+        DeleteFileAction.class
 })
 public class GenericFileListActivity extends BaseActivity implements FileClickInterface, ShareInterface {
 
@@ -84,6 +89,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     private GenericListAdapter adapter;
     private Snackbar mergeSnackbar;
     private Menu menu;
+    private String actionIdDelete;
     private String actionIdDownload;
     private String actionIdFileList;
     //region PennStation----------------------
@@ -153,6 +159,18 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         public void onEventMainThread(DownloadFileActionDwgConversion event) {
             progress.setVisibility(View.GONE);
             Snackbar.make(progress, R.string.zamzar_started, Snackbar.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onEventMainThread(DeleteFileActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            refreshFileList();
+        }
+
+        @Override
+        public void onEventMainThread(DeleteFileActionFailure event) {
+            progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
@@ -333,6 +351,11 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     public void moveLongClicked(FileObj fileObj) {
         moveFolderHelper.startMove(fileObj.id, fileObj.parent);
         PennStation.postLocalEvent(new MoveFileActionPrime());
+    }
+
+    @Override
+    public void deleteLongClicked(FileObj fileObj) {
+        actionIdDelete = PennStation.requestAction(PsDeleteFileAction.helper(fileObj.id));
     }
 
     @Override

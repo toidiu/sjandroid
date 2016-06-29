@@ -589,6 +589,11 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
+    public void deleteLongClicked(FileObj fileObj) {
+        //this should only happend in the GenericFileListActivity
+    }
+
+    @Override
     public void editClicked(FileObj fileObj) {
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);

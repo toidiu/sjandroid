@@ -63,6 +63,9 @@ public class UtilsView {
                         case R.id.move:
                             listener.moveLongClicked(fileObj);
                             return true;
+                        case R.id.delete:
+                            listener.deleteLongClicked(fileObj);
+                            return true;
                     }
                 }
                 return false;

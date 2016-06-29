@@ -233,6 +233,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         public void onEventMainThread(FindFolderChildrenActionSuccess event) {
             progress.setVisibility(View.GONE);
             archiveFileHelper.wasArhived = false;
+            claimChangedFileHelper.wasClaimedChanged = false;
 
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
                 adapter.refreshView(Arrays.asList(event.results));
@@ -261,7 +262,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         super.onResume();
         PennStation.registerListener(eventListener);
 
-        if (archiveFileHelper.wasArhived) {
+        if (archiveFileHelper.wasArhived || claimChangedFileHelper.wasClaimedChanged ) {
             refreshFileListFromText();
         }
 

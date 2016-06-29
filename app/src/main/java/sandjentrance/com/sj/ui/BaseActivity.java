@@ -32,6 +32,7 @@ import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
+import sandjentrance.com.sj.utils.ClaimChangedFileHelper;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -47,6 +48,8 @@ public class BaseActivity extends AppCompatActivity {
     RenameFileHelper renameFileHelper;
     @Inject
     ArchiveFileHelper archiveFileHelper;
+    @Inject
+    ClaimChangedFileHelper claimChangedFileHelper;
     @Inject
     Context context;
     @Inject

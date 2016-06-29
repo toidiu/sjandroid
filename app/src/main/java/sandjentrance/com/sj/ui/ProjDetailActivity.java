@@ -215,6 +215,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             pmNameView.setText("");
             projOwnedByMe = false;
             refreshMenu();
+            claimChangedFileHelper.wasClaimedChanged = true;
         }
 
         @Override
@@ -230,6 +231,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             pmNameView.setText(fileObj.claimUser);
             projOwnedByMe = true;
             refreshMenu();
+            claimChangedFileHelper.wasClaimedChanged = true;
         }
 
         @Override

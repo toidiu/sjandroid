@@ -622,6 +622,11 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     }
 
     @Override
+    public void duplicateClicked(FileObj fileObj) {
+        //this should only happend in the GenericFileListActivity
+    }
+
+    @Override
     public void addItemClicked(NewFileObj newFileObj) {
         this.newFileObj = newFileObj;
         if (newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {

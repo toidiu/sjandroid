@@ -23,12 +23,13 @@ import butterknife.ButterKnife;
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.actions.ArchiveFileAction;
 import sandjentrance.com.sj.actions.ArchiveFileAction_.PsArchiveFileAction;
-import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.actions.DeleteFileAction;
 import sandjentrance.com.sj.actions.DeleteFileAction_.PsDeleteFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction.ActionEnum;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
+import sandjentrance.com.sj.actions.DuplicateFileAction;
+import sandjentrance.com.sj.actions.DuplicateFileAction_.PsDuplicateFileAction;
 import sandjentrance.com.sj.actions.DwgConversionAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction;
 import sandjentrance.com.sj.actions.FindFolderChildrenAction_.PsFindFolderChildrenAction;
@@ -44,6 +45,8 @@ import sandjentrance.com.sj.actions.events.DeleteFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
 import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
 import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DuplicateFileActionFailure;
+import sandjentrance.com.sj.actions.events.DuplicateFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DwgConversionActionFailure;
 import sandjentrance.com.sj.actions.events.DwgConversionActionSuccess;
 import sandjentrance.com.sj.actions.events.FindFolderChildrenActionFailure;
@@ -70,7 +73,8 @@ import sandjentrance.com.sj.ui.extras.ShareInterface;
         DownloadFileAction.class,
         DwgConversionAction.class,
         MergePdfAction.class,
-        DeleteFileAction.class
+        DeleteFileAction.class,
+        DuplicateFileAction.class
 })
 public class GenericFileListActivity extends BaseActivity implements FileClickInterface, ShareInterface {
 
@@ -90,6 +94,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     private Snackbar mergeSnackbar;
     private Menu menu;
     private String actionIdDelete;
+    private String actionIdDuplicate;
     private String actionIdDownload;
     private String actionIdFileList;
     //region PennStation----------------------
@@ -164,7 +169,9 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         @Override
         public void onEventMainThread(DeleteFileActionSuccess event) {
             progress.setVisibility(View.GONE);
-            refreshFileList();
+            if (event.getResponseInfo().mRequestId.equals(actionIdDelete)) {
+                refreshFileList();
+            }
         }
 
         @Override
@@ -179,6 +186,19 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
             if (event.parentId.equals(fileObj.id)) {
                 refreshFileList();
             }
+        }
+
+        @Override
+        public void onEventMainThread(DuplicateFileActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            if (event.getResponseInfo().mRequestId.equals(actionIdDuplicate)) {
+                refreshFileList();
+            }
+        }
+
+        @Override
+        public void onEventMainThread(DuplicateFileActionFailure event) {
+            progress.setVisibility(View.GONE);
         }
 
         @Override
@@ -355,6 +375,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void deleteLongClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
         actionIdDelete = PennStation.requestAction(PsDeleteFileAction.helper(fileObj.id));
     }
 
@@ -363,7 +384,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 //        if (this.fileObj.title.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
 //            DialogDailyLogs.getInstance(fileObj).show(getSupportFragmentManager(), null);
 //        } else {
-            dialogShareClicked(fileObj);
+        dialogShareClicked(fileObj);
 //        }
     }
 
@@ -372,6 +393,12 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.PRINT.name()));
+    }
+
+    @Override
+    public void duplicateClicked(FileObj fileObj) {
+        progress.setVisibility(View.VISIBLE);
+        actionIdDuplicate = PennStation.requestAction(PsDuplicateFileAction.helper(fileObj.id, fileObj.title));
     }
 
     @Override

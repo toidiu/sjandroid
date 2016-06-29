@@ -18,6 +18,8 @@ public interface FileClickInterface {
 
     void printClicked(FileObj fileObj);
 
+    void duplicateClicked(FileObj fileObj);
+
     void editClicked(FileObj fileObj);
 
     void doMerge();

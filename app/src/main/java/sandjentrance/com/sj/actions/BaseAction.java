@@ -491,6 +491,17 @@ public class BaseAction extends FullAction {
         }
     }
 
+    protected File copyFile(String fileId, String duplicateTitle) {
+        File copiedFile = new File();
+        copiedFile.setTitle(duplicateTitle);
+        try {
+            return driveService.files().copy(fileId, copiedFile).execute();
+        } catch (IOException e) {
+            Crashlytics.getInstance().core.logException(e);
+        }
+        return null;
+    }
+
     protected File renameFile(String id, String newName, String parent) {
         File fileMetadata = new File();
         fileMetadata.setTitle(newName);

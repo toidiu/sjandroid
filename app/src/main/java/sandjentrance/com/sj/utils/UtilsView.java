@@ -32,6 +32,9 @@ public class UtilsView {
                         case R.id.print:
                             listener.printClicked(fileObj);
                             return true;
+                        case R.id.duplicate:
+                            listener.duplicateClicked(fileObj);
+                            return true;
                     }
                 }
                 return false;

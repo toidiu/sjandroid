@@ -112,6 +112,8 @@ public class BaseActivity extends AppCompatActivity {
         Uri uri = Uri.fromFile(file);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(Intent.createChooser(intent, "Send email..."));
+
+//        http://stackoverflow.com/a/3300495/2369122
     }
 
 

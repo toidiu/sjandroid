@@ -158,7 +158,7 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
 
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        getMenuInflater().inflate(R.menu.menu_detail, menu);
 //        this.menu = menu;
 //        refreshMenu();
 //        return true;

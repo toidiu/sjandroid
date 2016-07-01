@@ -366,7 +366,7 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_detail, menu);
         this.menu = menu;
         refreshMenu();
         return true;
@@ -612,6 +612,11 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.SHARE.name()));
+    }
+
+    @Override
+    public void multiShareClicked(FileObj fileObj) {
+        //this should only happend in the GenericFileListActivity
     }
 
     @Override

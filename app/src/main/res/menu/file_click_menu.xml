@@ -5,6 +5,10 @@
         android:title="Share" />
 
     <item
+        android:id="@+id/multi_share"
+        android:title="Multi-Share" />
+
+    <item
         android:id="@+id/print"
         android:title="Print" />
 

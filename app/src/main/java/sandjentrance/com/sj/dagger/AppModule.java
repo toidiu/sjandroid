@@ -22,6 +22,7 @@ import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.utils.ArchiveFileHelper;
 import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
+import sandjentrance.com.sj.utils.MultiShareHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
 import sandjentrance.com.sj.utils.ClaimChangedFileHelper;
@@ -87,6 +88,12 @@ public class AppModule {
     @Singleton
     ArchiveFileHelper providesArchiveHelper() {
         return new ArchiveFileHelper();
+    }
+
+    @Provides
+    @Singleton
+    MultiShareHelper providesMultiShareHelper() {
+        return new MultiShareHelper();
     }
 
     @Provides

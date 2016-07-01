@@ -8,6 +8,8 @@ import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
 
+import java.util.Set;
+
 import javax.inject.Inject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -44,7 +46,7 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
         overflowView = itemView.findViewById(R.id.overflow);
     }
 
-    public void bind(final FileObj item, final FileClickInterface fileClickInterface) {
+    public void bind(final FileObj item, final FileClickInterface fileClickInterface, Set<FileObj> shareMultiple) {
         this.titleView.setText(item.title);
         DateTime parse = DateTime.parse(item.lastModified);
         modifiedView.setText(UtilsDate.dateFormatter.print(parse));
@@ -59,6 +61,13 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
             Picasso.with(SJApplication.appContext).load(R.drawable.ic_document).into(fileIconView);
         }
 
+        if (shareMultiple.contains(item)){
+            containerView.setBackgroundColor(SJApplication.appContext.getResources().getColor(R.color.white_25));
+        }else {
+            containerView.setBackgroundColor(SJApplication.appContext.getResources().getColor(R.color.white_15));
+        }
+
+        //Listeners-----------------
         this.containerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

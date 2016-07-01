@@ -18,6 +18,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ import sandjentrance.com.sj.utils.ArchiveFileHelper;
 import sandjentrance.com.sj.utils.BgImageLoader;
 import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
+import sandjentrance.com.sj.utils.MultiShareHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
 import sandjentrance.com.sj.utils.ClaimChangedFileHelper;
@@ -48,6 +50,8 @@ public class BaseActivity extends AppCompatActivity {
     RenameFileHelper renameFileHelper;
     @Inject
     ArchiveFileHelper archiveFileHelper;
+    @Inject
+    MultiShareHelper multiShareHelper;
     @Inject
     ClaimChangedFileHelper claimChangedFileHelper;
     @Inject
@@ -112,10 +116,60 @@ public class BaseActivity extends AppCompatActivity {
         Uri uri = Uri.fromFile(file);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(Intent.createChooser(intent, "Send email..."));
-
-//        http://stackoverflow.com/a/3300495/2369122
     }
 
+
+
+    public static void email(Context context, String emailTo, String emailCC,
+                             String subject, String emailText, List<String> filePaths)
+    {
+        //need to "send multiple" to get more than one attachment
+        final Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        emailIntent.setType("text/plain");
+
+        //has to be an ArrayList
+        ArrayList<Uri> uris = new ArrayList<Uri>();
+        //convert from paths to Android friendly Parcelable Uri's
+        for (String file : filePaths)
+        {
+            File fileIn = new File(file);
+            Uri u = Uri.fromFile(fileIn);
+            uris.add(u);
+        }
+        emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+    }
+
+    public void shareIntentMultiFile(LocalFileObj[] localFileObj) {
+        Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, "I have attached the requested file..");
+
+//        File file = new File(localFileObj.localPath);
+//        if (!file.exists() || !file.canRead()) {
+//            Toast.makeText(this, "Attachment Error", Toast.LENGTH_SHORT).show();
+//            finish();
+//            return;
+//        }
+
+//        Uri uri = Uri.fromFile(file);
+
+        ArrayList<Uri> uris = new ArrayList<Uri>();
+        for (LocalFileObj local : localFileObj)
+        {
+                    File file = new File(local.localPath);
+        if (!file.exists() || !file.canRead()) {
+            Toast.makeText(this, "Attachment Error", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+            uris.add(Uri.fromFile(file));
+        }
+
+
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        startActivity(Intent.createChooser(intent, "Send email..."));
+    }
 
     protected void printIntentFile(LocalFileObj localFileObj) {
         File file = new File(localFileObj.localPath);

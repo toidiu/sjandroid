@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import sandjentrance.com.sj.R;
+import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.models.FileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 
@@ -28,6 +29,9 @@ public class UtilsView {
                     switch (menuItem.getItemId()) {
                         case R.id.share:
                             listener.shareClicked(fileObj);
+                            return true;
+                        case R.id.multi_share:
+                            listener.multiShareClicked(fileObj);
                             return true;
                         case R.id.print:
                             listener.printClicked(fileObj);

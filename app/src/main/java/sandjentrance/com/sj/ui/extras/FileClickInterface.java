@@ -16,6 +16,8 @@ public interface FileClickInterface {
 
     void shareClicked(FileObj fileObj);
 
+    void multiShareClicked(FileObj fileObj);
+
     void printClicked(FileObj fileObj);
 
     void duplicateClicked(FileObj fileObj);
@@ -23,4 +25,5 @@ public interface FileClickInterface {
     void editClicked(FileObj fileObj);
 
     void doMerge();
+
 }

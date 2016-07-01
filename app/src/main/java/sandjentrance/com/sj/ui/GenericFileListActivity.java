@@ -17,6 +17,8 @@ import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -28,6 +30,8 @@ import sandjentrance.com.sj.actions.DeleteFileAction_.PsDeleteFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction;
 import sandjentrance.com.sj.actions.DownloadFileAction.ActionEnum;
 import sandjentrance.com.sj.actions.DownloadFileAction_.PsDownloadFileAction;
+import sandjentrance.com.sj.actions.DownloadMultiFileAction;
+import sandjentrance.com.sj.actions.DownloadMultiFileAction_.PsDownloadMultiFileAction;
 import sandjentrance.com.sj.actions.DuplicateFileAction;
 import sandjentrance.com.sj.actions.DuplicateFileAction_.PsDuplicateFileAction;
 import sandjentrance.com.sj.actions.DwgConversionAction;
@@ -45,6 +49,8 @@ import sandjentrance.com.sj.actions.events.DeleteFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DownloadFileActionDwgConversion;
 import sandjentrance.com.sj.actions.events.DownloadFileActionFailure;
 import sandjentrance.com.sj.actions.events.DownloadFileActionSuccess;
+import sandjentrance.com.sj.actions.events.DownloadMultiFileActionFailure;
+import sandjentrance.com.sj.actions.events.DownloadMultiFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DuplicateFileActionFailure;
 import sandjentrance.com.sj.actions.events.DuplicateFileActionSuccess;
 import sandjentrance.com.sj.actions.events.DwgConversionActionFailure;
@@ -74,7 +80,8 @@ import sandjentrance.com.sj.ui.extras.ShareInterface;
         DwgConversionAction.class,
         MergePdfAction.class,
         DeleteFileAction.class,
-        DuplicateFileAction.class
+        DuplicateFileAction.class,
+        DownloadMultiFileAction.class
 })
 public class GenericFileListActivity extends BaseActivity implements FileClickInterface, ShareInterface {
 
@@ -214,6 +221,21 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
 
         @Override
+        public void onEventMainThread(DownloadMultiFileActionFailure event) {
+            progress.setVisibility(View.GONE);
+            Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onEventMainThread(DownloadMultiFileActionSuccess event) {
+            progress.setVisibility(View.GONE);
+            multiShareHelper.shareMultiple.clear();
+            adapter.notifyDataSetChanged();
+            refreshMenu();
+            shareIntentMultiFile(event.localFileObj);
+        }
+
+        @Override
         public void onEventMainThread(MoveFileActionPrime event) {
             refreshMenu();
         }
@@ -289,7 +311,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_generic, menu);
         this.menu = menu;
         refreshMenu();
         return true;
@@ -300,6 +322,22 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         switch (item.getItemId()) {
             case R.id.menu_paste:
                 PennStation.requestAction(PsMoveFileAction.helper(fileObj.id));
+                progress.setVisibility(View.VISIBLE);
+                return true;
+            case R.id.menu_cancel_share:
+                multiShareHelper.shareMultiple.clear();
+                adapter.notifyDataSetChanged();
+                refreshMenu();
+                return true;
+            case R.id.menu_multi_share:
+                FileDownloadObj[] fileDlArr = new FileDownloadObj[multiShareHelper.shareMultiple.size()];
+                int i = 0;
+                for (FileObj f : multiShareHelper.shareMultiple) {
+                    fileDlArr[i] = new FileDownloadObj(f.parent, f.id, f.title, f.mime);
+                    i++;
+                }
+
+                PennStation.requestAction(PsDownloadMultiFileAction.helper(fileDlArr));
                 progress.setVisibility(View.VISIBLE);
                 return true;
             case R.id.menu_archive:
@@ -334,7 +372,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new GenericListAdapter(this);
+        adapter = new GenericListAdapter(this, multiShareHelper.shareMultiple);
         recyclerView.setAdapter(adapter);
     }
 
@@ -345,6 +383,13 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
                 menu.findItem(R.id.menu_paste).setVisible(true);
             } else {
                 menu.findItem(R.id.menu_paste).setVisible(false);
+            }
+            if (multiShareHelper.shareMultiple.size() > 0) {
+                menu.findItem(R.id.menu_cancel_share).setVisible(true);
+                menu.findItem(R.id.menu_multi_share).setVisible(true);
+            } else {
+                menu.findItem(R.id.menu_cancel_share).setVisible(false);
+                menu.findItem(R.id.menu_multi_share).setVisible(false);
             }
         }
     }
@@ -381,11 +426,14 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void shareClicked(FileObj fileObj) {
-//        if (this.fileObj.title.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
-//            DialogDailyLogs.getInstance(fileObj).show(getSupportFragmentManager(), null);
-//        } else {
         dialogShareClicked(fileObj);
-//        }
+    }
+
+    @Override
+    public void multiShareClicked(FileObj fileObj) {
+        multiShareHelper.shareMultiple.add(fileObj);
+        adapter.notifyDataSetChanged();
+        refreshMenu();
     }
 
     @Override
@@ -403,6 +451,16 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
     @Override
     public void editClicked(FileObj fileObj) {
+        if (multiShareHelper.shareMultiple.size() > 0) {
+            if (multiShareHelper.shareMultiple.contains(fileObj)) {
+                multiShareHelper.shareMultiple.remove(fileObj);
+            } else {
+                multiShareHelper.shareMultiple.add(fileObj);
+            }
+            adapter.notifyDataSetChanged();
+            refreshMenu();
+            return;
+        }
         progress.setVisibility(View.VISIBLE);
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, ActionEnum.EDIT.name()));

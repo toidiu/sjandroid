@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import sandjentrance.com.sj.R;
 import sandjentrance.com.sj.models.FileObj;
@@ -20,11 +21,13 @@ import sandjentrance.com.sj.views.GenericViewHolder;
 public class GenericListAdapter extends RecyclerView.Adapter {
 
     private final FileClickInterface fileClickInterface;
+    private Set<FileObj> shareMultiple;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private List<FileObj> list = new ArrayList<>();
 
-    public GenericListAdapter(FileClickInterface fileClickInterface) {
+    public GenericListAdapter(FileClickInterface fileClickInterface, Set<FileObj> shareMultiple) {
         this.fileClickInterface = fileClickInterface;
+        this.shareMultiple = shareMultiple;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class GenericListAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final FileObj item = list.get(position);
         GenericViewHolder view = (GenericViewHolder) holder;
-        view.bind(item, fileClickInterface);
+        view.bind(item, fileClickInterface, shareMultiple);
     }
 
     @Override

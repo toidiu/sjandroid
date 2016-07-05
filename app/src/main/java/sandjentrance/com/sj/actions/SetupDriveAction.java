@@ -51,7 +51,7 @@ public class SetupDriveAction extends BaseAction {
         List<ParentReference> parents = new ArrayList<>();
         parents.add(new ParentReference().setId(parentId));
 
-        if (checkAndCreateArchive(parents, parentId) && checkAndCreatePhotos(parents, parentId) && checkAndCreatePONumber(parents, parentId) && setupTst() != null) {
+        if (checkAndCreateArchive(parents, parentId) && checkAndCreatePhotos(parents, parentId) && checkAndCreatePONumber(parents, parentId)) {
             prefs.setBaseFolderId(parentId);
             return new SetupDriveActionSuccess();
         } else {

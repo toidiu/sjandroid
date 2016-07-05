@@ -21,8 +21,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.Drive.Properties.Get;
-import com.google.api.services.drive.Drive.Properties.Update;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
@@ -634,8 +632,8 @@ public class BaseAction extends FullAction {
         return "e-" + biggest;
     }
 
-
-    protected String setupTst() {
+    @Nullable
+    protected String incrementAndGetPoNumber() {
         try {
             // First retrieve the property from the API.
             Drive.Files.List request = driveService.files().list();
@@ -659,8 +657,7 @@ public class BaseAction extends FullAction {
             //make sure the value was updated
             String upValue = execute.getProperties().get(0).getValue();
             if (nextNum == Integer.valueOf(upValue).intValue()) {
-                String s = String.format("%02d", nextNum);
-                return null;
+                return String.format("%02d", nextNum);
             } else {
                 return null;
             }
@@ -668,40 +665,9 @@ public class BaseAction extends FullAction {
             e.printStackTrace();
             Crashlytics.getInstance().core.logException(e);
             System.out.println("An error occurred: " + e);
-        return null;
-        }
-
-    }
-
-
-    @Nullable
-    protected String incrementAndGetPoNumber() {
-        try {
-            // First retrieve the property from the API.
-            Get request = driveService.properties().get(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY);
-            request.setVisibility(PUBLIC_VISIBILITY);
-            Property property = request.execute();
-            Integer number = Integer.valueOf(property.getValue());
-
-            //update and set new value
-            Integer nextNum = number + 1;
-            property.setValue(String.valueOf(nextNum));
-            Update update = driveService.properties().update(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY, property);
-            update.setVisibility(PUBLIC_VISIBILITY);
-
-            //make sure the value was updated
-            String value = update.execute().getValue();
-            if (nextNum == Integer.valueOf(value).intValue()) {
-                return String.format("%02d", nextNum);
-            } else {
-                return null;
-            }
-
-        } catch (IOException e) {
-            Crashlytics.getInstance().core.logException(e);
-            System.out.println("An error occurred: " + e);
             return null;
         }
+
     }
     //endregion
 

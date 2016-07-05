@@ -62,12 +62,14 @@ public class BaseAction extends FullAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     public static final String CLAIM_PROPERTY = "claim";
-    public static final String PO_NUMBER_PROPERTY = "po_numbe";
+    public static final String PO_NUMBER_PROPERTY = "po_number";
     public static final String PUBLIC_VISIBILITY = "PUBLIC";
 
     public static final String ARCHIVE_FOLDER_SETUP = "Archive";
     public static final String PHOTOS_FOLDER_SETUP = "Photos";
     public static final String PO_NUMBER_FOLDER_SETUP = "PoNum";
+
+    public static final String APPFOLDER_ID = "appfolder";
 
     public static final String PURCHASE_FOLDER_NAME = "Purchase Orders";
     public static final String PROJ_REQUEST_NAME = "Project Labour Request";
@@ -318,8 +320,11 @@ public class BaseAction extends FullAction {
     }
 
     @NonNull
-    protected boolean checkAndCreatePONumber(List<ParentReference> parents, String parentId) {
-        List<FileObj> dataFromApi = getFoldersByName(PO_NUMBER_FOLDER_SETUP, parentId);
+    protected boolean checkAndCreatePONumber(List<ParentReference> parentss, String parentId) {
+        List<FileObj> dataFromApi = getFoldersByName(PO_NUMBER_FOLDER_SETUP, APPFOLDER_ID);
+        List<ParentReference> parents = new ArrayList<>();
+        parents.add(new ParentReference().setId(APPFOLDER_ID));
+
 
         if (dataFromApi.size() == 0) {
             File ponumber = new File();
@@ -351,35 +356,10 @@ public class BaseAction extends FullAction {
     }
 
 
-
-    protected String setupTst() {
-        try {
-            // First retrieve the property from the API.
-            Get request = driveService.properties().get(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY);
-            request.setVisibility(PUBLIC_VISIBILITY);
-            Property property = request.execute();
-
-            //update and set new value
-            property.setValue("100000");
-            Update update = driveService.properties().update(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY, property);
-            update.setVisibility(PUBLIC_VISIBILITY);
-
-            //make sure the value was updated
-            return update.execute().getValue();
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            Crashlytics.getInstance().core.logException(e);
-            System.out.println("An error occurred: " + e);
-            return null;
-        }
-    }
-
-
     //endregion
 
     //region File Helper----------------------
+
     protected FileObj getFileById(String fileId) {
         try {
             File file = driveService.files().get(fileId)
@@ -654,35 +634,45 @@ public class BaseAction extends FullAction {
         return "e-" + biggest;
     }
 
-//    protected String getNextPurchaseOrderNumber(String parentId) throws IOException {
-//        String search =
-//                "'" + parentId + "'" + " in parents"
-//                        + " and " + "title != '.DS_Store'"
-//                        + " and " + "mimeType != '" + FOLDER_MIME + "'";
-//
-//        List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
-//        int biggest = 0;
-//        for (FileObj f : dataFromApi) {
-//            if (f.title.indexOf("-") < 0) continue;
-//
-//            String substring = f.title.substring(f.title.indexOf("-") + 1);
-//
-//            if (substring.indexOf("-") < 0) continue;
-//            String substring1 = substring.substring(0, substring.indexOf("-"));
-//            try {
-//                Integer integer = Integer.valueOf(substring1);
-//                if (biggest < integer) {
-//                    biggest = integer;
-//                }
-//            } catch (RuntimeException e) {
-//                Crashlytics.getInstance().core.logException(e);
-//                Log.d("---exp", e.toString());
-//            }
-//        }
-//        biggest++;
-//
-//        return String.format("%02d", biggest);
-//    }
+
+    protected String setupTst() {
+        try {
+            // First retrieve the property from the API.
+            Drive.Files.List request = driveService.files().list();
+            request.setQ("'appfolder' in parents"
+                    + " and " + "title = '" + PO_NUMBER_FOLDER_SETUP + "'");
+
+            FileList files = request.execute();
+            File poFile = files.getItems().get(0);
+            Property property = poFile.getProperties().get(0);
+            Integer number = Integer.valueOf(property.getValue());
+
+
+            //update and set new value
+            Integer nextNum = number + 1;
+            property.setKey(PO_NUMBER_PROPERTY).setValue(String.valueOf(nextNum)).setVisibility(PUBLIC_VISIBILITY);
+            List<Property> d = new ArrayList<>();
+            d.add(property);
+            poFile.setProperties(d);
+            File execute = driveService.files().update(poFile.getId(), poFile).execute();
+
+            //make sure the value was updated
+            String upValue = execute.getProperties().get(0).getValue();
+            if (nextNum == Integer.valueOf(upValue).intValue()) {
+                String s = String.format("%02d", nextNum);
+                return null;
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
+            System.out.println("An error occurred: " + e);
+        return null;
+        }
+
+    }
+
 
     @Nullable
     protected String incrementAndGetPoNumber() {
@@ -701,7 +691,7 @@ public class BaseAction extends FullAction {
 
             //make sure the value was updated
             String value = update.execute().getValue();
-            if (nextNum == Integer.valueOf(value).intValue() ) {
+            if (nextNum == Integer.valueOf(value).intValue()) {
                 return String.format("%02d", nextNum);
             } else {
                 return null;

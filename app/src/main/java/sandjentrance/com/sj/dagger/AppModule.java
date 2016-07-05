@@ -43,7 +43,7 @@ public class AppModule {
     @Provides
     @Singleton
     GoogleAccountCredential providesCredentials(Context context, Prefs prefs) {
-        final String[] SCOPES = {DriveScopes.DRIVE};
+        final String[] SCOPES = {DriveScopes.DRIVE, DriveScopes.DRIVE_APPDATA};
 
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
                 context.getApplicationContext(), Arrays.asList(SCOPES))

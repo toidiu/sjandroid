@@ -16,6 +16,7 @@ public class Prefs {
     public static final String BASE_FOLDER_ID = "BASE_FOLDER_ID";
     public static final String ARCHIVE_FOLDER_ID = "ARCHIVE_FOLDER_ID";
     public static final String PHOTOS_FOLDER_ID = "PHOTOS_FOLDER_ID";
+    public static final String PO_NUMBER_FOLDER_ID = "PO_NUMBER_FOLDER_ID";
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private SharedPreferences prefs;
@@ -60,6 +61,15 @@ public class Prefs {
 
     public void setPhotosFolderId(String user) {
         prefs.edit().putString(PHOTOS_FOLDER_ID, user).apply();
+    }
+
+    @Nullable
+    public String getPoNumberFolderId() {
+        return prefs.getString(PO_NUMBER_FOLDER_ID, null);
+    }
+
+    public void setPoNumberFolderId(String user) {
+        prefs.edit().putString(PO_NUMBER_FOLDER_ID, user).apply();
     }
 
 }

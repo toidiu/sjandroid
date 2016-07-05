@@ -55,24 +55,22 @@ public class GetNextPONumberAction extends BaseAction {
         NewFileObj newFileObj = helper.newFileObj();
 
 
-        //find proper folder else put in base of project folder
+        //find proper folder else fail
         String parentId = null;
         List<FileObj> foldersByNameFuzzy = getFoldersByNameFuzzy(newFileObj.parentName, newFileObj.projId);
         if (foldersByNameFuzzy != null && foldersByNameFuzzy.size() > 0) {
             parentId = foldersByNameFuzzy.get(0).id;
         }
-
         if (parentId == null) return new GetNextPONumberActionFailure();
 
-        //get name of latest purchase order pdf
+        //get name of proj folder
         FileObj projFolder = getFileById(newFileObj.projId);
         newFileObj.projTitle = projFolder.title;
 
-
         //new PO file name
-        String nextNumber = getNextPurchaseOrderNumber(parentId);
+        String nextNumber = incrementAndGetPoNumber();
         newFileObj.title = getNextPurchaseOrderName(newFileObj, nextNumber);
-        String pdfNum = getProjNumber(newFileObj) + "-" + nextNumber;
+        String pdfNum = getNextPOrderNumber(nextNumber);
 
 
         //create new local file

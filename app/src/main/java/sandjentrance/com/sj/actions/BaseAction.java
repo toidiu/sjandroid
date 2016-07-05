@@ -21,6 +21,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.Drive.Properties.Get;
+import com.google.api.services.drive.Drive.Properties.Update;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
@@ -48,7 +50,6 @@ import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
 import sandjentrance.com.sj.utils.UtilFile;
 
-
 /**
  * Created by toidiu on 3/28/16.
  */
@@ -61,9 +62,12 @@ public class BaseAction extends FullAction {
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     public static final String CLAIM_PROPERTY = "claim";
+    public static final String PO_NUMBER_PROPERTY = "po_numbe";
+    public static final String PUBLIC_VISIBILITY = "PUBLIC";
 
     public static final String ARCHIVE_FOLDER_SETUP = "Archive";
     public static final String PHOTOS_FOLDER_SETUP = "Photos";
+    public static final String PO_NUMBER_FOLDER_SETUP = "PoNum";
 
     public static final String PURCHASE_FOLDER_NAME = "Purchase Orders";
     public static final String PROJ_REQUEST_NAME = "Project Labour Request";
@@ -300,9 +304,7 @@ public class BaseAction extends FullAction {
             photos.setParents(parents);
 
             try {
-                File file = driveService.files()
-                        .insert(photos)
-                        .execute();
+                File file = driveService.files().insert(photos).execute();
                 prefs.setPhotosFolderId(file.getId());
                 return true;
             } catch (IOException e) {
@@ -314,6 +316,67 @@ public class BaseAction extends FullAction {
             return true;
         }
     }
+
+    @NonNull
+    protected boolean checkAndCreatePONumber(List<ParentReference> parents, String parentId) {
+        List<FileObj> dataFromApi = getFoldersByName(PO_NUMBER_FOLDER_SETUP, parentId);
+
+        if (dataFromApi.size() == 0) {
+            File ponumber = new File();
+            ponumber.setTitle(PO_NUMBER_FOLDER_SETUP);
+            ponumber.setMimeType(FOLDER_MIME);
+            ponumber.setParents(parents);
+
+            List<Property> pp = new ArrayList<>();
+            Property property = new Property();
+            property.setKey(PO_NUMBER_PROPERTY).setValue("100000");
+            property.setVisibility(PUBLIC_VISIBILITY);
+            pp.add(property);
+            ponumber.setProperties(pp);
+
+
+            try {
+                File file = driveService.files().insert(ponumber).execute();
+                prefs.setPoNumberFolderId(file.getId());
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                Crashlytics.getInstance().core.logException(e);
+                return false;
+            }
+        } else {
+            prefs.setPoNumberFolderId(dataFromApi.get(0).id);
+            return true;
+        }
+    }
+
+
+
+    protected String setupTst() {
+        try {
+            // First retrieve the property from the API.
+            Get request = driveService.properties().get(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY);
+            request.setVisibility(PUBLIC_VISIBILITY);
+            Property property = request.execute();
+
+            //update and set new value
+            property.setValue("100000");
+            Update update = driveService.properties().update(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY, property);
+            update.setVisibility(PUBLIC_VISIBILITY);
+
+            //make sure the value was updated
+            return update.execute().getValue();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Crashlytics.getInstance().core.logException(e);
+            System.out.println("An error occurred: " + e);
+            return null;
+        }
+    }
+
+
     //endregion
 
     //region File Helper----------------------
@@ -577,52 +640,78 @@ public class BaseAction extends FullAction {
     }
 
 
-
 //endregion
 
 
     //region Purchase Order Helper----------------------
     protected String getNextPurchaseOrderName(NewFileObj newFileObj, String biggest) throws IOException {
-
         assert newFileObj.projTitle != null;
-        String projNum = getProjNumber(newFileObj);
-
-        return projNum + "-" + biggest + "-" + newFileObj.title;
+        return getNextPOrderNumber(biggest) + "-" + newFileObj.title;
     }
 
     @NonNull
-    protected String getProjNumber(NewFileObj newFileObj) {
-        assert newFileObj.projTitle != null;
-        return newFileObj.projTitle.substring(1, newFileObj.projTitle.indexOf(" -"));
+    protected String getNextPOrderNumber(String biggest) {
+        return "e-" + biggest;
     }
 
-    protected String getNextPurchaseOrderNumber(String parentId) throws IOException {
-        String search =
-                "'" + parentId + "'" + " in parents"
-                        + " and " + "title != '.DS_Store'"
-                        + " and " + "mimeType != '" + FOLDER_MIME + "'";
+//    protected String getNextPurchaseOrderNumber(String parentId) throws IOException {
+//        String search =
+//                "'" + parentId + "'" + " in parents"
+//                        + " and " + "title != '.DS_Store'"
+//                        + " and " + "mimeType != '" + FOLDER_MIME + "'";
+//
+//        List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
+//        int biggest = 0;
+//        for (FileObj f : dataFromApi) {
+//            if (f.title.indexOf("-") < 0) continue;
+//
+//            String substring = f.title.substring(f.title.indexOf("-") + 1);
+//
+//            if (substring.indexOf("-") < 0) continue;
+//            String substring1 = substring.substring(0, substring.indexOf("-"));
+//            try {
+//                Integer integer = Integer.valueOf(substring1);
+//                if (biggest < integer) {
+//                    biggest = integer;
+//                }
+//            } catch (RuntimeException e) {
+//                Crashlytics.getInstance().core.logException(e);
+//                Log.d("---exp", e.toString());
+//            }
+//        }
+//        biggest++;
+//
+//        return String.format("%02d", biggest);
+//    }
 
-        List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
-        int biggest = 0;
-        for (FileObj f : dataFromApi) {
-            if (f.title.indexOf("-") < 0) continue;
+    @Nullable
+    protected String incrementAndGetPoNumber() {
+        try {
+            // First retrieve the property from the API.
+            Get request = driveService.properties().get(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY);
+            request.setVisibility(PUBLIC_VISIBILITY);
+            Property property = request.execute();
+            Integer number = Integer.valueOf(property.getValue());
 
-            String substring = f.title.substring(f.title.indexOf("-") + 1);
+            //update and set new value
+            Integer nextNum = number + 1;
+            property.setValue(String.valueOf(nextNum));
+            Update update = driveService.properties().update(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY, property);
+            update.setVisibility(PUBLIC_VISIBILITY);
 
-            if (substring.indexOf("-") < 0) continue;
-            String substring1 = substring.substring(0, substring.indexOf("-"));
-            try {
-                Integer integer = Integer.valueOf(substring1);
-                if (biggest < integer) {
-                    biggest = integer;
-                }
-            } catch (RuntimeException e) {
-                Log.d("---exp", e.toString());
+            //make sure the value was updated
+            String value = update.execute().getValue();
+            if (nextNum == Integer.valueOf(value).intValue() ) {
+                return String.format("%02d", nextNum);
+            } else {
+                return null;
             }
-        }
-        biggest++;
 
-        return String.format("%02d", biggest);
+        } catch (IOException e) {
+            Crashlytics.getInstance().core.logException(e);
+            System.out.println("An error occurred: " + e);
+            return null;
+        }
     }
     //endregion
 

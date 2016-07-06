@@ -24,8 +24,8 @@ android {
         applicationId "sandjentrance.com.sjandroid"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 231
-        versionName "2.31"
+        versionCode 233
+        versionName "2.33"
         multiDexEnabled true
     }
 

@@ -23,20 +23,22 @@
 
             <ImageView
                 android:id="@+id/logo"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/sj_logo" />
-
-            <TextView
-                android:id="@+id/sj_text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/logo"
+                android:layout_height="150dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="16dp"
-                android:text="ENTRANCE &amp; WINDOW SPECIALISTS"
-                android:textColor="@color/white" />
+                android:src="@drawable/logo" />
+
+            <!--<TextView-->
+                <!--android:id="@+id/sj_text"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_below="@id/logo"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="16dp"-->
+                <!--android:text="ENTRANCE &amp; WINDOW SPECIALISTS"-->
+                <!--android:textColor="@color/white" />-->
         </RelativeLayout>
 
         <ImageView
@@ -45,7 +47,7 @@
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="50dp"
+            android:layout_marginBottom="100dp"
             android:scaleType="fitCenter"
             android:src="@drawable/signin" />
 

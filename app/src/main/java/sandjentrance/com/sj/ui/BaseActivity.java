@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -29,12 +32,12 @@ import sandjentrance.com.sj.actions.BaseAction;
 import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.utils.ArchiveFileHelper;
 import sandjentrance.com.sj.utils.BgImageLoader;
+import sandjentrance.com.sj.utils.ClaimChangedFileHelper;
 import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.MultiShareHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
-import sandjentrance.com.sj.utils.ClaimChangedFileHelper;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -61,12 +64,29 @@ public class BaseActivity extends AppCompatActivity {
     @Inject
     MergePfdHelper mergePfdHelper;
 
+    public static void email(Context context, String emailTo, String emailCC,
+                             String subject, String emailText, List<String> filePaths) {
+        //need to "send multiple" to get more than one attachment
+        final Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        emailIntent.setType("text/plain");
+
+        //has to be an ArrayList
+        ArrayList<Uri> uris = new ArrayList<Uri>();
+        //convert from paths to Android friendly Parcelable Uri's
+        for (String file : filePaths) {
+            File fileIn = new File(file);
+            Uri u = Uri.fromFile(fileIn);
+            uris.add(u);
+        }
+        emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((SJApplication) getApplication()).getAppComponent().inject(this);
     }
-
 
     protected void initBg() {
         final View layout = findViewById(R.id.layout);
@@ -118,28 +138,6 @@ public class BaseActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(intent, "Send email..."));
     }
 
-
-
-    public static void email(Context context, String emailTo, String emailCC,
-                             String subject, String emailText, List<String> filePaths)
-    {
-        //need to "send multiple" to get more than one attachment
-        final Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-        emailIntent.setType("text/plain");
-
-        //has to be an ArrayList
-        ArrayList<Uri> uris = new ArrayList<Uri>();
-        //convert from paths to Android friendly Parcelable Uri's
-        for (String file : filePaths)
-        {
-            File fileIn = new File(file);
-            Uri u = Uri.fromFile(fileIn);
-            uris.add(u);
-        }
-        emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-        context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-    }
-
     public void shareIntentMultiFile(LocalFileObj[] localFileObj) {
         Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         intent.setType("text/plain");
@@ -155,14 +153,13 @@ public class BaseActivity extends AppCompatActivity {
 //        Uri uri = Uri.fromFile(file);
 
         ArrayList<Uri> uris = new ArrayList<Uri>();
-        for (LocalFileObj local : localFileObj)
-        {
-                    File file = new File(local.localPath);
-        if (!file.exists() || !file.canRead()) {
-            Toast.makeText(this, "Attachment Error", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        for (LocalFileObj local : localFileObj) {
+            File file = new File(local.localPath);
+            if (!file.exists() || !file.canRead()) {
+                Toast.makeText(this, "Attachment Error", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
             uris.add(Uri.fromFile(file));
         }
 
@@ -174,9 +171,20 @@ public class BaseActivity extends AppCompatActivity {
     protected void printIntentFile(LocalFileObj localFileObj) {
         File file = new File(localFileObj.localPath);
 
-        Intent printIntent = new Intent(this, PrintDialogActivity.class);
-        printIntent.setDataAndType(Uri.fromFile(file), localFileObj.mime);
-        printIntent.putExtra("title", localFileObj.title);
-        startActivity(printIntent);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            Intent printIntent = new Intent(this, PrintDialogActivity.class);
+            printIntent.setDataAndType(Uri.fromFile(file), localFileObj.mime);
+            printIntent.putExtra("title", localFileObj.title);
+            startActivity(printIntent);
+        } else {
+            PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+
+            // Set job name, which will be displayed in the print queue
+            String jobName = getString(R.string.app_name) +"-"+ file.getName();
+
+            // Start a print job, passing in a PrintDocumentAdapter implementation
+            // to handle the generation of a print document
+            printManager.print(jobName, new MyPrintDocumentAdapter(file, jobName), null); //
+        }
     }
 }

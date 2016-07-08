@@ -65,7 +65,7 @@ public class BaseAction extends FullAction {
 
     public static final String ARCHIVE_FOLDER_SETUP = "Archive";
     public static final String PHOTOS_FOLDER_SETUP = "Photos";
-    public static final String PO_NUMBER_FOLDER_SETUP = "PoNum";
+    public static final String PO_NUMBER_FOLDER_SETUP = "PoNum - DO NOT DELETE";
 
     public static final String APPFOLDER_ID = "appfolder";
 
@@ -134,39 +134,6 @@ public class BaseAction extends FullAction {
 
         return super.preProcess(context, request, env);
     }
-
-//    @Override
-//    protected ActionResult process(Context context, ActionRequest request, RequestEnv env) throws Throwable {
-//        ((SJApplication) SJApplication.appContext).getAppComponent().inject(this);
-//
-//        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-//        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-//        driveService = new Drive.Builder(
-//                transport, jsonFactory, credential)
-//                .setApplicationName("SJ")
-//                .build();
-//
-//        return null;
-//    }
-//
-//    @Override
-//    protected ActionResult onError(Context context, ActionRequest request, RequestEnv env, Throwable e) {
-//        return null;
-//    }
-
-//    @Override
-//    public ActionResult processRequest(EventServiceImpl service, ActionRequest actionRequest, Bundle bundle) {
-//        ((SJApplication) SJApplication.appContext).getAppComponent().inject(this);
-//
-//        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-//        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-//        driveService = new Drive.Builder(
-//                transport, jsonFactory, credential)
-//                .setApplicationName("SJ")
-//                .build();
-//
-//        return new BaseActionEvent();
-//    }
 
     //region Folder Helper----------------------
     protected List<File> executeQueryList(String search) throws IOException {
@@ -317,12 +284,10 @@ public class BaseAction extends FullAction {
         }
     }
 
-    @NonNull
-    protected boolean checkAndCreatePONumber(List<ParentReference> parentss, String parentId) {
-        List<FileObj> dataFromApi = getFoldersByName(PO_NUMBER_FOLDER_SETUP, APPFOLDER_ID);
-        List<ParentReference> parents = new ArrayList<>();
-        parents.add(new ParentReference().setId(APPFOLDER_ID));
 
+    @NonNull
+    protected boolean checkAndCreatePONumber(List<ParentReference> parents, String parentId) {
+        List<FileObj> dataFromApi = getFoldersByName(PO_NUMBER_FOLDER_SETUP, parentId);
 
         if (dataFromApi.size() == 0) {
             File ponumber = new File();
@@ -352,7 +317,6 @@ public class BaseAction extends FullAction {
             return true;
         }
     }
-
 
     //endregion
 
@@ -632,43 +596,35 @@ public class BaseAction extends FullAction {
         return "e-" + biggest;
     }
 
-    @Nullable
-    protected String incrementAndGetPoNumber() {
-        try {
-            // First retrieve the property from the API.
-            Drive.Files.List request = driveService.files().list();
-            request.setQ("'appfolder' in parents"
-                    + " and " + "title = '" + PO_NUMBER_FOLDER_SETUP + "'");
+      @Nullable
+      protected String incrementAndGetPoNumber() {
+          try {
+              // First retrieve the property from the API.
+             Drive.Properties.Get request = driveService.properties().get(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY);
+             request.setVisibility(PUBLIC_VISIBILITY);
+             Property property = request.execute();
+             Integer number = Integer.valueOf(property.getValue());
 
-            FileList files = request.execute();
-            File poFile = files.getItems().get(0);
-            Property property = poFile.getProperties().get(0);
-            Integer number = Integer.valueOf(property.getValue());
+             //update and set new value
+             Integer nextNum = number + 1;
+             property.setValue(String.valueOf(nextNum));
+             Drive.Properties.Update update = driveService.properties().update(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY, property);
+             update.setVisibility(PUBLIC_VISIBILITY);
 
+              //make sure the value was updated
+              String value = update.execute().getValue();
+              if (nextNum == Integer.valueOf(value).intValue() ) {
+                  return String.format("%02d", nextNum);
+              } else {
+                  return null;
+              }
+          } catch (IOException e) {
+              Crashlytics.getInstance().core.logException(e);
+              System.out.println("An error occurred: " + e);
+              return null;
+          }
+      }
 
-            //update and set new value
-            Integer nextNum = number + 1;
-            property.setKey(PO_NUMBER_PROPERTY).setValue(String.valueOf(nextNum)).setVisibility(PUBLIC_VISIBILITY);
-            List<Property> d = new ArrayList<>();
-            d.add(property);
-            poFile.setProperties(d);
-            File execute = driveService.files().update(poFile.getId(), poFile).execute();
-
-            //make sure the value was updated
-            String upValue = execute.getProperties().get(0).getValue();
-            if (nextNum == Integer.valueOf(upValue).intValue()) {
-                return String.format("%02d", nextNum);
-            } else {
-                return null;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Crashlytics.getInstance().core.logException(e);
-            System.out.println("An error occurred: " + e);
-            return null;
-        }
-
-    }
     //endregion
 
 

@@ -40,6 +40,7 @@ public class MyPrintDocumentAdapter extends PrintDocumentAdapter {
     public MyPrintDocumentAdapter(File file, String jobName) {
         this.file = file;
         this.jobName = jobName;
+        Crashlytics.getInstance().core.log(1, "MyPrintDocumentAdapter -" + jobName, file.getAbsolutePath());
     }
 
     @Override
@@ -54,16 +55,16 @@ public class MyPrintDocumentAdapter extends PrintDocumentAdapter {
             byte[] buf = new byte[1024];
             int bytesRead;
 
+            Integer integer = 0;
             while ((bytesRead = input.read(buf)) > 0) {
+                integer++;
                 output.write(buf, 0, bytesRead);
             }
 
+            Crashlytics.getInstance().core.log(1, "MyPrintDocumentAdapter -" + jobName, integer.toString());
+
             callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
 
-        } catch (FileNotFoundException e){
-            //Catch exception
-            e.printStackTrace();
-            Crashlytics.getInstance().core.logException(e);
         } catch (Exception e) {
             e.printStackTrace();
             Crashlytics.getInstance().core.logException(e);
@@ -72,7 +73,7 @@ public class MyPrintDocumentAdapter extends PrintDocumentAdapter {
             try {
                 input.close();
                 output.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Crashlytics.getInstance().core.logException(e);
             }

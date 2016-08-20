@@ -116,6 +116,8 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
     public static final String FILE_OBJ = "FILE_OBJ";
     public static final int REQ_CODE_USER_IMG = 23969;
     public static final int REQ_CODE_NEW_IMG = 23970;
+    public static final String saveStateImageUri = "saveStateImageUri";
+    public static final String saveStateNewFileObj = "saveStateNewFileObj";
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.pm_name)
     TextView pmNameView;
@@ -435,6 +437,29 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
             }
         }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (imagePickerUri != null) {
+            outState.putString(saveStateImageUri, imagePickerUri.toString());
+        }
+        if (newFileObj!=null){
+            outState.putParcelable(saveStateNewFileObj, newFileObj);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey(saveStateImageUri)) {
+            imagePickerUri = Uri.parse(savedInstanceState.getString(saveStateImageUri));
+        }
+        if (savedInstanceState.containsKey(saveStateNewFileObj)) {
+            newFileObj = savedInstanceState.getParcelable(saveStateNewFileObj);
+        }
+    }
+
     //endregion
 
     //region Init----------------------

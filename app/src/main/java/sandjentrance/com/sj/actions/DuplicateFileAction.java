@@ -40,7 +40,17 @@ public class DuplicateFileAction extends BaseAction {
             return new DuplicateFileActionFailure();
         }
 
-        if (copyFile(helper.fileId(), helper.fileName() + "-copy") != null) {
+        String fileName = helper.fileName();
+        String copyFileName;
+        int i = fileName.indexOf(".pdf");
+        if (i > 0) {
+            copyFileName = fileName.substring(0, i) + "-copy.pdf";
+        } else {
+            copyFileName = fileName + "-copy";
+        }
+
+
+        if (copyFile(helper.fileId(), copyFileName) != null) {
             return new DuplicateFileActionSuccess();
         } else {
             return new DuplicateFileActionFailure();

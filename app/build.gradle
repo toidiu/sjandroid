@@ -22,10 +22,10 @@ android {
 
     defaultConfig {
         applicationId "sandjentrance.com.sjandroid"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 23
-        versionCode 235
-        versionName "2.35"
+        versionCode 241
+        versionName "2.41"
         multiDexEnabled true
     }
 
@@ -48,12 +48,12 @@ android {
 //            keyAlias "debug"
 //            keyPassword "123456"
 //        }
-//        release {
-//            storeFile file('release.jks')
-//            storePassword ""
-//            keyAlias "android"
-//            keyPassword ""
-//        }
+        release {
+            storeFile file('release.jks')
+            storePassword "J00laP1ng"
+            keyAlias "android"
+            keyPassword "J00laP1ng"
+        }
     }
     buildTypes {
         debug {
@@ -63,16 +63,16 @@ android {
             applicationIdSuffix ".debug"
         }
 //        staging {
-//            debuggable true
 //            minifyEnabled false
 //            applicationIdSuffix ".staging"
 //            signingConfig signingConfigs.debug
 //        }
-//        release {
-//            minifyEnabled false
+        release {
+//            debuggable true
+            minifyEnabled false
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//            signingConfig signingConfigs.release
-//        }
+            signingConfig signingConfigs.release
+        }
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES.txt'

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
 import android.print.PrintManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -179,12 +180,13 @@ public class BaseActivity extends AppCompatActivity {
         } else {
             PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
 
+            List<PrintJob> printJobs = printManager.getPrintJobs();
             // Set job name, which will be displayed in the print queue
             String jobName = getString(R.string.app_name) +"-"+ file.getName();
 
             // Start a print job, passing in a PrintDocumentAdapter implementation
             // to handle the generation of a print document
-            printManager.print(jobName, new MyPrintDocumentAdapter(file, jobName), null); //
+            PrintJob print = printManager.print(jobName, new MyPrintDocumentAdapter(file, jobName), null);//
         }
     }
 }

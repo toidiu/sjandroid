@@ -141,6 +141,8 @@ public class BaseAction extends FullAction {
 
         FileList result = driveService.files().list()
                 .setQ(search)
+                .setOrderBy("modifiedDate desc")
+                .setMaxResults(300)
                 .execute();
         List<File> files = result.getItems();
 

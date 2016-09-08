@@ -22,10 +22,10 @@ android {
 
     defaultConfig {
         applicationId "sandjentrance.com.sjandroid"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 23
-        versionCode 240
-        versionName "2.40"
+        versionCode 241
+        versionName "2.41"
         multiDexEnabled true
     }
 
@@ -63,12 +63,12 @@ android {
             applicationIdSuffix ".debug"
         }
 //        staging {
-//            debuggable true
 //            minifyEnabled false
 //            applicationIdSuffix ".staging"
 //            signingConfig signingConfigs.debug
 //        }
         release {
+//            debuggable true
             minifyEnabled false
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release

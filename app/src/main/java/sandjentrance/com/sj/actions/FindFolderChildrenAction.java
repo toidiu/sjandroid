@@ -55,7 +55,7 @@ public class FindFolderChildrenAction extends BaseAction {
         try {
             List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
-            Arrays.sort(array, FileObj.getComparator());
+//            Arrays.sort(array, FileObj.getComparator());
             return new FindFolderChildrenActionSuccess(array);
         } catch (IOException e) {
             Crashlytics.getInstance().core.logException(e);

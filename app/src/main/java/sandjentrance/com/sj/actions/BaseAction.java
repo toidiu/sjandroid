@@ -36,6 +36,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import sandjentrance.com.sj.BuildConfig;
 import sandjentrance.com.sj.SJApplication;
 import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.models.FileDownloadObj;
@@ -584,7 +585,7 @@ public class BaseAction extends FullAction {
     }
 
 
-//endregion
+    //endregion
 
 
     //region Purchase Order Helper----------------------
@@ -598,35 +599,93 @@ public class BaseAction extends FullAction {
         return "e-" + biggest;
     }
 
-      @Nullable
-      protected String incrementAndGetPoNumber() {
-          try {
-              // First retrieve the property from the API.
-             Drive.Properties.Get request = driveService.properties().get(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY);
-             request.setVisibility(PUBLIC_VISIBILITY);
-             Property property = request.execute();
-             Integer number = Integer.valueOf(property.getValue());
+    @NonNull
+    protected String incrementAndGetPoNumber() throws Exception {
+            String poNumberFolderId = prefs.getPoNumberFolderId();
+            if (poNumberFolderId == null) throw new Exception("prefs PO_NUMBER_FOLDER_ID should not be null");
 
-             //update and set new value
-             Integer nextNum = number + 1;
-             property.setValue(String.valueOf(nextNum));
-             Drive.Properties.Update update = driveService.properties().update(prefs.getPoNumberFolderId(), PO_NUMBER_PROPERTY, property);
-             update.setVisibility(PUBLIC_VISIBILITY);
+            // First retrieve the property from the API.
+            Drive.Properties.Get request = driveService.properties().get(poNumberFolderId, PO_NUMBER_PROPERTY);
+            request.setVisibility(PUBLIC_VISIBILITY);
+            Property property = request.execute();
+            Integer number = Integer.valueOf(property.getValue());
+            if (number == null) throw new Exception("PO number on Drive should not return null!!!!!");
 
-              //make sure the value was updated
-              String value = update.execute().getValue();
-              if (nextNum == Integer.valueOf(value).intValue() ) {
-                  return String.format("%02d", nextNum);
-              } else {
-                  return null;
-              }
-          } catch (IOException e) {
-              Crashlytics.getInstance().core.logException(e);
-              System.out.println("An error occurred: " + e);
-              return null;
-          }
-      }
+            //update and set new value
+            Integer nextNum = number + 1;
+            property.setValue(String.valueOf(nextNum));
+            Drive.Properties.Update update = driveService.properties().update(poNumberFolderId, PO_NUMBER_PROPERTY, property);
+            update.setVisibility(PUBLIC_VISIBILITY);
+            String value = update.execute().getValue();
 
+            //make sure the value was updated
+            if (nextNum == Integer.valueOf(value).intValue()) {
+                return String.format("%02d", nextNum);
+            } else {
+                throw new Exception("update to new PO number was not successful!!");
+            }
+    }
+
+    //endregion
+
+    //region TESTING----------------------
+    @SuppressWarnings("unused")
+    @Nullable
+    protected String DEBUGGetPoNumber() {
+        if (BuildConfig.DEBUG) {
+            try {
+                String poNumberFolderId = prefs.getPoNumberFolderId();
+                assert (poNumberFolderId != null);
+                // First retrieve the property from the API.
+                Drive.Properties.Get request = driveService.properties().get(poNumberFolderId, PO_NUMBER_PROPERTY);
+                request.setVisibility(PUBLIC_VISIBILITY);
+                Property property = request.execute();
+                Integer number = Integer.valueOf(property.getValue());
+                assert (number != null);
+
+                return String.format("%02d", number);
+            } catch (IOException e) {
+                Crashlytics.getInstance().core.logException(e);
+                System.out.println("An error occurred: " + e);
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Nullable
+    protected String DEBUGSetPoNumber(int number) {
+        if (BuildConfig.DEBUG) {
+            try {
+                String poNumberFolderId = prefs.getPoNumberFolderId();
+                assert (poNumberFolderId != null);
+
+                Drive.Properties.Get request = driveService.properties().get(poNumberFolderId, PO_NUMBER_PROPERTY);
+                request.setVisibility(PUBLIC_VISIBILITY);
+                Property property = request.execute();
+
+                property.setValue(String.valueOf(number));
+                Drive.Properties.Update update = driveService.properties().update(poNumberFolderId, PO_NUMBER_PROPERTY, property);
+                update.setVisibility(PUBLIC_VISIBILITY);
+
+                //make sure the value was updated
+                String value = update.execute().getValue();
+                if (number == Integer.valueOf(value)) {
+                    return String.format("%02d", Integer.valueOf(value));
+                } else {
+                    return null;
+                }
+            } catch (IOException e) {
+                Crashlytics.getInstance().core.logException(e);
+                System.out.println("An error occurred: " + e);
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
     //endregion
 
 

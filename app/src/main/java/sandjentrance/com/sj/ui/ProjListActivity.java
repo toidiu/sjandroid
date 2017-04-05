@@ -264,7 +264,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         super.onResume();
         PennStation.registerListener(eventListener);
 
-        if (archiveFileHelper.wasArhived || claimChangedFileHelper.wasClaimedChanged ) {
+        if (archiveFileHelper.wasArhived || claimChangedFileHelper.wasClaimedChanged) {
             refreshFileListFromText();
         }
 
@@ -317,7 +317,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         if (imagePickerUri != null) {
             outState.putString(saveStateImageUri, imagePickerUri.toString());
         }
-        if (newFileObj!=null){
+        if (newFileObj != null) {
             outState.putParcelable(saveStateNewFileObj, newFileObj);
         }
     }

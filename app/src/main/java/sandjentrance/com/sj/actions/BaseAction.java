@@ -590,7 +590,7 @@ public class BaseAction extends FullAction {
 
     //region Purchase Order Helper----------------------
     protected String getNextPurchaseOrderName(NewFileObj newFileObj, String biggest) throws IOException {
-        assert newFileObj.projTitle != null;
+        if(newFileObj.projTitle == null) throw new IOException("newFileObj.projTitle should not be null");
         return getNextPOrderNumber(biggest) + "-" + newFileObj.title;
     }
 

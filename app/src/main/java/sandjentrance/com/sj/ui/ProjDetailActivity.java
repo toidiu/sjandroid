@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.Bind;
@@ -260,7 +262,9 @@ public class ProjDetailActivity extends BaseActivity implements FileClickInterfa
         public void onEventMainThread(FindFolderChildrenActionSuccess event) {
             progress.setVisibility(View.GONE);
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
-                adapter.refreshView(Arrays.asList(event.results));
+                List<FileObj> data = Arrays.asList(event.results);
+                Collections.sort(data, FileObj.getComparator());
+                adapter.refreshView(data);
             }
             if (mergePfdHelper.isMerging) {
                 navigateToFabFolder();

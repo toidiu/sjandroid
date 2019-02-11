@@ -89,6 +89,7 @@ public class BaseAction extends FullAction {
     public static final String MIME_PDF = "application/pdf";
     public static final String MIME_DWG1 = "application/acad";
     public static final String MIME_DWG2 = "image/vnd.dwg";
+    public static final String MIME_MS = "application/msword";
 
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     @Inject

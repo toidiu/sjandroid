@@ -87,6 +87,10 @@ public class UtilFile {
             name = idOrName + ".jpg";
         } else if (mime.equals(BaseAction.MIME_DWG1)) {
             name = idOrName + ".dwg";
+        } else if (mime.equals(BaseAction.MIME_MS)) {
+            name = idOrName + ".doc";
+        } else {
+            name = idOrName + "." + mime;
         }
 
         File sj = getExternalAppFolder();

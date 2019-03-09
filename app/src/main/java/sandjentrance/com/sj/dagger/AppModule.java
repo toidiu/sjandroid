@@ -20,12 +20,12 @@ import dagger.Module;
 import dagger.Provides;
 import sandjentrance.com.sj.database.DatabaseHelper;
 import sandjentrance.com.sj.utils.ArchiveFileHelper;
+import sandjentrance.com.sj.utils.ClaimChangedFileHelper;
 import sandjentrance.com.sj.utils.MergePfdHelper;
 import sandjentrance.com.sj.utils.MoveFolderHelper;
 import sandjentrance.com.sj.utils.MultiShareHelper;
 import sandjentrance.com.sj.utils.Prefs;
 import sandjentrance.com.sj.utils.RenameFileHelper;
-import sandjentrance.com.sj.utils.ClaimChangedFileHelper;
 
 /**
  * Created by toidiu on 1/13/16.

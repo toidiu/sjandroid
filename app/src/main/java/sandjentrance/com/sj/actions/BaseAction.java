@@ -591,7 +591,8 @@ public class BaseAction extends FullAction {
 
     //region Purchase Order Helper----------------------
     protected String getNextPurchaseOrderName(NewFileObj newFileObj, String biggest) throws IOException {
-        if(newFileObj.projTitle == null) throw new IOException("newFileObj.projTitle should not be null");
+        if (newFileObj.projTitle == null)
+            throw new IOException("newFileObj.projTitle should not be null");
         return getNextPOrderNumber(biggest) + "-" + newFileObj.title;
     }
 
@@ -602,29 +603,30 @@ public class BaseAction extends FullAction {
 
     @NonNull
     protected String incrementAndGetPoNumber() throws Exception {
-            String poNumberFolderId = prefs.getPoNumberFolderId();
-            if (poNumberFolderId == null) throw new Exception("prefs PO_NUMBER_FOLDER_ID should not be null");
+        String poNumberFolderId = prefs.getPoNumberFolderId();
+        if (poNumberFolderId == null)
+            throw new Exception("prefs PO_NUMBER_FOLDER_ID should not be null");
 
-            // First retrieve the property from the API.
-            Drive.Properties.Get request = driveService.properties().get(poNumberFolderId, PO_NUMBER_PROPERTY);
-            request.setVisibility(PUBLIC_VISIBILITY);
-            Property property = request.execute();
-            Integer number = Integer.valueOf(property.getValue());
-            if (number == null) throw new Exception("PO number on Drive should not return null!!!!!");
+        // First retrieve the property from the API.
+        Drive.Properties.Get request = driveService.properties().get(poNumberFolderId, PO_NUMBER_PROPERTY);
+        request.setVisibility(PUBLIC_VISIBILITY);
+        Property property = request.execute();
+        Integer number = Integer.valueOf(property.getValue());
+        if (number == null) throw new Exception("PO number on Drive should not return null!!!!!");
 
-            //update and set new value
-            Integer nextNum = number + 1;
-            property.setValue(String.valueOf(nextNum));
-            Drive.Properties.Update update = driveService.properties().update(poNumberFolderId, PO_NUMBER_PROPERTY, property);
-            update.setVisibility(PUBLIC_VISIBILITY);
-            String value = update.execute().getValue();
+        //update and set new value
+        Integer nextNum = number + 1;
+        property.setValue(String.valueOf(nextNum));
+        Drive.Properties.Update update = driveService.properties().update(poNumberFolderId, PO_NUMBER_PROPERTY, property);
+        update.setVisibility(PUBLIC_VISIBILITY);
+        String value = update.execute().getValue();
 
-            //make sure the value was updated
-            if (nextNum == Integer.valueOf(value).intValue()) {
-                return String.format("%02d", nextNum);
-            } else {
-                throw new Exception("update to new PO number was not successful!!");
-            }
+        //make sure the value was updated
+        if (nextNum == Integer.valueOf(value).intValue()) {
+            return String.format("%02d", nextNum);
+        } else {
+            throw new Exception("update to new PO number was not successful!!");
+        }
     }
 
     //endregion

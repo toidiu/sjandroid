@@ -17,8 +17,6 @@ import com.google.api.services.drive.model.File;
 import java.util.List;
 
 import sandjentrance.com.sj.actions.UploadUserImageAction_.PsUploadUserImageAction;
-import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
-import sandjentrance.com.sj.actions.events.UploadFileActionSuccess;
 import sandjentrance.com.sj.actions.events.UploadUserImageActionFailure;
 import sandjentrance.com.sj.actions.events.UploadUserImageActionSuccess;
 import sandjentrance.com.sj.models.FileUploadObj;

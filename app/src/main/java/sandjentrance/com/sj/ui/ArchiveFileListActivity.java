@@ -66,7 +66,6 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     private FileObj fileObj;
     private FileArchiveListAdapter adapter;
     private Snackbar snackbar;
-    private Menu menu;
     private String actionIdFileList;
     //region PennStation----------------------
     ArchiveFileListActivityEventListener eventListener = new ArchiveFileListActivityEventListener() {
@@ -147,7 +146,6 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     protected void onResume() {
         super.onResume();
         PennStation.registerListener(eventListener);
-//        refreshMenu();
     }
 
     @Override
@@ -155,28 +153,6 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
         super.onPause();
         PennStation.unRegisterListener(eventListener);
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_detail, menu);
-//        this.menu = menu;
-//        refreshMenu();
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.menu_paste:
-//                PennStation.requestAction(PsMoveFileAction.helper(fileObj.id));
-//                progress.setVisibility(View.VISIBLE);
-//                return true;
-//            default:
-//                // If we got here, the user's action was not recognized.
-//                // Invoke the superclass to handle it.
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
     //endregion
 
@@ -226,7 +202,6 @@ public class ArchiveFileListActivity extends BaseActivity implements FileArchive
     }
 
     //endregion
-
 
     //region Interface----------------------
     @Override

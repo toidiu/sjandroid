@@ -1,7 +1,6 @@
 package sandjentrance.com.sj.ui.extras;
 
 import sandjentrance.com.sj.models.FileObj;
-import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.models.NewFileObj;
 
 /**

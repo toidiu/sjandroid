@@ -22,6 +22,7 @@
             android:background="@color/white_15"
             android:drawableLeft="@drawable/ic_search"
             android:hint="@string/search_proj_hint"
+            android:imeOptions="flagNoExtractUi"
             android:lines="1"
             android:padding="8dp"
             android:singleLine="true"
@@ -31,7 +32,6 @@
             android:textSize="14sp"
             tools:background="@color/colorPrimary" />
 
-        <!--app:layout_scrollFlags="scroll|enterAlways"-->
     </android.support.design.widget.AppBarLayout>
 
 

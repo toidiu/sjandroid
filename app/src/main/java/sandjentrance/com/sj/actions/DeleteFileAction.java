@@ -8,15 +8,12 @@ import com.edisonwang.ps.annotations.Event;
 import com.edisonwang.ps.annotations.EventProducer;
 import com.edisonwang.ps.annotations.Field;
 import com.edisonwang.ps.annotations.Kind;
-import com.edisonwang.ps.annotations.ParcelableField;
 import com.edisonwang.ps.lib.ActionRequest;
 import com.edisonwang.ps.lib.ActionResult;
 import com.edisonwang.ps.lib.RequestEnv;
 
-import sandjentrance.com.sj.actions.ClaimProjAction_.PsClaimProjAction;
 import sandjentrance.com.sj.actions.DeleteFileAction_.PsDeleteFileAction;
 import sandjentrance.com.sj.actions.events.ClaimProjActionFailure;
-import sandjentrance.com.sj.actions.events.ClaimProjActionSuccess;
 import sandjentrance.com.sj.actions.events.DeleteFileActionFailure;
 import sandjentrance.com.sj.actions.events.DeleteFileActionSuccess;
 

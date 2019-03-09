@@ -4,10 +4,10 @@ package sandjentrance.com.sj.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintManager;
 import android.support.annotation.Nullable;
@@ -92,10 +92,15 @@ public class BaseActivity extends AppCompatActivity {
     protected void initBg() {
         final View layout = findViewById(R.id.layout);
         ViewTreeObserver vto = layout.getViewTreeObserver();
+
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Picasso.with(BaseActivity.this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    Picasso.with(BaseActivity.this).load(R.drawable.app_bg).into(new BgImageLoader(getResources(), layout));
+                } else {
+                    layout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                }
             }
         });
     }
@@ -124,6 +129,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public void shareIntentFile(LocalFileObj localFileObj) {
         Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, "I have attached the requested file..");
 
@@ -141,6 +147,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public void shareIntentMultiFile(LocalFileObj[] localFileObj) {
         Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, "I have attached the requested file..");
 
@@ -182,7 +189,7 @@ public class BaseActivity extends AppCompatActivity {
 
             List<PrintJob> printJobs = printManager.getPrintJobs();
             // Set job name, which will be displayed in the print queue
-            String jobName = getString(R.string.app_name) +"-"+ file.getName();
+            String jobName = getString(R.string.app_name) + "-" + file.getName();
 
             // Start a print job, passing in a PrintDocumentAdapter implementation
             // to handle the generation of a print document

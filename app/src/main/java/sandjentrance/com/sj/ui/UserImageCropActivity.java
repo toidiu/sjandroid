@@ -123,7 +123,7 @@ public class UserImageCropActivity extends BaseActivity {
 
     @SuppressWarnings("unused")
     @OnClick(R.id.crop)
-     void clickCrop() {
+    void clickCrop() {
         progress.setVisibility(View.VISIBLE);
 
         Bitmap croppedImage = cropImageView.getCroppedImage();
@@ -144,7 +144,7 @@ public class UserImageCropActivity extends BaseActivity {
 
     @SuppressWarnings("unused")
     @OnClick(R.id.back)
-     void clickBack() {
+    void clickBack() {
         setResult(RESULT_CANCELED);
         finish();
     }

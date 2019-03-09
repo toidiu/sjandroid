@@ -61,9 +61,9 @@ public class GenericViewHolder extends RecyclerView.ViewHolder {
             Picasso.with(SJApplication.appContext).load(R.drawable.ic_document).into(fileIconView);
         }
 
-        if (shareMultiple.contains(item)){
+        if (shareMultiple.contains(item)) {
             containerView.setBackgroundColor(SJApplication.appContext.getResources().getColor(R.color.white_25));
-        }else {
+        } else {
             containerView.setBackgroundColor(SJApplication.appContext.getResources().getColor(R.color.white_15));
         }
 

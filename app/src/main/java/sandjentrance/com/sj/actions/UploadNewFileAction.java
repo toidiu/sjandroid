@@ -18,7 +18,6 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 
-import sandjentrance.com.sj.actions.events.UploadFileActionFailure;
 import sandjentrance.com.sj.actions.events.UploadNewFileActionFailure;
 import sandjentrance.com.sj.actions.events.UploadNewFileActionSuccess;
 import sandjentrance.com.sj.database.TransactionRunnable;
@@ -100,7 +99,7 @@ public class UploadNewFileAction extends BaseAction {
                             } catch (SQLException e) {
                                 Crashlytics.getInstance().core.logException(e);
                             }
-                        }else {
+                        } else {
                             new UploadNewFileActionFailure("Upload failed. Please check your connection.");
                         }
                     }

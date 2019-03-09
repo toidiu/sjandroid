@@ -77,8 +77,15 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     View openFileBtn;
     @Bind(R.id.progress)
     ProgressBar progress;
-//    @Bind(R.id.cancel)
-//    View cancelPoCreate;
+    //~=~=~=~=~=~=~=~=~=~=~=~=Click
+    FileObj clickOpenFileObj = null;
+    String clickCreateFileType = null;
+    //~=~=~=~=~=~=~=~=~=~=~=~=View State
+    private boolean isProgressVisible = false;
+    private boolean isfileNameConVisible = false;
+    private boolean isfileNameBtnVisible = false;
+    private boolean isPoNumConVisible = false;
+    private boolean isPoNumBgBlue = false;
     //~=~=~=~=~=~=~=~=~=~=~=~=Fields
     private FileObj projFolder;
     private FabAddFileInterface addFileInterface;
@@ -88,42 +95,28 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     DialogAddFileEventListener eventListener = new DialogAddFileEventListener() {
         @Override
         public void onEventMainThread(GetNextPONumberActionFailure event) {
-            progress.setVisibility(View.GONE);
+            isProgressVisible = false;
+            updateView();
             Toast.makeText(context, "Unable to add a Purchase Order. Please check your connection.", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEventMainThread(final GetNextPONumberActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            isProgressVisible = false;
+            updateView();
             UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
 
+            //FIXME this needs to save state!!!!!!!!
             poNumberText.setText(event.nextNumber);
 
             //show the PO number interface and hide fileName interface
-            fileNameContainer.setVisibility(View.GONE);
-            poNumberContainer.setVisibility(View.VISIBLE);
+            isfileNameConVisible = false;
+            isPoNumConVisible = true;
+            updateView();
 
             //open pdf file
-            openFileBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    addFileInterface.openPoPdfClicked(event.fileObj);
-
-                    UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
-                    dismiss();
-                }
-            });
-
-            //cancel
-//            cancelPoCreate.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    poNumberContainer.setVisibility(View.GONE);
-//
-//                    reset the view to grayish
-//                    poNumberText.setBackgroundColor(getResources().getColor(R.color.white_15));
-//                }
-//            });
+            clickOpenFileObj = event.fileObj;
+            updateClickListeners();
 
             //Copy number
             Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -135,31 +128,14 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
                     ClipData clip = ClipData.newPlainText("PO number", poNumberText.getText().toString());
                     clipboard.setPrimaryClip(clip);
 
-                    poNumberText.setBackgroundColor(getResources().getColor(R.color.folder_blue));
+                    isPoNumBgBlue = true;
+                    updateView();
 
                     Toast.makeText(context, "Order # copied.", Toast.LENGTH_SHORT).show();
                 }
             };
 
             mainHandler.postDelayed(myRunnable, 1000);
-
-
-//            copyPoNumberBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                }
-//            });
-
-//            int sdk = android.os.Build.VERSION.SDK_INT;
-//            if(sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
-//                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-//                clipboard.setText("text to clip");
-//            } else {
-//                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-//                android.content.ClipData clip = android.content.ClipData.newPlainText("text label","text to clip");
-//                clipboard.setPrimaryClip(clip);
-//            }
-
 
         }
     };
@@ -190,6 +166,8 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         addFileInterface = (FabAddFileInterface) activity;
+        PennStation.registerListener(eventListener);
+        setRetainInstance(true);
     }
 
     @Override
@@ -198,31 +176,18 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
 
         initData();
         initView();
-        PennStation.registerListener(eventListener);
+        initClickListeners();
     }
 
     @Override
-    public void onDestroy() {
+    public void onDetach() {
         PennStation.unRegisterListener(eventListener);
-        super.onDestroy();
+        super.onDetach();
     }
     //endregion
 
     //region Init----------------------
     private void initView() {
-        overlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
-
-        container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //placeholder so click event doesn't propagate
-            }
-        });
 
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
         recyclerView.setLayoutManager(layoutManager);
@@ -237,18 +202,39 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         adapter.refreshView(addList);
         recyclerView.setAdapter(adapter);
 
-        fileNameContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fileNameContainer.setVisibility(View.GONE);
-                UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
-            }
-        });
-
+        updateView();
     }
 
     private void initData() {
         projFolder = getArguments().getParcelable(FILE_OBJ_EXTRA);
+    }
+
+    private void initClickListeners() {
+
+        overlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
+        container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //placeholder so click event doesn't propagate
+            }
+        });
+
+        fileNameContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isfileNameConVisible = false;
+                updateView();
+                UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+            }
+        });
+
+        updateClickListeners();
     }
     //endregion
 
@@ -262,46 +248,20 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
         }
 
         if (type.equals(BaseAction.FAB_FOLDER_NAME)) {
-            orText.setVisibility(View.VISIBLE);
-            mergeBtn.setVisibility(View.VISIBLE);
+            isfileNameBtnVisible = true;
+            updateView();
         } else {
-            orText.setVisibility(View.GONE);
-            mergeBtn.setVisibility(View.GONE);
+            isfileNameBtnVisible = false;
+            updateView();
         }
 
-        fileNameContainer.setVisibility(View.VISIBLE);
+        isfileNameConVisible = true;
+        updateView();
         UtilKeyboard.toggleKeyboard(getActivity());
         fileNameEdit.requestFocus();
 
-        mergeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (UtilNetwork.isDeviceOnline(getContext())) {
-                    mergePfdHelper.isMerging = true;
-                    mergePfdHelper.projFolder = projFolder;
-                    addFileInterface.mergePdfClicked();
-                    UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
-                    dismiss();
-                } else {
-                    Snackbar.make(mergeBtn, getString(R.string.no_network_merge), Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        createBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String fileName = fileNameEdit.getText().toString().trim();
-                if (!fileName.isEmpty()) {
-                    if (!fileName.endsWith(".pdf")) {
-                        fileName = fileName + ".pdf";
-                    }
-                    createNewFile(type, fileName);
-                } else {
-                    Snackbar.make(fileNameEdit, "File name can't be empty.", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
+        clickCreateFileType = type;
+        updateClickListeners();
     }
 
     private void createNewFile(String type, String fileName) {
@@ -309,7 +269,8 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
 
         if (type.equals(BaseAction.PURCHASE_FOLDER_NAME)) {
             newFileObj = new NewFileObj(BaseAction.PURCHASE_FOLDER_NAME, BaseAction.PURCHASE_ORDER_ASSET_PDF, BaseAction.MIME_PDF, fileName, projFolder.id, null);
-            progress.setVisibility(View.VISIBLE);
+            isProgressVisible = true;
+            updateView();
             PennStation.requestAction(new GetNextPONumberActionHelper(newFileObj));
             return;
         }
@@ -346,6 +307,88 @@ public class DialogAddFile extends BaseFullScreenDialogFrag implements FileAddIn
 
         UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
         dismiss();
+    }
+
+    private void updateView() {
+        if (isPoNumBgBlue) {
+            poNumberText.setBackgroundColor(getResources().getColor(R.color.folder_blue));
+        } else {
+            poNumberText.setBackgroundColor(getResources().getColor(R.color.white_15));
+        }
+        if (isfileNameBtnVisible) {
+            orText.setVisibility(View.VISIBLE);
+            mergeBtn.setVisibility(View.VISIBLE);
+        } else {
+            orText.setVisibility(View.GONE);
+            mergeBtn.setVisibility(View.GONE);
+        }
+
+        if (isPoNumConVisible) {
+            poNumberContainer.setVisibility(View.VISIBLE);
+        } else {
+            poNumberContainer.setVisibility(View.GONE);
+        }
+        if (isfileNameConVisible) {
+            fileNameContainer.setVisibility(View.VISIBLE);
+        } else {
+            fileNameContainer.setVisibility(View.GONE);
+        }
+        if (isProgressVisible) {
+            progress.setVisibility(View.VISIBLE);
+        } else {
+            progress.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateClickListeners() {
+        // open file
+        if (clickOpenFileObj != null && openFileBtn.getVisibility() == View.VISIBLE) {
+            openFileBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addFileInterface.openPoPdfClicked(clickOpenFileObj);
+
+                    UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+                    dismiss();
+                }
+            });
+        }
+
+        // merge pdf
+        if (mergeBtn.getVisibility() == View.VISIBLE) {
+            mergeBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (UtilNetwork.isDeviceOnline(getContext())) {
+                        mergePfdHelper.isMerging = true;
+                        mergePfdHelper.projFolder = projFolder;
+                        addFileInterface.mergePdfClicked();
+                        UtilKeyboard.hideKeyboard(getActivity(), fileNameEdit, fileNameEdit);
+                        dismiss();
+                    } else {
+                        Snackbar.make(mergeBtn, getString(R.string.no_network_merge), Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+        // create file
+        if (clickCreateFileType != null && createBtn.getVisibility() == View.VISIBLE) {
+            createBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String fileName = fileNameEdit.getText().toString().trim();
+                    if (!fileName.isEmpty()) {
+                        if (!fileName.endsWith(".pdf")) {
+                            fileName = fileName + ".pdf";
+                        }
+                        createNewFile(clickCreateFileType, fileName);
+                    } else {
+                        Snackbar.make(fileNameEdit, "File name can't be empty.", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
     //endregion
 }

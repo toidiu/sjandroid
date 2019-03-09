@@ -14,6 +14,17 @@ import javax.annotation.Nullable;
 @ParcelablePlease
 public class NewFileObj implements Parcelable {
 
+    public static final Creator<NewFileObj> CREATOR = new Creator<NewFileObj>() {
+        public NewFileObj createFromParcel(Parcel source) {
+            NewFileObj target = new NewFileObj();
+            NewFileObjParcelablePlease.readFromParcel(target, source);
+            return target;
+        }
+
+        public NewFileObj[] newArray(int size) {
+            return new NewFileObj[size];
+        }
+    };
     //region Fields----------------------
     @DatabaseField(generatedId = true)
     public Integer dbId;
@@ -30,23 +41,10 @@ public class NewFileObj implements Parcelable {
     public String assetFileName;
     @DatabaseField
     public String localFilePath;
-
+    //endregion
     @DatabaseField
     @Nullable
     public String projTitle;
-    //endregion
-
-    public static final Creator<NewFileObj> CREATOR = new Creator<NewFileObj>() {
-        public NewFileObj createFromParcel(Parcel source) {
-            NewFileObj target = new NewFileObj();
-            NewFileObjParcelablePlease.readFromParcel(target, source);
-            return target;
-        }
-
-        public NewFileObj[] newArray(int size) {
-            return new NewFileObj[size];
-        }
-    };
 
 
     //region Constructor----------------------

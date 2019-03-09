@@ -16,7 +16,7 @@ import sandjentrance.com.sj.utils.UtilsView;
  */
 public class ProjDetailViewHolder extends RecyclerView.ViewHolder {
 
-//    public final View containerView;
+    //    public final View containerView;
     public final TextView titleView;
     private final CardView folderCard;
 

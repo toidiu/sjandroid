@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,6 +41,8 @@ public class DialogRenameFile extends BaseDialogFrag {
     EditText renameEdit;
     @Bind(R.id.progress)
     ProgressBar progress;
+    //~=~=~=~=~=~=~=~=~=~=~=~=View State
+    private boolean isProgressVisible = false;
     //endregion
 
     //region PennStation----------------------
@@ -49,12 +50,14 @@ public class DialogRenameFile extends BaseDialogFrag {
         @Override
         public void onEventMainThread(RenameFileActionSuccess event) {
             dismiss();
-            progress.setVisibility(View.GONE);
+            isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(RenameFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            isProgressVisible = false;
+            updateView();
         }
     };
     private FileObj fileObj;
@@ -111,15 +114,29 @@ public class DialogRenameFile extends BaseDialogFrag {
                     Toast.makeText(getContext(), "New name can't be empty.", Toast.LENGTH_SHORT).show();
                 } else {
                     PennStation.requestAction(PsRenameFileAction.helper(fileObj, newName));
-                    progress.setVisibility(View.VISIBLE);
+                    isProgressVisible = true;
+                    updateView();
                 }
             }
         });
+
+        updateView();
     }
 
 
     private void initData() {
         fileObj = getArguments().getParcelable(FILE_OBJ_EXTRA);
+    }
+    //endregion
+
+
+    //region Helper----------------------
+    private void updateView() {
+        if (isProgressVisible) {
+            progress.setVisibility(View.VISIBLE);
+        } else {
+            progress.setVisibility(View.GONE);
+        }
     }
     //endregion
 

@@ -56,7 +56,6 @@ public class FindBaseFolderAction extends BaseAction {
 //            List<File> files = executeQueryList(search);
 
 
-
             List<FileObj> dataFromApi = toFileObjs(executeQueryList(search));
             FileObj[] array = dataFromApi.toArray(new FileObj[dataFromApi.size()]);
             return new FindBaseFolderActionSuccess(array);

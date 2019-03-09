@@ -13,7 +13,7 @@ public class UtilsDate {
 
     public static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("MMMM dd, yyyy");
 
-    public static boolean isDayOld(DateTime dateTime){
+    public static boolean isDayOld(DateTime dateTime) {
         DateTime now = DateTime.now();
         DateTime dayBeforeNow = now.minus(TimeUnit.DAYS.toMillis(1));
         return dayBeforeNow.isAfter(dateTime);

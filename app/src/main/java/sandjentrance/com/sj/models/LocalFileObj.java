@@ -11,43 +11,6 @@ import com.j256.ormlite.field.DatabaseField;
  */
 @ParcelablePlease
 public class LocalFileObj implements Parcelable {
-    //region Fields----------------------
-    @DatabaseField(generatedId = true)
-    public int dbId;
-    @DatabaseField
-    public String title;
-    @DatabaseField
-    public String mime;
-    @DatabaseField
-    public String localPath;
-    //endregion
-
-    //region Constructor----------------------
-    @SuppressWarnings("unused")
-    public LocalFileObj() {
-    }
-
-    public LocalFileObj(String title, String mime, String localPath) {
-        this.title = title;
-        this.mime = mime;
-        this.localPath = localPath;
-    }
-    //endregion
-
-    //region Helper----------------------
-    //endregion
-
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        LocalFileObjParcelablePlease.writeToParcel(this, dest, flags);
-    }
-
     public static final Creator<LocalFileObj> CREATOR = new Creator<LocalFileObj>() {
         public LocalFileObj createFromParcel(Parcel source) {
             LocalFileObj target = new LocalFileObj();
@@ -59,4 +22,40 @@ public class LocalFileObj implements Parcelable {
             return new LocalFileObj[size];
         }
     };
+    //region Fields----------------------
+    @DatabaseField(generatedId = true)
+    public int dbId;
+    @DatabaseField
+    public String title;
+    @DatabaseField
+    public String mime;
+    //endregion
+    @DatabaseField
+    public String localPath;
+
+    //region Constructor----------------------
+    @SuppressWarnings("unused")
+    public LocalFileObj() {
+    }
+    //endregion
+
+    //region Helper----------------------
+    //endregion
+
+
+    public LocalFileObj(String title, String mime, String localPath) {
+        this.title = title;
+        this.mime = mime;
+        this.localPath = localPath;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        LocalFileObjParcelablePlease.writeToParcel(this, dest, flags);
+    }
 }

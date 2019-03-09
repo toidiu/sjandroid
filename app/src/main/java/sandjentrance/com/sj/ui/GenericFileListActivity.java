@@ -16,9 +16,8 @@ import android.widget.ProgressBar;
 import com.edisonwang.ps.annotations.EventListener;
 import com.edisonwang.ps.lib.PennStation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -70,6 +69,8 @@ import sandjentrance.com.sj.models.LocalFileObj;
 import sandjentrance.com.sj.ui.extras.FileClickInterface;
 import sandjentrance.com.sj.ui.extras.GenericListAdapter;
 import sandjentrance.com.sj.ui.extras.ShareInterface;
+import sandjentrance.com.sj.ui.viewstate.GenericFileListVS;
+
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -88,6 +89,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     //region Fields----------------------
     //~=~=~=~=~=~=~=~=~=~=~=~=Constants
     public static final String FILE_OBJ = "FILE_OBJ";
+    public static final String saveStateviewState = "saveStateviewState";
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
@@ -98,17 +100,21 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private FileObj fileObj;
     private GenericListAdapter adapter;
-    private Snackbar mergeSnackbar;
     private Menu menu;
     private String actionIdDelete;
     private String actionIdDuplicate;
     private String actionIdDownload;
     private String actionIdFileList;
+    private Snackbar snackbar;
+    //~=~=~=~=~=~=~=~=~=~=~=~=View State
+    private GenericFileListVS viewState = new GenericFileListVS();
+
     //region PennStation----------------------
     GenericFileListActivityEventListener eventListener = new GenericFileListActivityEventListener() {
         @Override
         public void onEventMainThread(ArchiveFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
@@ -123,38 +129,45 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         @Override
         public void onEventMainThread(ArchiveFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
 
         @Override
         public void onEventMainThread(FindFolderChildrenActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
 
         @Override
         public void onEventMainThread(FindFolderChildrenActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
-                adapter.refreshView(Arrays.asList(event.results));
+                viewState.stateListData = new ArrayList<>(Arrays.asList(event.results));
+                adapter.refreshView(viewState.stateListData);
             }
         }
 
         @Override
         public void onEventMainThread(MoveFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(DownloadFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEventMainThread(DownloadFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
                 LocalFileObj localFileObj = event.localFileObj;
                 if (event.ActionEnum.equals(ActionEnum.EDIT.name())) {
@@ -169,13 +182,15 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         @Override
         public void onEventMainThread(DownloadFileActionDwgConversion event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             Snackbar.make(progress, R.string.zamzar_started, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEventMainThread(DeleteFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             if (event.getResponseInfo().mRequestId.equals(actionIdDelete)) {
                 refreshFileList();
             }
@@ -183,7 +198,8 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         @Override
         public void onEventMainThread(DeleteFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
@@ -197,7 +213,8 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         @Override
         public void onEventMainThread(DuplicateFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             if (event.getResponseInfo().mRequestId.equals(actionIdDuplicate)) {
                 refreshFileList();
             }
@@ -205,7 +222,8 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         @Override
         public void onEventMainThread(DuplicateFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
@@ -215,20 +233,23 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         @Override
         public void onEventMainThread(MoveFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             refreshMenu();
             refreshFileList();
         }
 
         @Override
         public void onEventMainThread(DownloadMultiFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEventMainThread(DownloadMultiFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             multiShareHelper.shareMultiple.clear();
             adapter.notifyDataSetChanged();
             refreshMenu();
@@ -242,13 +263,15 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         @Override
         public void onEventMainThread(MergePdfActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             openLocalFile(event.localFileObj, progress);
         }
 
         @Override
         public void onEventMainThread(MergePdfActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
     };
 
@@ -270,13 +293,16 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         fileObj = getIntent().getParcelableExtra(FILE_OBJ);
 
-        initData();
-        initView();
+        if (savedInstanceState == null) {
+            initData();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        initView();
+
         PennStation.registerListener(eventListener);
 
         if (renameFileHelper.isValid() && fileObj.id.equals(renameFileHelper.parentId)) {
@@ -290,15 +316,8 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
 
         if (mergePfdHelper.isMerging) {
-            mergeSnackbar = Snackbar.make(progress, "Choose PDF to merge into.", Snackbar.LENGTH_INDEFINITE).setAction("Cancel", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mergePfdHelper.isMerging = false;
-                    mergeSnackbar.dismiss();
-                    mergeSnackbar = null;
-                }
-            });
-            mergeSnackbar.show();
+            viewState.snackbarState = GenericFileListVS.SnackbarState.PDF_MERGE;
+            updateSnackbar();
         }
         refreshMenu();
     }
@@ -322,7 +341,8 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         switch (item.getItemId()) {
             case R.id.menu_paste:
                 PennStation.requestAction(PsMoveFileAction.helper(fileObj.id));
-                progress.setVisibility(View.VISIBLE);
+                viewState.isProgressVisible = true;
+                updateView();
                 return true;
             case R.id.menu_cancel_share:
                 multiShareHelper.shareMultiple.clear();
@@ -338,11 +358,13 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
                 }
 
                 PennStation.requestAction(PsDownloadMultiFileAction.helper(fileDlArr));
-                progress.setVisibility(View.VISIBLE);
+                viewState.isProgressVisible = true;
+                updateView();
                 return true;
             case R.id.menu_archive:
                 PennStation.requestAction(PsArchiveFileAction.helper(fileObj.id));
-                progress.setVisibility(View.VISIBLE);
+                viewState.isProgressVisible = true;
+                updateView();
                 return true;
             default:
                 // If we got here, the user's ActionEnum was not recognized.
@@ -351,19 +373,28 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
     }
 
-    //endregion
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(saveStateviewState, viewState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        viewState = savedInstanceState.getParcelable(saveStateviewState);
+    }
+
+    //endregion
+
     //region Init----------------------
     private void initData() {
         refreshFileList();
     }
-
-    //endregion
 
     private void initView() {
         toolbar.setTitle(fileObj.title);
@@ -374,7 +405,15 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
 
         adapter = new GenericListAdapter(this, multiShareHelper.shareMultiple);
         recyclerView.setAdapter(adapter);
+
+        if (viewState.stateListData != null && !viewState.stateListData.isEmpty()) {
+            adapter.refreshView(viewState.stateListData);
+        }
+
+        updateView();
+        updateSnackbar();
     }
+    //endregion
 
     //region View----------------------
     private void refreshMenu() {
@@ -394,12 +433,53 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         }
     }
 
-    //endregion
-
     private void refreshFileList() {
-        progress.setVisibility(View.VISIBLE);
+        viewState.isProgressVisible = true;
+        updateView();
         actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper("", fileObj.id, false));
     }
+    //endregion
+
+    //region Helper----------------------
+
+    private void updateView() {
+        if (viewState.isProgressVisible) {
+            progress.setVisibility(View.VISIBLE);
+        } else {
+            progress.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateSnackbar() {
+        if (viewState.snackbarState != null) {
+                switch (viewState.snackbarState) {
+                    case None:
+                        dismissSnackbar();
+                        break;
+                    case PDF_MERGE:
+                        snackbar = Snackbar.make(progress, R.string.choose_pdf_to_merge, Snackbar.LENGTH_INDEFINITE).setAction("Cancel", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mergePfdHelper.isMerging = false;
+                                dismissSnackbar();
+                            }
+                        });
+                        snackbar.show();
+                        break;
+                    default:
+                        dismissSnackbar();
+                        break;
+                }
+            }
+        }
+
+    private void dismissSnackbar() {
+        viewState.snackbarState = GenericFileListVS.SnackbarState.None;
+        if(snackbar != null) {
+            snackbar.dismiss();
+        }
+    }
+    //endregion
 
     //region Interface----------------------
     @Override
@@ -471,7 +551,7 @@ public class GenericFileListActivity extends BaseActivity implements FileClickIn
         progress.setVisibility(View.VISIBLE);
         PennStation.requestAction(PsMergePdfAction.helper(), longTaskQueue);
         mergePfdHelper.isMerging = false;
-        mergeSnackbar.dismiss();
+        dismissSnackbar();
     }
 
     @Override

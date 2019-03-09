@@ -1,11 +1,6 @@
 package sandjentrance.com.sj.ui;
 
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -14,17 +9,12 @@ import android.print.PageRange;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
-import android.print.pdf.PrintedPdfDocument;
 
 import com.crashlytics.android.Crashlytics;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -44,7 +34,7 @@ public class MyPrintDocumentAdapter extends PrintDocumentAdapter {
     }
 
     @Override
-    public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback){
+    public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback) {
         InputStream input = null;
         OutputStream output = null;
 
@@ -81,7 +71,7 @@ public class MyPrintDocumentAdapter extends PrintDocumentAdapter {
     }
 
     @Override
-    public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle extras){
+    public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle extras) {
 
         if (cancellationSignal.isCanceled()) {
             callback.onLayoutCancelled();

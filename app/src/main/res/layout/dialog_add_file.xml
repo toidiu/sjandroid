@@ -26,6 +26,7 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <!--file_name_container-->
     <RelativeLayout
         android:id="@+id/file_name_container"
         android:layout_width="match_parent"
@@ -34,7 +35,7 @@
         android:clickable="true"
         android:visibility="gone"
         tools:alpha=".2"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <EditText
             android:id="@+id/file_name"
@@ -49,7 +50,8 @@
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
-            android:textCursorDrawable="@null" />
+            android:textCursorDrawable="@null"
+            android:imeOptions="flagNoExtractUi"/>
 
         <Button
             android:id="@+id/create"
@@ -87,7 +89,7 @@
 
     </RelativeLayout>
 
-
+    <!--po_number_container-->
     <RelativeLayout
         android:id="@+id/po_number_container"
         android:layout_width="match_parent"
@@ -96,7 +98,7 @@
         android:clickable="true"
         android:visibility="gone"
         tools:alpha=".2"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <LinearLayout
             android:id="@+id/num_container"

@@ -23,6 +23,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.Bind;
@@ -71,10 +72,12 @@ import sandjentrance.com.sj.ui.extras.DelayedTextWatcher;
 import sandjentrance.com.sj.ui.extras.FabAddFileInterface;
 import sandjentrance.com.sj.ui.extras.ProjClickInterface;
 import sandjentrance.com.sj.ui.extras.ProjListAdapter;
+import sandjentrance.com.sj.ui.viewstate.ProjListVS;
 import sandjentrance.com.sj.utils.UtilFile;
 import sandjentrance.com.sj.utils.UtilImage;
 import sandjentrance.com.sj.utils.UtilKeyboard;
 import sandjentrance.com.sj.utils.UtilsView;
+
 
 @EventListener(producers = {
         FindFolderChildrenAction.class,
@@ -93,6 +96,7 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     public static final int REQ_CODE_NEW_IMG = 22935;
     public static final String saveStateImageUri = "saveStateImageUri";
     public static final String saveStateNewFileObj = "saveStateNewFileObj";
+    public static final String saveStateviewState = "saveStateviewState";
     //~=~=~=~=~=~=~=~=~=~=~=~=View
     @Bind(R.id.recycler)
     RecyclerView recyclerView;
@@ -107,24 +111,30 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
     //~=~=~=~=~=~=~=~=~=~=~=~=Field
     private String actionIdDownload;
     private ProjListAdapter adapter;
-    //endregion
     private Snackbar snackbar;
     private NewFileObj newFileObj;
     private Uri imagePickerUri;
     private String actionIdFileList;
     private String actionIdClaimedList;
+    //~=~=~=~=~=~=~=~=~=~=~=~=View State
+    private ProjListVS viewState = new ProjListVS();
+
+    //endregion
+
     //region PennStation----------------------
     ProjListActivityEventListener eventListener = new ProjListActivityEventListener() {
 
         @Override
         public void onEventMainThread(DownloadFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             Snackbar.make(progress, R.string.error_network, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEventMainThread(DownloadFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             if (event.getResponseInfo().mRequestId.equals(actionIdDownload)) {
                 LocalFileObj localFileObj = event.localFileObj;
                 if (event.ActionEnum.equals(DownloadFileAction.ActionEnum.EDIT.name())) {
@@ -139,19 +149,23 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
         @Override
         public void onEventMainThread(DownloadFileActionDwgConversion event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(FindClaimedProjActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(FindClaimedProjActionSuccess event) {
-            progress.setVisibility(View.GONE);
-            adapter.refreshView(Arrays.asList(event.results));
-//            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+            viewState.isProgressVisible = false;
+            updateView();
+
+            viewState.stateListData = new ArrayList<>(Arrays.asList(event.results));
+            adapter.refreshView(viewState.stateListData);
         }
 
         @Override
@@ -178,7 +192,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
         @Override
         public void onEventMainThread(DbAddNewFileActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             NewFileObj newFileObj = event.newFileObj;
             if (!newFileObj.parentName.equals(BaseAction.PHOTOS_FOLDER_NAME)) {
                 LocalFileObj localFileObj = new LocalFileObj(newFileObj.title, newFileObj.mime, newFileObj.localFilePath);
@@ -188,57 +203,66 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
         @Override
         public void onEventMainThread(DbAddNewFileActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(CheckUploadStatusActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
 
             if (event.isSynced) {
                 int px = UtilsView.dpToPx(getResources(), 16);
                 UtilsView.setMargins(recyclerView, 0, 0, 0, px);
-                syncFab.setVisibility(View.GONE);
-                syncBg.setVisibility(View.GONE);
+                viewState.isSyncFabVisible = false;
+                viewState.isSyncBgVisible = false;
             } else {
                 UtilsView.setMargins(recyclerView, 0, 0, 0, (int) getResources().getDimension(R.dimen.sync_bg_plus10));
-                syncFab.setVisibility(View.VISIBLE);
-                syncBg.setVisibility(View.VISIBLE);
+                viewState.isSyncFabVisible = true;
+                viewState.isSyncBgVisible = true;
             }
+            updateView();
         }
 
         @Override
         public void onEventMainThread(CheckUploadStatusActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(DbFindClaimedProjListActionFailure event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(DbFindClaimedProjListActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             if (event.getResponseInfo().mRequestId.equals(actionIdClaimedList)) {
-                adapter.refreshView(Arrays.asList(event.results));
+                viewState.stateListData = new ArrayList<>(Arrays.asList(event.results));
+                adapter.refreshView(viewState.stateListData);
+
             }
         }
 
         @Override
         public void onEventMainThread(FindFolderChildrenActionFailure event) {
-            progress.setVisibility(View.GONE);
-//            actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
+            viewState.isProgressVisible = false;
+            updateView();
         }
 
         @Override
         public void onEventMainThread(FindFolderChildrenActionSuccess event) {
-            progress.setVisibility(View.GONE);
+            viewState.isProgressVisible = false;
+            updateView();
             archiveFileHelper.wasArhived = false;
             claimChangedFileHelper.wasClaimedChanged = false;
 
             if (event.getResponseInfo().mRequestId.equals(actionIdFileList)) {
-                adapter.refreshView(Arrays.asList(event.results));
+                viewState.stateListData = new ArrayList<>(Arrays.asList(event.results));
+                adapter.refreshView(viewState.stateListData);
             }
         }
     };
@@ -255,13 +279,17 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         setContentView(R.layout.proj_list_activity);
         ButterKnife.bind(this);
 
-        initView();
-        initData();
+        if (savedInstanceState == null) {
+            initData();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        initView();
+        initClickListeners();
+
         PennStation.registerListener(eventListener);
 
         if (archiveFileHelper.wasArhived || claimChangedFileHelper.wasClaimedChanged) {
@@ -305,7 +333,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
                 }
 
                 newFileObj.localFilePath = imagePickerUri.getPath();
-                progress.setVisibility(View.VISIBLE);
+                viewState.isProgressVisible = true;
+                updateView();
                 PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
             }
         }
@@ -320,6 +349,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         if (newFileObj != null) {
             outState.putParcelable(saveStateNewFileObj, newFileObj);
         }
+
+        outState.putParcelable(saveStateviewState, viewState);
     }
 
     @Override
@@ -331,12 +362,15 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         if (savedInstanceState.containsKey(saveStateNewFileObj)) {
             newFileObj = savedInstanceState.getParcelable(saveStateNewFileObj);
         }
+        viewState = savedInstanceState.getParcelable(saveStateviewState);
     }
+
     //endregion
 
     //region Init----------------------
     private void initData() {
-        progress.setVisibility(View.VISIBLE);
+        viewState.isProgressVisible = true;
+        updateView();
         actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         PennStation.requestAction(PsFindClaimedProjAction.helper());
 
@@ -352,6 +386,10 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         adapter = new ProjListAdapter(this);
         recyclerView.setAdapter(adapter);
 
+        if (viewState.stateListData != null && !viewState.stateListData.isEmpty()) {
+            adapter.refreshView(viewState.stateListData);
+        }
+
         DelayedTextWatcher.OnTextChanged projSearchTextChanged = new DelayedTextWatcher.OnTextChanged() {
             @Override
             public void onTextChanged(String text) {
@@ -363,7 +401,11 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
             }
         };
         DelayedTextWatcher.addTo(searchView, projSearchTextChanged, 500);
+        updateView();
+        updateSnackbar();
+    }
 
+    private void initClickListeners() {
         syncFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -371,8 +413,6 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
             }
         });
     }
-
-
     //endregion
 
     //region View----------------------
@@ -381,11 +421,12 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         if (searchName.isEmpty()) {
             actionIdClaimedList = PennStation.requestAction(PsDbFindClaimedProjListAction.helper());
         } else if (searchName.length() < 3) {
-            snackbar = Snackbar.make(recyclerView, R.string.search_proj_hint, Snackbar.LENGTH_INDEFINITE);
-            snackbar.show();
+            viewState.snackbarMsg = getResources().getString(R.string.search_proj_hint);
+            updateSnackbar();
         } else {
             if (snackbar != null) {
-                snackbar.dismiss();
+                viewState.snackbarMsg = "";
+                updateSnackbar();
             }
 
             refreshFileList(searchName);
@@ -394,13 +435,15 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
     private void refreshFileList(String search) {
         actionIdFileList = PennStation.requestAction(PsFindFolderChildrenAction.helper(search, prefs.getBaseFolderId(), true));
-        progress.setVisibility(View.VISIBLE);
+        viewState.isProgressVisible = true;
+        updateView();
     }
     //endregion
 
     //region Helper----------------------
     private void attemptSync() {
-        progress.setVisibility(View.VISIBLE);
+        viewState.isProgressVisible = true;
+        updateView();
         PennStation.requestAction(PsUploadNewFileAction.helper(), longTaskQueue);
         PennStation.requestAction(PsUploadFileAction.helper(), longTaskQueue);
     }
@@ -427,6 +470,37 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
 
         startActivityForResult(chooserIntent, requestCode);
+    }
+
+    private void updateView() {
+        if (viewState.isSyncFabVisible) {
+            syncFab.setVisibility(View.VISIBLE);
+        } else {
+            syncFab.setVisibility(View.GONE);
+        }
+        if (viewState.isSyncBgVisible) {
+            syncBg.setVisibility(View.VISIBLE);
+        } else {
+            syncBg.setVisibility(View.GONE);
+        }
+        if (viewState.isProgressVisible) {
+            progress.setVisibility(View.VISIBLE);
+        } else {
+            progress.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateSnackbar() {
+        if (viewState.snackbarMsg != null) {
+            if (!viewState.snackbarMsg.isEmpty()) {
+                snackbar = Snackbar.make(recyclerView, viewState.snackbarMsg, Snackbar.LENGTH_INDEFINITE);
+                snackbar.show();
+            } else {
+                if(snackbar != null) {
+                    snackbar.dismiss();
+                }
+            }
+        }
     }
     //endregion
 
@@ -460,7 +534,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
             File localFile = UtilFile.getLocalFileWithExtension(FilenameUtils.removeExtension(newFileObj.title), BaseAction.MIME_JPEG);
             choosePicture(REQ_CODE_NEW_IMG, localFile);
         } else {
-            progress.setVisibility(View.VISIBLE);
+            viewState.isProgressVisible = true;
+            updateView();
             PennStation.requestAction(PsDbAddNewFileAction.helper(newFileObj));
         }
     }
@@ -473,7 +548,8 @@ public class ProjListActivity extends BaseActivity implements ProjClickInterface
 
     @Override
     public void openPoPdfClicked(FileObj fileObj) {
-        progress.setVisibility(View.VISIBLE);
+        viewState.isProgressVisible = true;
+        updateView();
         FileDownloadObj fileDownloadObj = new FileDownloadObj(fileObj.parent, fileObj.id, fileObj.title, fileObj.mime);
         actionIdDownload = PennStation.requestAction(PsDownloadFileAction.helper(fileDownloadObj, DownloadFileAction.ActionEnum.EDIT.name()));
     }

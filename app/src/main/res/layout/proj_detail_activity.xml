@@ -18,7 +18,7 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="@dimen/customActionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
@@ -93,18 +93,17 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:orientation="horizontal"
+        android:weightSum="@integer/proj_detail_weight_sum"
+        android:gravity="center"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler"
-            android:layout_width="match_parent"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
-            tools:listitem="@layout/item_proj_detail">
-
-        </android.support.v7.widget.RecyclerView>
-
-
+            android:layout_weight="@integer/proj_detail_weight"
+            tools:listitem="@layout/item_proj_detail" />
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
